@@ -202,7 +202,7 @@ void main() {
     // view vector in world space
     data.viewWorld = normalize(uCameraPosition - vPositionWorld);
 
-    data.NdotV = abs(dot(data.normalWorld, data.viewWorld)) + FLT_EPS;
+    data.NdotV = clamp(abs(dot(data.normalWorld, data.viewWorld)) + FLT_EPS, 0.0, 1.0);
 
     #ifdef USE_SHEEN
       getSheenColor(data);      

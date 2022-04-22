@@ -36,7 +36,6 @@ module.exports = /* glsl */ `
         float clearCoatNoV = data.NdotV;
         vec3 clearCoatR = data.reflectionWorld;
       #endif
-      clearCoatNoV = clamp(clearCoatNoV, 0.0, 1.0); //prevent black spots on Intel GPUs
       // The clear coat layer assumes an IOR of 1.5 (4% reflectance)
       float Fc = F_Schlick(0.04, 1.0, clearCoatNoV) * uClearCoat;
       float attenuation = 1.0 - Fc;

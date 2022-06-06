@@ -29,14 +29,6 @@ void main() {
   uv = (uv * levelSize - 0.5) / (levelSize - 1.0);
   uv *= levelSize;
   uv = (uv + vec2(hOffset, vOffset)) / width;
-  //gl_FragColor = texture2D(uSource, uv);
-  vec4 color = vec4(0.0);
-  color += texture2D(uSource, uv);
-  color += texture2D(uSource, uv + vec2(-1.0, 0.0)/levelSize);
-  color += texture2D(uSource, uv + vec2( 1.0, 0.0)/levelSize);
-  color += texture2D(uSource, uv + vec2( 0.0,-1.0)/levelSize);
-  color += texture2D(uSource, uv + vec2( 0.0, 1.0)/levelSize);
-  color /= 5.0;
-  gl_FragColor = color;
+  gl_FragColor = texture2D(uSource, uv);
 }
 `;

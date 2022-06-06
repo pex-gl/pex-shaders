@@ -33,7 +33,7 @@ void getNormal(inout PBRData data) {
     normalMap.y *= -1.0;
     normalView = perturb(normalMap, N, V, texCoord);
   #endif
-  data.normalView = normalView;  
+
   data.normalWorld = normalize(vec3(data.inverseViewMatrix * vec4(normalView, 0.0)));
 }
 // #elif defined(USE_DISPLACEMENT_MAP)

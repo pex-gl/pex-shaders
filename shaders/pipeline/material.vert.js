@@ -105,64 +105,20 @@ void main() {
   position.xyz += uDisplacement * h * normal;
 #endif
 
-
-
-#ifndef USE_SKIN
-  #ifdef USE_INSTANCED_SCALE
-    position.xyz *= aScale;
-  #endif
-
-  #ifdef USE_INSTANCED_ROTATION
-    mat4 rotationMat = quatToMat4(aRotation);
-    position = rotationMat * position;
-
-    normal = vec3(rotationMat * vec4(normal, 0.0));
-  #endif
-
-  #ifdef USE_INSTANCED_OFFSET
-    position.xyz += aOffset;
-  #endif
-
-  vec4 positionWorld = uModelMatrix * position;  
-  vNormalView = uNormalMatrix * normal;  
+#ifdef USE_INSTANCED_SCALE
+  position.xyz *= aScale;
 #endif
 
-#ifdef USE_SKIN
-  vec4 positionWorld = uModelMatrix * position;  
+#ifdef USE_INSTANCED_ROTATION
+  mat4 rotationMat = quatToMat4(aRotation);
+  position = rotationMat * position;
 
-  mat4 skinMat =
-    aWeight.x * uJointMat[int(aJoint.x)] +
-    aWeight.y * uJointMat[int(aJoint.y)] +
-    aWeight.z * uJointMat[int(aJoint.z)] +
-    aWeight.w * uJointMat[int(aJoint.w)];
+  normal = vec3(rotationMat * vec4(normal, 0.0));
+#endif
 
-  normal = vec3(skinMat * vec4(normal, 0.0));
-  
-  positionWorld = skinMat * position;
-
-  #ifdef USE_INSTANCED_SCALE
-  positionWorld.xyz *= aScale;
-  #endif
-
-  #ifdef USE_INSTANCED_ROTATION
-    mat4 rotationMat = quatToMat4(aRotation);
-    positionWorld = rotationMat * positionWorld;
-
-    normal = vec3(rotationMat * vec4(normal, 0.0));
-  #endif
-
-  #ifdef USE_INSTANCED_OFFSET
-  positionWorld.xyz += aOffset;
-  #endif
-
-  #ifdef USE_TANGENTS
-  tangent = skinMat * vec4(tangent.xyz, 0.0);
-  #endif    
-
-  vNormalView = vec3(uViewMatrix * vec4(normal, 0.0));
-#else
-  
-#endif  
+#ifdef USE_INSTANCED_OFFSET
+  position.xyz += aOffset;
+#endif
 
 #if defined(USE_VERTEX_COLORS) && defined(USE_INSTANCED_COLOR)
   vColor = aVertexColor * aColor;
@@ -176,21 +132,38 @@ void main() {
   #endif
 #endif
 
-  
+  vPositionWorld = vec3(uModelMatrix * position);
+  vPositionView = vec3(uViewMatrix * vec4(vPositionWorld, 1.0));
+
+#ifdef USE_SKIN
+   mat4 skinMat =
+    aWeight.x * uJointMat[int(aJoint.x)] +
+    aWeight.y * uJointMat[int(aJoint.y)] +
+    aWeight.z * uJointMat[int(aJoint.z)] +
+    aWeight.w * uJointMat[int(aJoint.w)];
+
+  vNormalView = vec3(uViewMatrix * skinMat * vec4(normal, 0.0));
+
+  #ifdef USE_TANGENTS
+    vTangentView.xyz = vec4(uViewMatrix * skinMat * vec4(tangent, 0.0));
+    vTangentView.w = tangent.w;
+  #endif
+
   vNormalWorld = normalize(vec3(uInverseViewMatrix * vec4(vNormalView, 0.0)));
 
-  vec4 positionView = uViewMatrix * positionWorld;
-  vec4 positionOut = uProjectionMatrix * positionView;
-
-  vPositionWorld = positionWorld.xyz / positionWorld.w;
-  vPositionView = positionView.xyz / positionView.w;
-  gl_Position = positionOut;
+  gl_Position = uProjectionMatrix * uViewMatrix * skinMat * position;
+#else
+  vNormalView = vec3(uNormalMatrix * normal);
 
   #ifdef USE_TANGENTS
     vTangentView.xyz = vec3(uNormalMatrix * tangent.xyz);
     vTangentView.w = tangent.w;
   #endif
-  
+
+  vNormalWorld = normalize(vec3(uInverseViewMatrix * vec4(vNormalView, 0.0)));
+
+  gl_Position = uProjectionMatrix * vec4(vPositionView, 1.0);
+#endif
   gl_PointSize = uPointSize;
 }
-`
+`;

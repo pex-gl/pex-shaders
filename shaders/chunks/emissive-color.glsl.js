@@ -23,21 +23,10 @@ export default /* glsl */ `
     #ifdef USE_EMISSIVE_COLOR
       data.emissiveColor *= uEmissiveIntensity * decode(uEmissiveColor, SRGB).rgb;
     #endif
-
-    #if defined(USE_INSTANCED_COLOR)
-      #if !defined(DEPTH_PASS_ONLY) && !defined(DEPTH_PRE_PASS_ONLY)
-        data.emissiveColor *= decode(vColor, 3).rgb;
-      #endif
-    #endif
   }
 #elif defined(USE_EMISSIVE_COLOR)
   void getEmissiveColor(inout PBRData data) {
     data.emissiveColor = uEmissiveIntensity * decode(uEmissiveColor, SRGB).rgb;
-    #if defined(USE_INSTANCED_COLOR)
-      #if !defined(DEPTH_PASS_ONLY) && !defined(DEPTH_PRE_PASS_ONLY)
-        data.emissiveColor *= decode(vColor, 3).rgb;
-      #endif
-    #endif
   }
 #else
   void getEmissiveColor(inout PBRData data) {

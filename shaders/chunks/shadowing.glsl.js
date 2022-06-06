@@ -11,7 +11,7 @@ export default /* glsl */ `
   //otho
   //z = (f - n) * (zn + (f + n)/(f-n))/2
   //http://www.ogldev.org/www/tutorial47/tutorial47.html
-  const float DEPTH_TOLERANCE = 0.001;
+  const float DEPTH_TOLERANCE = 0.000001;
 
   float ndcDepthToEyeSpace(float ndcDepth, float near, float far) {
     return (far - near) * (ndcDepth + (far + near) / (far - near)) / 2.0;

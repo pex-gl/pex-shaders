@@ -3,6 +3,52 @@ export default /* glsl */ `
   uniform float uClearCoat;
   uniform float uClearCoatRoughness;
 
+  #ifdef USE_CLEAR_COAT_MAP
+    uniform sampler2D uClearCoatMap;
+    uniform float uClearCoatMapScale;
+
+    #ifdef USE_CLEAR_COAT_MAP_TEX_COORD_TRANSFORM
+      uniform mat3 uClearCoatMapTexCoordTransform;
+    #endif
+
+    void getClearCoat(inout PBRData data) {
+      #ifdef USE_CLEAR_COAT_MAP_TEX_COORD_TRANSFORM
+        vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_MAP_TEX_COORD_INDEX, uClearCoatMapTexCoordTransform);
+      #else
+        vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_MAP_TEX_COORD_INDEX);
+      #endif
+
+      data.clearCoat = uClearCoat * texture2D(uClearCoatMap, texCoord).r;
+    }
+  #else
+    void getClearCoat(inout PBRData data) {
+      data.clearCoat = uClearCoat;
+    }
+  #endif
+
+  #ifdef USE_CLEAR_COAT_ROUGHNESS_MAP
+    uniform sampler2D uClearCoatRoughnessMap;
+    uniform float uClearCoatRoughnessMapScale;
+
+    #ifdef USE_CLEAR_COAT_ROUGHNESS_MAP_TEX_COORD_TRANSFORM
+      uniform mat3 uClearCoatRoughnessMapTexCoordTransform;
+    #endif
+
+    void getClearCoatRoughness(inout PBRData data) {
+      #ifdef USE_CLEAR_COAT_ROUGHNESS_MAP_TEX_COORD_TRANSFORM
+        vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_ROUGHNESS_MAP_TEX_COORD_INDEX, uClearCoatRoughnessMapTexCoordTransform);
+      #else
+        vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_ROUGHNESS_MAP_TEX_COORD_INDEX);
+      #endif
+
+      data.clearCoatRoughness = uClearCoatRoughness * texture2D(uClearCoatRoughnessMap, texCoord).g;
+    }
+  #else
+    void getClearCoatRoughness(inout PBRData data) {
+      data.clearCoatRoughness = uClearCoatRoughness;
+    }
+  #endif
+
   #ifdef USE_CLEAR_COAT_NORMAL_MAP
     uniform sampler2D uClearCoatNormalMap;
     uniform float uClearCoatNormalMapScale;
@@ -50,7 +96,7 @@ export default /* glsl */ `
 
 
   // IOR = 1.5, F0 = 0.04
-  // as material is no longer in contact with air we calculate new IOR on the 
+  // as material is no longer in contact with air we calculate new IOR on the
   // clear coat and material interface
   vec3 f0ClearCoatToSurface(const vec3 f0) {
     return saturate(f0 * (f0 * (0.941892 - 0.263008 * f0) + 0.346479) - 0.0285998);
@@ -65,7 +111,7 @@ export default /* glsl */ `
     float D = D_GGX(data.clearCoatLinearRoughness, clearCoatNoH, h, data.normalWorld);
     float V = V_Kelemen(LoH);
     // air-polyurethane interface has IOR = 1.5 -> F0 = 0.04
-    float F = F_Schlick(0.04, 1.0, LoH) * uClearCoat;
+    float F = F_Schlick(0.04, 1.0, LoH) * data.clearCoat;
 
     Fcc = F;
     return D * V * F;

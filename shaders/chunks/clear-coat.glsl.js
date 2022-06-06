@@ -1,4 +1,4 @@
-module.exports = /* glsl */ `
+export default /* glsl */ `
 #ifdef USE_CLEAR_COAT
   uniform float uClearCoat;
   uniform float uClearCoatRoughness;
@@ -71,4 +71,4 @@ module.exports = /* glsl */ `
     return D * V * F;
   }
 #endif
-`
+`;

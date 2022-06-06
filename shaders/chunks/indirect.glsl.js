@@ -1,4 +1,4 @@
-module.exports = /* glsl */ `
+export default /* glsl */ `
 #ifdef USE_REFLECTION_PROBES
   uniform sampler2D uReflectionMap;
   uniform int uReflectionMapEncoding;
@@ -53,14 +53,14 @@ module.exports = /* glsl */ `
     vec3 Fd = data.diffuseColor * diffuseIrradiance * ao;
 
     vec3 specularReflectance = EnvBRDFApprox(data.f0, data.roughness, data.NdotV);
-    vec3 prefilteredRadiance = getPrefilteredReflection(data.reflectionWorld, data.roughness);    
+    vec3 prefilteredRadiance = getPrefilteredReflection(data.reflectionWorld, data.roughness);
 
     vec3 Fr = specularReflectance * prefilteredRadiance * ao;
     Fr *= energyCompensation;
 
     // vec3 Fs = EvaluateSheen(data, NdotH, data.NdotV, NdotL);
     vec3 sheenReflectance = EnvBRDFApprox(data.sheenColor, data.sheenRoughness, data.NdotV);
-    vec3 sheenRadiance = getPrefilteredReflection(data.reflectionWorld, data.sheenRoughness);    
+    vec3 sheenRadiance = getPrefilteredReflection(data.reflectionWorld, data.sheenRoughness);
     // vec3 Fs = sheenRadiance + sheenReflectance * ao;
     vec3 Fs = vec3(0.0);
     data.sheen += Fs;
@@ -74,4 +74,4 @@ module.exports = /* glsl */ `
     data.indirectSpecular += Fs;
   }
 #endif
-`
+`;

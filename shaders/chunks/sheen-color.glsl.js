@@ -1,4 +1,4 @@
-module.exports = /* glsl */ `
+export default /* glsl */ `
 #ifdef USE_SHEEN
     uniform vec4 uSheenColor; // TODO: gltf assumes sRGB color, not linear
     uniform float uSheenRoughness;
@@ -28,7 +28,7 @@ module.exports = /* glsl */ `
         #if !defined(DEPTH_PASS_ONLY) && !defined(DEPTH_PRE_PASS_ONLY)
         data.sheenColor = decode(uSheenColor, 3).rgb;
         #endif
-        data.sheenRoughness = uSheenRoughness;    
+        data.sheenRoughness = uSheenRoughness;
     }
     #endif
 
@@ -65,4 +65,4 @@ module.exports = /* glsl */ `
         // https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_materials_sheen/README.md#albedo-scaling-technique
     }
 #endif
-`
+`;

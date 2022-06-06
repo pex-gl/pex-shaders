@@ -1,4 +1,4 @@
-module.exports = /* glsl */ `
+export default /* glsl */ `
 uniform vec4 uBaseColor; // TODO: gltf assumes sRGB color, not linear
 
 #ifdef USE_BASE_COLOR_MAP
@@ -14,7 +14,7 @@ uniform vec4 uBaseColor; // TODO: gltf assumes sRGB color, not linear
     #else
       vec2 texCoord = getTextureCoordinates(data, BASE_COLOR_MAP_TEX_COORD_INDEX);
     #endif
-    vec4 texelColor = texture2D(uBaseColorMap, texCoord);    
+    vec4 texelColor = texture2D(uBaseColorMap, texCoord);
 
     #if !defined(DEPTH_PASS_ONLY) && !defined(DEPTH_PRE_PASS_ONLY)
       data.baseColor = decode(uBaseColor, 3).rgb * decode(texelColor, 3).rgb;
@@ -45,4 +45,4 @@ uniform vec4 uBaseColor; // TODO: gltf assumes sRGB color, not linear
     #endif
   }
 #endif
-`
+`;

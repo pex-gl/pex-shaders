@@ -1,4 +1,4 @@
-module.exports = /* glsl */ `
+export default /* glsl */ `
 #ifdef USE_METALLIC_ROUGHNESS_WORKFLOW
   uniform float uMetallic;
   uniform float uRoughness;
@@ -75,4 +75,4 @@ module.exports = /* glsl */ `
     #endif
   #endif
 #endif
-`
+`;

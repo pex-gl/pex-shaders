@@ -1,6 +1,6 @@
-const SHADERS = require('../chunks/index.js')
+import SHADERS from "../chunks/index.js";
 
-module.exports = /* glsl */ `
+export default /* glsl */ `
 precision highp float;
 
 ${SHADERS.octMapUvToDir}
@@ -39,4 +39,4 @@ void main() {
   color /= 5.0;
   gl_FragColor = color;
 }
-`
+`;

@@ -1,11 +1,29 @@
 {
   "name": "pex-shaderlib",
   "version": "0.0.1",
-  "description": "GLSL snippets library",
+  "description": "Shader library for PEX.",
+  "keywords": [
+    "pex",
+    "shaderlib",
+    "webgl",
+    "shaders",
+    "glsl"
+  ],
+  "homepage": "https://github.com/pex-gl/pex-shaderlib",
+  "bugs": "https://github.com/pex-gl/pex-shaderlib/issues",
+  "repository": "pex-gl/pex-shaderlib",
+  "license": "MIT",
+  "author": "pex-gl (https://github.com/pex-gl)",
+  "type": "module",
+  "exports": "./index.js",
   "main": "index.js",
+  "types": "types/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "snowdev build",
+    "release": "snowdev release"
   },
-  "author": "",
-  "license": "ISC"
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  }
 }

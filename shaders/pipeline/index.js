@@ -7,6 +7,8 @@ import overlayFrag from "./overlay.frag.js";
 import overlayVert from "./overlay.vert.js";
 import helperFrag from "./helper.frag.js";
 import helperVert from "./helper.vert.js";
+import errorFrag from "./error.frag.js";
+import errorVert from "./error.vert.js";
 
 export default {
   depthPass: { vert: depthPassVert, frag: depthPassFrag },
@@ -14,4 +16,5 @@ export default {
   material: { vert: materialVert, frag: materialFrag },
   overlay: { vert: overlayVert, frag: overlayFrag },
   helper: { vert: helperVert, frag: helperFrag },
+  error: { vert: errorVert, frag: errorFrag },
 };

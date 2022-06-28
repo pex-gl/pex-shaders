@@ -31,7 +31,6 @@ console.log(pexShaderlib);
 
 <!-- api-start -->
 
-Auto-generated API content.
 
 <!-- api-end -->
 

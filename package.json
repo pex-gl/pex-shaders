@@ -1,5 +1,5 @@
 {
-  "name": "pex-shaderlib",
+  "name": "pex-shaders",
   "version": "0.1.0",
   "description": "Shader library for PEX.",
   "keywords": [
@@ -9,9 +9,9 @@
     "shaders",
     "glsl"
   ],
-  "homepage": "https://github.com/pex-gl/pex-shaderlib",
-  "bugs": "https://github.com/pex-gl/pex-shaderlib/issues",
-  "repository": "pex-gl/pex-shaderlib",
+  "homepage": "https://github.com/pex-gl/pex-shaders",
+  "bugs": "https://github.com/pex-gl/pex-shaders/issues",
+  "repository": "pex-gl/pex-shaders",
   "license": "MIT",
   "author": "pex-gl (https://github.com/pex-gl)",
   "type": "module",

@@ -83,9 +83,9 @@ vec3 PrefilterEnvMap( float roughness, vec3 R ) {
   const int NumSamples = 1024;
   float TotalWeight = 0.0;
   for( int i = 0; i < NumSamples; i++ ) {
-    // if (i > uNumSamples) {
-    //   break;
-    // }
+    if (i >= uNumSamples) {
+      break;
+    }
     vec2 Xi = Hammersley( i, uNumSamples );
     vec3 H = ImportanceSampleGGX( Xi, roughness, N );
     vec3 L = normalize(2.0 * dot( V, H ) * H - V);

@@ -13,7 +13,10 @@
   "bugs": "https://github.com/pex-gl/pex-shaders/issues",
   "repository": "pex-gl/pex-shaders",
   "license": "MIT",
-  "author": "pex-gl (https://github.com/pex-gl)",
+  "author": "Marcin Ignac <marcin.ignac@gmail.com> (http://marcinignac.com)",
+  "contributors": [
+    "Damien Seguin (https://github.com/dmnsgn)"
+  ],
   "type": "module",
   "exports": "./index.js",
   "main": "index.js",

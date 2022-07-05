@@ -5,7 +5,6 @@ export default /* glsl */ `
 
   #ifdef USE_CLEAR_COAT_MAP
     uniform sampler2D uClearCoatMap;
-    uniform float uClearCoatMapScale;
 
     #ifdef USE_CLEAR_COAT_MAP_TEX_COORD_TRANSFORM
       uniform mat3 uClearCoatMapTexCoordTransform;
@@ -28,7 +27,6 @@ export default /* glsl */ `
 
   #ifdef USE_CLEAR_COAT_ROUGHNESS_MAP
     uniform sampler2D uClearCoatRoughnessMap;
-    uniform float uClearCoatRoughnessMapScale;
 
     #ifdef USE_CLEAR_COAT_ROUGHNESS_MAP_TEX_COORD_TRANSFORM
       uniform mat3 uClearCoatRoughnessMapTexCoordTransform;

@@ -14,6 +14,7 @@ precision highp float;
 // most likely HDR or Texture2D with sRGB Ext
 uniform sampler2D uEnvMap;
 uniform int uEnvMapEncoding;
+uniform float uEnvMapSize;
 uniform int uOutputEncoding;
 uniform float uBackgroundBlur;
 
@@ -44,7 +45,7 @@ void main() {
   if (uBackgroundBlur <= 0.0) {
     color = decode(texture2D(uEnvMap, envMapEquirect(N)), uEnvMapEncoding);
   } else {
-    color = vec4(getIrradiance(N, uEnvMap, uEnvMapEncoding), 1.0);
+    color = vec4(getIrradiance(N, uEnvMap, uEnvMapSize, uEnvMapEncoding), 1.0);
   }
   #ifdef USE_TONEMAPPING
     if (uUseTonemapping) {
@@ -56,6 +57,7 @@ void main() {
   gl_FragData[0] = encode(color, uOutputEncoding);
   #ifdef USE_DRAW_BUFFERS
     gl_FragData[1] = vec4(0.0);
+    gl_FragData[2] = vec4(0.0);
   #endif
 }
 `;

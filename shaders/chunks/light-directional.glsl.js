@@ -25,13 +25,17 @@ void EvaluateDirectionalLight(inout PBRData data, DirectionalLight light, sample
 
   float illuminated = bool(light.castShadows) ? getShadow(shadowMap, light.shadowMapSize, lightUV, lightDistView - light.bias, light.near, light.far) : 1.0;
 
+  #ifndef USE_TRANSMISSION
   if (illuminated > 0.0) {
+  #endif
     Light l;
     l.l = -light.direction;
     l.color = light.color;
     l.attenuation = 1.0;
     getSurfaceShading(data, l, illuminated);
+  #ifndef USE_TRANSMISSION
   }
+  #endif
 }
 #endif
 `;

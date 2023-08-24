@@ -3,6 +3,8 @@ import SHADERS from "../chunks/index.js";
 export default /* glsl */ `
 precision highp float;
 
+${SHADERS.output.frag}
+
 ${SHADERS.math.PI}
 
 varying vec2 vTexCoord0;
@@ -46,5 +48,7 @@ void main() {
 
   sampledColor = PI * sampledColor / index;
   gl_FragColor = encode(vec4(sampledColor, 1.0), uOutputEncoding);
+
+  ${SHADERS.output.assignment}
 }
 `;

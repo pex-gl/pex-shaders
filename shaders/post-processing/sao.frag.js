@@ -3,11 +3,15 @@ import SHADERS from "../chunks/index.js";
 export default /* glsl */ `
 // https://gist.github.com/fisch0920/6770311
 // Updated by marcin.ignac@gmail.com 2017-05-08
-#ifdef USE_STANDARD_DERIVATIVES
-  #extension GL_OES_standard_derivatives : require
+#if (__VERSION__ < 300)
+  #ifdef USE_STANDARD_DERIVATIVES
+    #extension GL_OES_standard_derivatives : require
+  #endif
 #endif
 
 precision mediump float;
+
+${SHADERS.output.frag}
 
 // total number of samples at each fragment
 #define NUM_SAMPLES 11
@@ -190,5 +194,7 @@ void main() {
   occlusion = 1.0 - occlusion / (4.0 * float(NUM_SAMPLES));
   occlusion = clamp(pow(occlusion, 1.0 + uIntensity), 0.0, 1.0);
   gl_FragColor = vec4(occlusion, occlusion, occlusion, 1.0);
+
+  ${SHADERS.output.assignment}
 }
 `;

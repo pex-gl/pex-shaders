@@ -3,6 +3,8 @@ import SHADERS from "../chunks/index.js";
 export default /* glsl */ `
 precision highp float;
 
+${SHADERS.output.frag}
+
 // Variables
 varying vec2 vTexCoord0;
 uniform float uTextureSize;
@@ -111,5 +113,7 @@ void main() {
   vec3 normal = octMapUVToDir(vTexCoord0);
   vec3 color = PrefilterEnvMap(uRoughnessLevel / 5.0, normal, vTexCoord0);
   gl_FragColor = encode(vec4(color, 1.0), uOutputEncoding);
+
+  ${SHADERS.output.assignment}
 }
 `;

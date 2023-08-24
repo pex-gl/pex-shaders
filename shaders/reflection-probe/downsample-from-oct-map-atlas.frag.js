@@ -3,6 +3,8 @@ import SHADERS from "../chunks/index.js";
 export default /* glsl */ `
 precision highp float;
 
+${SHADERS.output.frag}
+
 varying vec2 vTexCoord0;
 
 // uniform float uLevelSize;
@@ -36,5 +38,7 @@ void main() {
   color += texture2D(uOctMapAtlas, uv + vec2( 0.0, 1.0)/levelSize);
   color /= 5.0;
   gl_FragColor = color;
+
+  ${SHADERS.output.assignment}
 }
 `;

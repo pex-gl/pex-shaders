@@ -3,6 +3,8 @@ import SHADERS from "../chunks/index.js";
 export default /* glsl */ `
 precision highp float;
 
+${SHADERS.output.frag}
+
 varying vec2 vTexCoord;
 
 uniform float near;
@@ -48,5 +50,7 @@ vec4 bilateralBlur(sampler2D image, vec2 imageResolution, sampler2D depthMap, ve
 void main() {
   vec2 vUV = vec2(gl_FragCoord.x / depthMapSize.x, gl_FragCoord.y / depthMapSize.y);
   gl_FragColor = bilateralBlur(image, imageSize, depthMap, depthMapSize, vUV, direction);
+
+  ${SHADERS.output.assignment}
 }
 `;

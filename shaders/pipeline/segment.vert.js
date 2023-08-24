@@ -1,4 +1,8 @@
+import SHADERS from "../chunks/index.js";
+
 export default /* glsl */ `
+${SHADERS.output.vert}
+
 attribute vec3 aPosition;
 attribute vec3 aPointA;
 attribute vec3 aPointB;

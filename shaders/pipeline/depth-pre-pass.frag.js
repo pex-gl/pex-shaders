@@ -3,6 +3,8 @@ import SHADERS from "../chunks/index.js";
 export default /* glsl */ `
 precision highp float;
 
+${SHADERS.output.frag}
+
 // Variables
 varying vec3 vNormalView;
 varying vec2 vTexCoord0;
@@ -25,6 +27,8 @@ struct PBRData {
 ${SHADERS.textureCoordinates}
 ${SHADERS.baseColor}
 ${SHADERS.alpha}
+
+#define HOOK_FRAG_DECLARATIONS_END
 
 void main() {
   PBRData data;
@@ -53,5 +57,9 @@ void main() {
   normal *= float(gl_FrontFacing) * 2.0 - 1.0;
 
   gl_FragColor = vec4(normal * 0.5 + 0.5, 1.0);
+
+  ${SHADERS.output.assignment}
+
+  #define HOOK_FRAG_END
 }
 `;

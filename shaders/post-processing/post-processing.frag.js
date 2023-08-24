@@ -3,6 +3,8 @@ import SHADERS from "../chunks/index.js";
 export default /* glsl */ `
 precision highp float;
 
+${SHADERS.output.frag}
+
 // Variables
 uniform vec2 uScreenSize;
 
@@ -78,5 +80,7 @@ void main() {
   color.rgb *= uExposure;
   color.rgb = tonemapUncharted2(color.rgb);
   gl_FragColor = encode(color, uOutputEncoding);
+
+  ${SHADERS.output.assignment}
 }
 `;

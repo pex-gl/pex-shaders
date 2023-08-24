@@ -1,3 +1,4 @@
+import output from "./output.glsl.js";
 import math from "./math.glsl.js";
 import encodeDecode from "./encode-decode.glsl.js";
 import rgbm from "./rgbm.glsl.js";
@@ -35,6 +36,7 @@ import tonemapUncharted2 from "./tonemap-uncharted2.glsl.js";
 import fxaa from "./fxaa.glsl.js";
 
 export default {
+  output,
   math,
 
   encodeDecode,

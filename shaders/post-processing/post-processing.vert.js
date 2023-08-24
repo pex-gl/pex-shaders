@@ -1,4 +1,8 @@
+import SHADERS from "../chunks/index.js";
+
 export default /* glsl */ `
+${SHADERS.output.vert}
+
 attribute vec2 aPosition;
 
 varying vec2 vTexCoord0;

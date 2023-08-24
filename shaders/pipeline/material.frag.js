@@ -1,15 +1,19 @@
 import SHADERS from "../chunks/index.js";
 
 export default /* glsl */ `
-#extension GL_OES_standard_derivatives : require
-#ifdef USE_TRANSMISSION
-  #extension GL_EXT_shader_texture_lod : require
-#endif
-#ifdef USE_DRAW_BUFFERS
-  #extension GL_EXT_draw_buffers : enable
+#if (__VERSION__ < 300)
+  #extension GL_OES_standard_derivatives : require
+  #ifdef USE_TRANSMISSION
+    #extension GL_EXT_shader_texture_lod : require
+  #endif
+  #ifdef USE_DRAW_BUFFERS
+    #extension GL_EXT_draw_buffers : enable
+  #endif
 #endif
 
 precision mediump float;
+
+${SHADERS.output.frag}
 
 // Variables
 uniform highp mat4 uInverseViewMatrix;
@@ -308,6 +312,8 @@ void main() {
   #ifdef USE_BLEND
     gl_FragData[0].a = data.opacity;
   #endif
+
+  ${SHADERS.output.assignment}
 
   #define HOOK_FRAG_END
 }

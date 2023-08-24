@@ -1,14 +1,22 @@
+import SHADERS from "../chunks/index.js";
+
 export default /* glsl */ `
-  attribute vec3 aPosition;
-  attribute vec4 aVertexColor;
+${SHADERS.output.vert}
 
-  uniform mat4 uProjectionMatrix;
-  uniform mat4 uViewMatrix;
+attribute vec3 aPosition;
+attribute vec4 aVertexColor;
 
-  varying vec4 vColor;
+uniform mat4 uProjectionMatrix;
+uniform mat4 uViewMatrix;
 
-  void main () {
-    vColor = aVertexColor;
-    gl_Position = uProjectionMatrix * uViewMatrix * vec4(aPosition, 1.0);
-  }
+varying vec4 vColor;
+
+#define HOOK_VERT_DECLARATIONS_END
+
+void main () {
+  vColor = aVertexColor;
+  gl_Position = uProjectionMatrix * uViewMatrix * vec4(aPosition, 1.0);
+
+  #define HOOK_VERT_END
+}
 `;

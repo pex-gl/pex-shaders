@@ -3,6 +3,8 @@ import SHADERS from "../chunks/index.js";
 export default /* glsl */ `
 precision highp float;
 
+${SHADERS.output.frag}
+
 ${SHADERS.math.PI}
 ${SHADERS.sky}
 ${SHADERS.rgbm}
@@ -41,5 +43,7 @@ void main() {
     gl_FragColor.rgb = color;
     gl_FragColor.a = 1.0;
   }
+
+  ${SHADERS.output.assignment}
 }
 `;

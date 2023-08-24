@@ -3,6 +3,8 @@ import SHADERS from "../chunks/index.js";
 export default /* glsl */ `
 precision highp float;
 
+${SHADERS.output.frag}
+
 // Variables
 varying vec3 vNormalView;
 varying vec2 vTexCoord0;
@@ -26,6 +28,8 @@ ${SHADERS.textureCoordinates}
 ${SHADERS.baseColor}
 ${SHADERS.alpha}
 ${SHADERS.depthPack}
+
+#define HOOK_FRAG_DECLARATIONS_END
 
 void main() {
   PBRData data;
@@ -52,5 +56,9 @@ void main() {
 
   float far = 10.0; // TODO: hardcoded far for depth pass
   gl_FragColor = packDepth(length(vPositionView) / far);
+
+  ${SHADERS.output.assignment}
+
+  #define HOOK_FRAG_END
 }
 `;

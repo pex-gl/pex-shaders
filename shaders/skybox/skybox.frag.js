@@ -1,11 +1,15 @@
 import SHADERS from "../chunks/index.js";
 
 export default /* glsl */ `
-#ifdef USE_DRAW_BUFFERS
-  #extension GL_EXT_draw_buffers : enable
+#if (__VERSION__ < 300)
+  #ifdef USE_DRAW_BUFFERS
+    #extension GL_EXT_draw_buffers : enable
+  #endif
 #endif
 
 precision highp float;
+
+${SHADERS.output.frag}
 
 #define USE_TONEMAPPING
 
@@ -59,5 +63,7 @@ void main() {
     gl_FragData[1] = vec4(0.0);
     gl_FragData[2] = vec4(0.0);
   #endif
+
+  ${SHADERS.output.assignment}
 }
 `;

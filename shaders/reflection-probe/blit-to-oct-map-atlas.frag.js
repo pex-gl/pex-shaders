@@ -1,5 +1,9 @@
+import SHADERS from "../chunks/index.js";
+
 export default /* glsl */ `
 precision highp float;
+
+${SHADERS.output.frag}
 
 varying vec2 vTexCoord0;
 
@@ -12,5 +16,7 @@ void main() {
   uv *= uSourceRegionSize / uOctMapSize;
 
   gl_FragColor = texture2D(uOctMap, uv);
+
+  ${SHADERS.output.assignment}
 }
 `;

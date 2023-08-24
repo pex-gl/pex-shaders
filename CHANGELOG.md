@@ -1,6 +1,22 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+
+# [1.0.0-alpha.0](https://github.com/pex-gl/pex-shaders/compare/v0.1.3...v1.0.0-alpha.0) (2023-08-24)
+
+
+### Features
+
+* add parser + add output chunk + fix extension declarations for VERSION < 300 + add missing hooks ([3ffe2c7](https://github.com/pex-gl/pex-shaders/commit/3ffe2c75c6d562c66d080bb080f0edf3c37927f2))
+* add segment shaders ([3aeeee6](https://github.com/pex-gl/pex-shaders/commit/3aeeee638620234530051237ca75125867da655a))
+* port back changes from pex-renderer v4 ([26dfff0](https://github.com/pex-gl/pex-shaders/commit/26dfff03a507724e9a68693f0e9f79d3edce13e0))
+
+
+### BREAKING CHANGES
+
+* shaders have version check + hooks
+
+
 
 ## [0.1.3](https://github.com/pex-gl/pex-shaders/compare/v0.1.2...v0.1.3) (2022-09-01)
 

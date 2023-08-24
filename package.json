@@ -1,11 +1,12 @@
 {
   "name": "pex-shaders",
   "version": "0.1.3",
-  "description": "Shader library for PEX.",
+  "description": "Shader library and manipulation for PEX.",
   "keywords": [
     "pex",
     "shaderlib",
     "webgl",
+    "webgl2",
     "shaders",
     "glsl"
   ],
@@ -17,16 +18,21 @@
   "contributors": [
     "Damien Seguin (https://github.com/dmnsgn)"
   ],
+  "sideEffects": false,
   "type": "module",
   "exports": "./index.js",
   "main": "index.js",
   "types": "types/index.d.ts",
   "scripts": {
     "build": "snowdev build",
+    "dev": "snowdev dev",
     "release": "snowdev release"
   },
   "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=7.0.0"
+    "node": ">=18.0.0",
+    "npm": ">=8.6.0"
+  },
+  "snowdev": {
+    "files": "{*.js,shaders/**/*.js}"
   }
 }

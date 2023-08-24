@@ -11,23 +11,18 @@ precision highp float;
 
 ${SHADERS.output.frag}
 
-#ifdef USE_DRAW_BUFFERS
-  ${SHADERS.gamma}
-  ${SHADERS.rgbm}
-  ${SHADERS.encodeDecode}
-  uniform int uOutputEncoding;
-#endif
+uniform vec4 uBaseColor;
 
 varying vec4 vColor;
 
 #define HOOK_FRAG_DECLARATIONS_END
 
-void main () {
+void main() {
+  gl_FragData[0] = uBaseColor * vColor;
+
   #ifdef USE_DRAW_BUFFERS
-    gl_FragData[0] = encode(vec4(vColor.rgb * 3.0, 1.0), uOutputEncoding);
     gl_FragData[1] = vec4(0.0);
-  #else
-    gl_FragData[0] = vColor;
+    gl_FragData[2] = vec4(0.0);
   #endif
 
   ${SHADERS.output.assignment}

@@ -1,5 +1,9 @@
+import SHADERS from "../chunks/index.js";
+
 export default /* glsl */ `
 precision highp float;
+
+${SHADERS.output.frag}
 
 varying vec2 vTexCoord;
 
@@ -34,5 +38,7 @@ void main() {
   }
 
   gl_FragColor += texture2D(emissiveTex, vUV);
+
+  ${SHADERS.output.assignment}
 }
 `;

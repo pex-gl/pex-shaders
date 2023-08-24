@@ -5,6 +5,8 @@ export default /* glsl */ `
 // http://blog.tuxedolabs.com/2018/05/04/bokeh-depth-of-field-in-single-pass.html
 precision highp float;
 
+${SHADERS.output.frag}
+
 varying vec2 vTexCoord0;
 uniform sampler2D image; //Image to be processed
 uniform vec2 imageSize;
@@ -104,6 +106,8 @@ void main () {
 
   vec3 color = depthOfField(vTexCoord0, focusDistance, maxCoC);
   gl_FragColor = vec4(color, 1.0);
+
+  ${SHADERS.output.assignment}
 }
 
 

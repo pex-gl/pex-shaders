@@ -1,7 +1,13 @@
+import SHADERS from "../chunks/index.js";
+
 export default /* glsl */ `
-#extension GL_EXT_shader_texture_lod : enable
+#if (__VERSION__ < 300)
+  #extension GL_EXT_shader_texture_lod : enable
+#endif
 
 precision highp float;
+
+${SHADERS.output.frag}
 
 varying vec2 vTexCoord0;
 
@@ -27,5 +33,7 @@ vec3 sampleBloom (sampler2D texture, vec2 uv) {
 void main () {
   gl_FragColor.rgb = sampleBloom(image, vTexCoord0);
   gl_FragColor.a = 1.0;
+
+  ${SHADERS.output.assignment}
 }
 `;

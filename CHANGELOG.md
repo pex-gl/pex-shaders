@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.1](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.0...v1.0.0-alpha.1) (2023-08-30)
+
+
+### Features
+
+* add basic shaders ([349e094](https://github.com/pex-gl/pex-shaders/commit/349e09465b84b71d30d0d28a8da0945b75dc6403))
+
+
+
 # [1.0.0-alpha.0](https://github.com/pex-gl/pex-shaders/compare/v0.1.3...v1.0.0-alpha.0) (2023-08-24)
 
 

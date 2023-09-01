@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.3](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.2...v1.0.0-alpha.3) (2023-09-01)
+
+
+### Features
+
+* rename map to texture and use _MATRIX and _TEX_COORD for texture defines ([ceef4dc](https://github.com/pex-gl/pex-shaders/commit/ceef4dcc31052e6710a499289ed6bf5fac1f67ae))
+
+
+
 # [1.0.0-alpha.2](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) (2023-08-30)
 
 

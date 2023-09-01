@@ -144,13 +144,13 @@ void main() {
 
     color = data.baseColor;
 
-    #ifdef USE_ALPHA_MAP
-      #ifdef USE_ALPHA_MAP_TEX_COORD_TRANSFORM
-        vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_MAP_TEX_COORD_INDEX, uAlphaMapTexCoordTransform);
+    #ifdef USE_ALPHA_TEXTURE
+      #ifdef USE_ALPHA_TEXTURE_MATRIX
+        vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_TEXTURE_TEX_COORD, uAlphaTextureMatrix);
       #else
-        vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_MAP_TEX_COORD_INDEX);
+        vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_TEXTURE_TEX_COORD);
       #endif
-      data.opacity *= texture2D(uAlphaMap, alphaTexCoord).r;
+      data.opacity *= texture2D(uAlphaTexture, alphaTexCoord).r;
     #endif
     #ifdef USE_ALPHA_TEST
       alphaTest(data);
@@ -193,13 +193,13 @@ void main() {
       data.diffuseColor = data.baseColor * (1.0 - data.metallic);
     #endif
 
-    #ifdef USE_ALPHA_MAP
-      #ifdef USE_ALPHA_MAP_TEX_COORD_TRANSFORM
-        vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_MAP_TEX_COORD_INDEX, uAlphaMapTexCoordTransform);
+    #ifdef USE_ALPHA_TEXTURE
+      #ifdef USE_ALPHA_TEXTURE_MATRIX
+        vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_TEXTURE_TEX_COORD, uAlphaTextureMatrix);
       #else
-        vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_MAP_TEX_COORD_INDEX);
+        vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_TEXTURE_TEX_COORD);
       #endif
-      data.opacity *= texture2D(uAlphaMap, alphaTexCoord).r;
+      data.opacity *= texture2D(uAlphaTexture, alphaTexCoord).r;
     #endif
     #ifdef USE_ALPHA_TEST
       alphaTest(data);
@@ -234,13 +234,13 @@ void main() {
     #endif
 
     float ao = 1.0;
-    #ifdef USE_OCCLUSION_MAP
-      #ifdef USE_OCCLUSION_MAP_TEX_COORD_TRANSFORM
-        vec2 aoTexCoord = getTextureCoordinates(data, OCCLUSION_MAP_TEX_COORD_INDEX, uOcclusionMapTexCoordTransform);
+    #ifdef USE_OCCLUSION_TEXTURE
+      #ifdef USE_OCCLUSION_TEXTURE_MATRIX
+        vec2 aoTexCoord = getTextureCoordinates(data, OCCLUSION_TEXTURE_TEX_COORD, uOcclusionTextureMatrix);
       #else
-        vec2 aoTexCoord = getTextureCoordinates(data, OCCLUSION_MAP_TEX_COORD_INDEX);
+        vec2 aoTexCoord = getTextureCoordinates(data, OCCLUSION_TEXTURE_TEX_COORD);
       #endif
-      ao *= texture2D(uOcclusionMap, aoTexCoord).r;
+      ao *= texture2D(uOcclusionTexture, aoTexCoord).r;
     #endif
     #ifdef USE_AO
       vec2 vUV = vec2(gl_FragCoord.x / uScreenSize.x, gl_FragCoord.y / uScreenSize.y);

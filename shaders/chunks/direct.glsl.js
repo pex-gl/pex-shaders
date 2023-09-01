@@ -75,7 +75,7 @@ void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
 
     // direct light still uses NdotL but clear coat needs separate dot product when using normal map
     // if only normal map is present not clear coat normal map, we will get smooth coating on top of bumpy surface
-    #if defined(USE_NORMAL_MAP) || defined(USE_CLEAR_COAT_NORMAL_MAP)
+    #if defined(USE_NORMAL_TEXTURE) || defined(USE_CLEAR_COAT_NORMAL_TEXTURE)
       float clearCoatNoL = saturate(dot(data.clearCoatNormal, light.l));
       color += clearCoat * clearCoatNoL;
     #else

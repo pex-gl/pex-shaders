@@ -29,7 +29,7 @@ import createContext from "pex-context";
 const ctx = createContext();
 
 const defines = [
-  "USE_BASE_COLOR_MAP",
+  "USE_BASE_COLOR_TEXTURE",
   // ...
 ];
 

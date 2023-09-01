@@ -4,21 +4,21 @@ export default /* glsl */ `
   uniform float uEmissiveIntensity;
 #endif
 
-#ifdef USE_EMISSIVE_COLOR_MAP
-  uniform sampler2D uEmissiveColorMap; //assumes sRGB color, not linear
+#ifdef USE_EMISSIVE_COLOR_TEXTURE
+  uniform sampler2D uEmissiveColorTexture; //assumes sRGB color, not linear
 
-  #ifdef USE_EMISSIVE_COLOR_MAP_TEX_COORD_TRANSFORM
-    uniform mat3 uEmissiveColorMapTexCoordTransform;
+  #ifdef USE_EMISSIVE_COLOR_TEXTURE_MATRIX
+    uniform mat3 uEmissiveColorTextureMatrix;
   #endif
 
   void getEmissiveColor(inout PBRData data) {
-    #ifdef USE_EMISSIVE_COLOR_MAP_TEX_COORD_TRANSFORM
-      vec2 texCoord = getTextureCoordinates(data, EMISSIVE_COLOR_MAP_TEX_COORD_INDEX, uEmissiveColorMapTexCoordTransform);
+    #ifdef USE_EMISSIVE_COLOR_TEXTURE_MATRIX
+      vec2 texCoord = getTextureCoordinates(data, EMISSIVE_COLOR_TEXTURE_TEX_COORD, uEmissiveColorTextureMatrix);
     #else
-      vec2 texCoord = getTextureCoordinates(data, EMISSIVE_COLOR_MAP_TEX_COORD_INDEX);
+      vec2 texCoord = getTextureCoordinates(data, EMISSIVE_COLOR_TEXTURE_TEX_COORD);
     #endif
 
-    data.emissiveColor = decode(texture2D(uEmissiveColorMap, texCoord), SRGB).rgb;
+    data.emissiveColor = decode(texture2D(uEmissiveColorTexture, texCoord), SRGB).rgb;
 
     #ifdef USE_EMISSIVE_COLOR
       data.emissiveColor *= uEmissiveIntensity * decode(uEmissiveColor, SRGB).rgb;

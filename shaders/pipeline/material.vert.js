@@ -47,8 +47,8 @@ attribute vec4 aVertexColor;
 varying vec4 vColor;
 #endif
 
-#ifdef USE_DISPLACEMENT_MAP
-uniform sampler2D uDisplacementMap;
+#ifdef USE_DISPLACEMENT_TEXTURE
+uniform sampler2D uDisplacementTexture;
 uniform mediump float uDisplacement;
 #endif
 
@@ -106,8 +106,8 @@ void main() {
 
 #define HOOK_VERT_BEFORE_TRANSFORM
 
-#ifdef USE_DISPLACEMENT_MAP
-  float h = texture2D(uDisplacementMap, aTexCoord0).r;
+#ifdef USE_DISPLACEMENT_TEXTURE
+  float h = texture2D(uDisplacementTexture, aTexCoord0).r;
   position.xyz += uDisplacement * h * normal;
 #endif
 

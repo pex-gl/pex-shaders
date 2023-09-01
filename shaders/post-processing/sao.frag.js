@@ -25,7 +25,7 @@ ${SHADERS.output.frag}
 #define PI 3.14159265359
 
 uniform sampler2D uDepthMap;
-uniform sampler2D uNormalMap;
+uniform sampler2D uNormalTexture;
 uniform sampler2D uNoiseMap;
 
 uniform float uFOV;
@@ -161,7 +161,7 @@ void main() {
   vec2 vUV = vec2(gl_FragCoord.x / uScreenSize.x, gl_FragCoord.y / uScreenSize.y);
   vec3 originVS = getPositionVS(vUV);
 
-  vec3 normalVS = texture2D(uNormalMap, vUV).rgb * 2.0 - 1.0;
+  vec3 normalVS = texture2D(uNormalTexture, vUV).rgb * 2.0 - 1.0;
 
   vec3 sampleNoise = texture2D(uNoiseMap, vUV * uNoiseScale).xyz;
 

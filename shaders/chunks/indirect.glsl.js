@@ -30,7 +30,7 @@ export default /* glsl */ `
   #if defined(USE_CLEAR_COAT)
     // https://google.github.io/filament/Filament.md.html#lighting/imagebasedlights/clearcoat
     void evaluateClearCoatIBL(const PBRData data, float ao, inout vec3 Fd, inout vec3 Fr) {
-      #if defined(USE_NORMAL_MAP) || defined(USE_CLEAR_COAT_NORMAL_MAP)
+      #if defined(USE_NORMAL_TEXTURE) || defined(USE_CLEAR_COAT_NORMAL_TEXTURE)
         float clearCoatNoV = abs(dot(data.clearCoatNormal, data.viewWorld)) + FLT_EPS;
         vec3 clearCoatR = reflect(-data.viewWorld, data.clearCoatNormal);
       #else

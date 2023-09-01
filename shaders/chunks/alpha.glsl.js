@@ -1,9 +1,9 @@
 export default /* glsl */ `
-#ifdef USE_ALPHA_MAP
-  uniform sampler2D uAlphaMap;
+#ifdef USE_ALPHA_TEXTURE
+  uniform sampler2D uAlphaTexture;
 
-  #ifdef USE_ALPHA_MAP_TEX_COORD_TRANSFORM
-    uniform mat3 uAlphaMapTexCoordTransform;
+  #ifdef USE_ALPHA_TEXTURE_MATRIX
+    uniform mat3 uAlphaTextureMatrix;
   #endif
 #endif
 

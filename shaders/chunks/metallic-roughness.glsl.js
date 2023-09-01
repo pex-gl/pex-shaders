@@ -8,22 +8,22 @@ export default /* glsl */ `
   // This could be 0.045 when using single precision float fp32
   #define MIN_ROUGHNESS 0.089
 
-  #ifdef USE_METALLIC_ROUGHNESS_MAP
+  #ifdef USE_METALLIC_ROUGHNESS_TEXTURE
     // R = ?, G = roughness, B = metallic
-    uniform sampler2D uMetallicRoughnessMap;
+    uniform sampler2D uMetallicRoughnessTexture;
 
-    #ifdef USE_METALLIC_ROUGHNESS_MAP_TEX_COORD_TRANSFORM
-      uniform mat3 uMetallicRoughnessMapTexCoordTransform;
+    #ifdef USE_METALLIC_ROUGHNESS_TEXTURE_MATRIX
+      uniform mat3 uMetallicRoughnessTextureMatrix;
     #endif
 
     // TODO: sampling the same texture twice
     void getMetallic(inout PBRData data) {
-      #ifdef USE_METALLIC_ROUGHNESS_MAP_TEX_COORD_TRANSFORM
-        vec2 texCoord = getTextureCoordinates(data, METALLIC_ROUGHNESS_MAP_TEX_COORD_INDEX, uMetallicRoughnessMapTexCoordTransform);
+      #ifdef USE_METALLIC_ROUGHNESS_TEXTURE_MATRIX
+        vec2 texCoord = getTextureCoordinates(data, METALLIC_ROUGHNESS_TEXTURE_TEX_COORD, uMetallicRoughnessTextureMatrix);
       #else
-        vec2 texCoord = getTextureCoordinates(data, METALLIC_ROUGHNESS_MAP_TEX_COORD_INDEX);
+        vec2 texCoord = getTextureCoordinates(data, METALLIC_ROUGHNESS_TEXTURE_TEX_COORD);
       #endif
-      vec4 texelColor = texture2D(uMetallicRoughnessMap, texCoord);
+      vec4 texelColor = texture2D(uMetallicRoughnessTexture, texCoord);
       data.metallic = uMetallic * texelColor.b;
       data.roughness = uRoughness * texelColor.g;
     }
@@ -32,20 +32,20 @@ export default /* glsl */ `
       // NOP, already read in getMetallic
     }
   #else
-    #ifdef USE_METALLIC_MAP
-      uniform sampler2D uMetallicMap; //assumes linear, TODO: check gltf
+    #ifdef USE_METALLIC_TEXTURE
+      uniform sampler2D uMetallicTexture; //assumes linear, TODO: check gltf
 
-      #ifdef USE_METALLIC_MAP_TEX_COORD_TRANSFORM
-        uniform mat3 uMetallicMapTexCoordTransform;
+      #ifdef USE_METALLIC_TEXTURE_MATRIX
+        uniform mat3 uMetallicTextureMatrix;
       #endif
 
       void getMetallic(inout PBRData data) {
-        #ifdef USE_METALLIC_MAP_TEX_COORD_TRANSFORM
-          vec2 texCoord = getTextureCoordinates(data, METALLIC_MAP_TEX_COORD_INDEX, uMetallicMapTexCoordTransform);
+        #ifdef USE_METALLIC_TEXTURE_MATRIX
+          vec2 texCoord = getTextureCoordinates(data, METALLIC_TEXTURE_TEX_COORD, uMetallicTextureMatrix);
         #else
-          vec2 texCoord = getTextureCoordinates(data, METALLIC_MAP_TEX_COORD_INDEX);
+          vec2 texCoord = getTextureCoordinates(data, METALLIC_TEXTURE_TEX_COORD);
         #endif
-        data.metallic = uMetallic * texture2D(uMetallicMap, texCoord).r;
+        data.metallic = uMetallic * texture2D(uMetallicTexture, texCoord).r;
       }
     #else
       void getMetallic(inout PBRData data) {
@@ -53,21 +53,21 @@ export default /* glsl */ `
       }
     #endif
 
-    #ifdef USE_ROUGHNESS_MAP
-      uniform sampler2D uRoughnessMap; //assumes linear, TODO: check glTF
+    #ifdef USE_ROUGHNESS_TEXTURE
+      uniform sampler2D uRoughnessTexture; //assumes linear, TODO: check glTF
 
-      #ifdef USE_ROUGHNESS_MAP_TEX_COORD_TRANSFORM
-        uniform mat3 uRoughnessMapTexCoordTransform;
+      #ifdef USE_ROUGHNESS_TEXTURE_MATRIX
+        uniform mat3 uRoughnessTextureMatrix;
       #endif
 
       void getRoughness(inout PBRData data) {
 
-        #ifdef USE_ROUGHNESS_MAP_TEX_COORD_TRANSFORM
-          vec2 texCoord = getTextureCoordinates(data, ROUGHNESS_MAP_TEX_COORD_INDEX, uRoughnessMapTexCoordTransform);
+        #ifdef USE_ROUGHNESS_TEXTURE_MATRIX
+          vec2 texCoord = getTextureCoordinates(data, ROUGHNESS_TEXTURE_TEX_COORD, uRoughnessTextureMatrix);
         #else
-          vec2 texCoord = getTextureCoordinates(data, ROUGHNESS_MAP_TEX_COORD_INDEX);
+          vec2 texCoord = getTextureCoordinates(data, ROUGHNESS_TEXTURE_TEX_COORD);
         #endif
-        data.roughness = uRoughness * texture2D(uRoughnessMap, texCoord).r + 0.01;
+        data.roughness = uRoughness * texture2D(uRoughnessTexture, texCoord).r + 0.01;
       }
     #else
       void getRoughness(inout PBRData data) {

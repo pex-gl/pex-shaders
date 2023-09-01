@@ -3,20 +3,20 @@ export default /* glsl */ `
     uniform vec4 uSheenColor; // TODO: gltf assumes sRGB color, not linear
     uniform float uSheenRoughness;
 
-    #ifdef USE_SHEEN_COLOR_MAP
-    uniform sampler2D uSheenColorMap; // assumes sRGB color, not linear
+    #ifdef USE_SHEEN_COLOR_TEXTURE
+    uniform sampler2D uSheenColorTexture; // assumes sRGB color, not linear
 
-    #ifdef USE_SHEEN_COLOR_MAP_TEX_COORD_TRANSFORM
-        uniform mat3 uSheenColorMapTexCoordTransform;
+    #ifdef USE_SHEEN_COLOR_TEXTURE_MATRIX
+        uniform mat3 uSheenColorTextureMatrix;
     #endif
 
     void getSheenColor(inout PBRData data) {
-        #ifdef USE_SHEEN_COLOR_MAP_TEX_COORD_TRANSFORM
-        vec2 texCoord = getTextureCoordinates(data, SHEEN_COLOR_MAP_TEX_COORD_INDEX, uSheenColorMapTexCoordTransform);
+        #ifdef USE_SHEEN_COLOR_TEXTURE_MATRIX
+        vec2 texCoord = getTextureCoordinates(data, SHEEN_COLOR_TEXTURE_TEX_COORD, uSheenColorTextureMatrix);
         #else
-        vec2 texCoord = getTextureCoordinates(data, SHEEN_COLOR_MAP_TEX_COORD_INDEX);
+        vec2 texCoord = getTextureCoordinates(data, SHEEN_COLOR_TEXTURE_TEX_COORD);
         #endif
-        vec4 texelColor = texture2D(uSheenColorMap, texCoord);
+        vec4 texelColor = texture2D(uSheenColorTexture, texCoord);
 
         #if !defined(DEPTH_PASS_ONLY) && !defined(DEPTH_PRE_PASS_ONLY)
         data.sheenColor = decode(uSheenColor, 3).rgb * decode(texelColor, 3).rgb;

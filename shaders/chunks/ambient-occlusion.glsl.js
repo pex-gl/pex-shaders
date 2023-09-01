@@ -4,11 +4,11 @@ export default /* glsl */ `
   uniform vec2 uScreenSize;
 #endif
 
-#ifdef USE_OCCLUSION_MAP
-  uniform sampler2D uOcclusionMap;
+#ifdef USE_OCCLUSION_TEXTURE
+  uniform sampler2D uOcclusionTexture;
 
-  #ifdef USE_OCCLUSION_MAP_TEX_COORD_TRANSFORM
-    uniform mat3 uOcclusionMapTexCoordTransform;
+  #ifdef USE_OCCLUSION_TEXTURE_MATRIX
+    uniform mat3 uOcclusionTextureMatrix;
   #endif
 #endif
 `;

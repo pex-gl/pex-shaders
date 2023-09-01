@@ -54,8 +54,7 @@ void main() {
     alphaTest(data);
   #endif
 
-  float far = 10.0; // TODO: hardcoded far for depth pass
-  gl_FragColor = packDepth(length(vPositionView) / far);
+  gl_FragColor = packDepth(length(vPositionView) / DEPTH_PACK_FAR);
 
   ${SHADERS.output.assignment}
 

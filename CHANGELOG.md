@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.4](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2023-09-01)
+
+
+### Features
+
+* add PCF support to point light + fix cropped point light ([8f631d6](https://github.com/pex-gl/pex-shaders/commit/8f631d60b76dd0e2faa404ea852768538f990f32))
+
+
+
 # [1.0.0-alpha.3](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.2...v1.0.0-alpha.3) (2023-09-01)
 
 

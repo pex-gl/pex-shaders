@@ -5,18 +5,21 @@ precision highp float;
 
 ${SHADERS.output.frag}
 
+uniform int uOutputEncoding;
+uniform vec3 uSunPosition;
+
+varying vec2 vTexCoord0;
+
 ${SHADERS.math.PI}
 ${SHADERS.sky}
 ${SHADERS.rgbm}
 ${SHADERS.gamma}
 ${SHADERS.encodeDecode}
-
-uniform vec3 uSunPosition;
-
-varying vec2 vTexCoord0;
-uniform bool uRGBM;
+${SHADERS.tonemapUncharted2}
 
 void main() {
+  vec4 color = vec4(0.0);
+
   //Texture coordinates to Normal is Based on
   //http://gl.ict.usc.edu/Data/HighResProbes/
   // u=[0,2], v=[0,1],
@@ -29,20 +32,18 @@ void main() {
   float theta = PI * (u * 2.0 - 1.0);
   float phi = PI * v;
 
-  float x = sin(phi) * sin(theta);
-  float y = cos(phi);
-  float z = -sin(phi) * cos(theta);
+  vec3 N = vec3(
+    sin(phi) * sin(theta),
+    cos(phi),
+    -sin(phi) * cos(theta)
+  );
 
-  vec3 N = vec3(x, y, z);
+  color.rgb = sky(uSunPosition, N);
+  color.rgb = tonemapUncharted2(color.rgb);
+  color.rgb = toLinear(color.rgb);
+  color.a = 1.0;
 
-  vec3 color = sky(uSunPosition, N);
-
-   if (uRGBM) {
-     gl_FragColor = encodeRGBM(color);
-  } else {
-    gl_FragColor.rgb = color;
-    gl_FragColor.a = 1.0;
-  }
+  gl_FragData[0] = encode(color, uOutputEncoding);
 
   ${SHADERS.output.assignment}
 }

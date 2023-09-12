@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.5](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.4...v1.0.0-alpha.5) (2023-09-12)
+
+
+### Features
+
+* move tonemapping and encoding out of sky chunk ([207c0b7](https://github.com/pex-gl/pex-shaders/commit/207c0b7a02554cfe7ddaaa4cc992edfe9fc51692))
+
+
+
 # [1.0.0-alpha.4](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2023-09-01)
 
 

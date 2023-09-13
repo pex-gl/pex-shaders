@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.6](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.5...v1.0.0-alpha.6) (2023-09-13)
+
+
+### Bug Fixes
+
+* add draw buffers preprocessor to error ([7eac94e](https://github.com/pex-gl/pex-shaders/commit/7eac94ef91e08d86532ed94329c93fc086c98b04))
+
+
+
 # [1.0.0-alpha.5](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.4...v1.0.0-alpha.5) (2023-09-12)
 
 

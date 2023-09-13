@@ -1,6 +1,12 @@
 import SHADERS from "../chunks/index.js";
 
 export default /* glsl */ `
+#if (__VERSION__ < 300)
+  #ifdef USE_DRAW_BUFFERS
+    #extension GL_EXT_draw_buffers : enable
+  #endif
+#endif
+
 precision mediump float;
 
 ${SHADERS.output.frag}

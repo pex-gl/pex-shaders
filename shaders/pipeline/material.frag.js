@@ -94,6 +94,8 @@ struct PBRData {
 // Includes
 ${SHADERS.math.PI}
 ${SHADERS.math.saturate}
+${SHADERS.math.transposeMat3}
+${SHADERS.math.multQuat}
 ${SHADERS.rgbm}
 ${SHADERS.gamma}
 ${SHADERS.encodeDecode}

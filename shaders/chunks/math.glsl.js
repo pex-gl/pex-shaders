@@ -178,6 +178,11 @@ mat4 inverse(mat4 m) {
 }
 #endif
 `;
+const random = /* glsl */ `
+float rand(vec2 seed) {
+	return fract(sin(dot(seed ,vec2(12.9898,78.233))) * 43758.5453); // * 1231534.9);
+}
+`;
 
 export default {
   PI,
@@ -188,4 +193,5 @@ export default {
   transposeMat3,
   transposeMat4,
   inverseMat4,
+  random,
 };

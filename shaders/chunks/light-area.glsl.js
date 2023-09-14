@@ -4,13 +4,22 @@ export default /* glsl */ `
 struct AreaLight {
   vec3 position;
   vec4 color;
-  vec4 rotation; // TODO: direction?
+  vec4 rotation;
   vec2 size;
   bool disk;
   bool doubleSided;
+
+  mat4 projectionMatrix;
+  mat4 viewMatrix;
+  bool castShadows;
+  float near;
+  float far;
+  float bias;
+  vec2 shadowMapSize;
 };
 
 uniform AreaLight uAreaLights[NUM_AREA_LIGHTS];
+uniform sampler2D uAreaLightShadowMaps[NUM_AREA_LIGHTS];
 
 // Real-Time Polygonal-Light Shading with Linearly Transformed Cosines.
 // Eric Heitz, Jonathan Dupuy, Stephen Hill and David Neubelt.
@@ -105,12 +114,6 @@ void Halton2D(out vec2 s[NUM_SAMPLES], int offset)
         s[i].x = Halton(i + offset, 2.0);
         s[i].y = Halton(i + offset, 3.0);
     }
-}
-
-// TODO: replace this
-float rand(vec2 co)
-{
-    return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
 Disk InitDisk(vec3 center, vec3 dirx, vec3 diry, float halfx, float halfy)
@@ -623,63 +626,75 @@ vec3 LTC_Evaluate(
     return Lo_i;
 }
 
-void EvaluateAreaLight(inout PBRData data, AreaLight light, float ao) {
-  vec3 pos = data.positionWorld;
-  vec3 N = data.normalWorld;
-  vec3 V = -normalize(pos - uCameraPosition);
-  float roughness = data.roughness;
+void EvaluateAreaLight(inout PBRData data, AreaLight light, sampler2D shadowMap, float ao) {
+  vec4 lightViewPosition = light.viewMatrix * vec4(vPositionWorld, 1.0); // TODO: move in the vertex shader
+  float lightDistView = -lightViewPosition.z;
+  vec4 lightDeviceCoordsPosition = light.projectionMatrix * lightViewPosition;
+  vec3 lightDeviceCoordsPositionNormalized = lightDeviceCoordsPosition.xyz / lightDeviceCoordsPosition.w;
+  vec2 lightUV = lightDeviceCoordsPositionNormalized.xy * 0.5 + 0.5;
 
-  vec3 ex = multQuat(vec3(1, 0, 0), light.rotation) * light.size.x;
-  vec3 ey = multQuat(vec3(0, 1, 0), light.rotation) * light.size.y;
+  float illuminated = bool(light.castShadows)
+    ? getShadow(shadowMap, light.shadowMapSize, lightUV, lightDistView - light.bias, light.near, light.far)
+    : 1.0;
 
-  vec3 points[4];
-  points[0] = light.position - ex + ey;
-  points[1] = light.position + ex + ey;
-  points[2] = light.position + ex - ey;
-  points[3] = light.position - ex - ey;
+  if (illuminated > 0.0) {
+    vec3 pos = data.positionWorld;
+    vec3 N = data.normalWorld;
+    vec3 V = -normalize(pos - uCameraPosition);
+    float roughness = data.roughness;
 
-  float u1;
-  float u2;
-  if (light.disk) {
-    vec2 seq[NUM_SAMPLES];
-    Halton2D(seq, sampleCount);
+    vec3 ex = multQuat(vec3(1, 0, 0), light.rotation) * light.size.x;
+    vec3 ey = multQuat(vec3(0, 1, 0), light.rotation) * light.size.y;
 
-    u1 = rand(gl_FragCoord.xy*0.01);
-    u2 = rand(gl_FragCoord.yx*0.01);
+    vec3 points[4];
+    points[0] = light.position - ex + ey;
+    points[1] = light.position + ex + ey;
+    points[2] = light.position + ex - ey;
+    points[3] = light.position - ex - ey;
 
-    u1 = fract(u1 + seq[0].x);
-    u2 = fract(u2 + seq[0].y);
+    float u1;
+    float u2;
+    if (light.disk) {
+      vec2 seq[NUM_SAMPLES];
+      Halton2D(seq, sampleCount);
+
+      u1 = rand(gl_FragCoord.xy*0.01);
+      u2 = rand(gl_FragCoord.yx*0.01);
+
+      u1 = fract(u1 + seq[0].x);
+      u2 = fract(u2 + seq[0].y);
+    }
+
+    float ndotv = saturate(dot(N, V));
+    vec2 uv = vec2(roughness, sqrt(1.0 - ndotv));
+    uv = uv * LUT_SCALE + LUT_BIAS;
+
+    vec4 t1 = texture2D(ltc_1, uv);
+    vec4 t2 = texture2D(ltc_2, uv);
+
+    mat3 Minv = mat3(
+      vec3(t1.x, 0, t1.y),
+      vec3(  0,  1,    0),
+      vec3(t1.z, 0, t1.w)
+    );
+
+    vec3 spec = light.disk
+      ? LTC_Evaluate(N, V, pos, Minv, points, light.doubleSided, u1, u2)
+      : LTC_Evaluate(N, V, pos, Minv, points, light.doubleSided);
+    spec *= data.f0 * t2.x + (1.0 - data.f0) * t2.y;
+
+    vec3 diff = light.disk
+      ? LTC_Evaluate(N, V, pos, mat3(1), points, light.doubleSided, u1, u2)
+      : LTC_Evaluate(N, V, pos, mat3(1), points, light.doubleSided);
+
+    // spec *= scol * t2.x + (1.0 - scol) * t2.y;
+    // col = lcol*(spec + dcol*diff);
+    // data.indirectSpecular += ao * col;
+
+    vec3 lightColor = decode(light.color, 3).rgb;
+    data.directColor += illuminated * ao * lightColor * data.baseColor * diff;
+    data.indirectSpecular += illuminated * ao * lightColor * spec;
   }
-
-  float ndotv = saturate(dot(N, V));
-  vec2 uv = vec2(roughness, sqrt(1.0 - ndotv));
-  uv = uv * LUT_SCALE + LUT_BIAS;
-
-  vec4 t1 = texture2D(ltc_1, uv);
-  vec4 t2 = texture2D(ltc_2, uv);
-
-  mat3 Minv = mat3(
-    vec3(t1.x, 0, t1.y),
-    vec3(  0,  1,    0),
-    vec3(t1.z, 0, t1.w)
-  );
-
-  vec3 spec = light.disk
-    ? LTC_Evaluate(N, V, pos, Minv, points, light.doubleSided, u1, u2)
-    : LTC_Evaluate(N, V, pos, Minv, points, light.doubleSided);
-  spec *= data.f0 * t2.x + (1.0 - data.f0) * t2.y;
-
-  vec3 diff = light.disk
-    ? LTC_Evaluate(N, V, pos, mat3(1), points, light.doubleSided, u1, u2)
-    : LTC_Evaluate(N, V, pos, mat3(1), points, light.doubleSided);
-
-  // spec *= scol * t2.x + (1.0 - scol) * t2.y;
-  // col = lcol*(spec + dcol*diff);
-  // data.indirectSpecular += ao * col;
-
-  vec3 lightColor = decode(light.color, 3).rgb;
-  data.directColor += ao * lightColor * data.baseColor * diff;
-  data.indirectSpecular += ao * lightColor * spec;
 }
 #endif
 `;

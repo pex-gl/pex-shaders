@@ -2,7 +2,7 @@ export default /* glsl */ `
 
 const float DEPTH_TOLERANCE = 0.001;
 
-#if NUM_DIRECTIONAL_LIGHTS > 0 || NUM_SPOT_LIGHTS > 0
+#if NUM_DIRECTIONAL_LIGHTS > 0 || NUM_SPOT_LIGHTS > 0 || NUM_AREA_LIGHTS > 0
 
   //fron depth buf normalized z to linear (eye space) z
   //http://stackoverflow.com/questions/6652253/getting-the-true-z-value-from-the-depth-buffer
@@ -44,14 +44,6 @@ const float DEPTH_TOLERANCE = 0.001;
     float c = mix(a, b, f.x);
 
     return c;
-  }
-
-  float rand(float seed) {
-      return fract(sin(seed) * 1231534.9);
-  }
-
-  float rand(vec2 seed) {
-      return rand(dot(seed, vec2(12.9898, 783.233)));
   }
 
   //random vector with length 1

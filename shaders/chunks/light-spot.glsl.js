@@ -36,10 +36,8 @@ void EvaluateSpotLight(inout PBRData data, SpotLight light, sampler2D shadowMap)
     float attenuation = getDistanceAttenuation(posToLight, invSqrFalloff);
 
     // TODO: luminous power to intensity
-    float innerAngle = light.innerAngle;
     float cosOuter = cos(light.angle);
-    float cosInner = cos(innerAngle);
-    float cosOuterSquared = cosOuter * cosOuter;
+    float cosInner = cos(light.innerAngle);
     float scale = 1.0 / max(1.0 / 1024.0, cosInner - cosOuter);
     float offset = -cosOuter * scale;
 

@@ -96,6 +96,7 @@ ${SHADERS.math.PI}
 ${SHADERS.math.saturate}
 ${SHADERS.math.transposeMat3}
 ${SHADERS.math.multQuat}
+${SHADERS.math.random}
 ${SHADERS.rgbm}
 ${SHADERS.gamma}
 ${SHADERS.encodeDecode}
@@ -282,7 +283,7 @@ void main() {
     #if NUM_AREA_LIGHTS > 0
       #pragma unroll_loop
       for (int i = 0; i < NUM_AREA_LIGHTS; i++) {
-        EvaluateAreaLight(data, uAreaLights[i], ao);
+        EvaluateAreaLight(data, uAreaLights[i], uAreaLightShadowMaps[i], ao);
       }
     #endif
 

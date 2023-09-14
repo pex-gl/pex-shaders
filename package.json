@@ -1,6 +1,6 @@
 {
   "name": "pex-shaders",
-  "version": "1.0.0-alpha.6",
+  "version": "1.0.0-alpha.7",
   "description": "Shader library and manipulation for PEX.",
   "keywords": [
     "pex",

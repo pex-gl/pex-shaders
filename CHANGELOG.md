@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.7](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.6...v1.0.0-alpha.7) (2023-09-14)
+
+
+### Features
+
+* add area light disk and doubleSided support ([702beb8](https://github.com/pex-gl/pex-shaders/commit/702beb85e68fd8f237ac465419b8b8d3f90c5b31))
+* add spotlight like shadows for area lights ([49eb4dc](https://github.com/pex-gl/pex-shaders/commit/49eb4dc1879d246eed3eca719bae12a1329abc63))
+
+
+
 # [1.0.0-alpha.6](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.5...v1.0.0-alpha.6) (2023-09-13)
 
 

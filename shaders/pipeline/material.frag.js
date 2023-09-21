@@ -30,6 +30,13 @@ uniform int uOutputEncoding;
   uniform float uExposure;
 #endif
 
+#ifdef USE_TRANSMISSION
+  uniform sampler2D uCaptureTexture;
+  uniform float uRefraction;
+#endif
+
+uniform vec2 uScreenSize;
+
 varying vec3 vNormalWorld;
 varying vec3 vNormalView;
 
@@ -48,13 +55,6 @@ varying highp vec3 vPositionView;
 #if defined(USE_VERTEX_COLORS) || defined(USE_INSTANCED_COLOR)
   varying vec4 vColor;
 #endif
-
-#ifdef USE_TRANSMISSION
-  uniform sampler2D uCaptureTexture;
-  uniform float uRefraction;
-#endif
-
-uniform vec2 uScreenSize;
 
 struct PBRData {
   mat4 inverseViewMatrix;

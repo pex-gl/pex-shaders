@@ -331,7 +331,7 @@ vec3 LTC_Evaluate(
     // use tabulated horizon-clipped sphere
     vec2 uv = vec2(avgDir.z*0.5 + 0.5, formFactor);
     uv = uv*LUT_SCALE + LUT_BIAS;
-    float scale = texture(ltc_2, uv).w;
+    float scale = texture2D(ltc_2, uv).w;
 
     float spec = formFactor*scale;
 
@@ -588,7 +588,7 @@ vec3 LTC_Evaluate(
         vec2 uv = vec2(z*0.5 + 0.5, len);
         uv = uv*LUT_SCALE + LUT_BIAS;
 
-        float scale = texture(ltc_2, uv).w;
+        float scale = texture2D(ltc_2, uv).w;
 
         sum = len*scale;
 

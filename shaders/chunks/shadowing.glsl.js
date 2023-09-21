@@ -168,37 +168,40 @@ const float DEPTH_TOLERANCE = 0.001;
     return step(compare, depth);
   }
 
-  // https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
-  vec3 sampleOffsetDirections[20] = vec3[](
-    vec3( 1,  1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1,  1,  1),
-    vec3( 1,  1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1,  1, -1),
-    vec3( 1,  1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1,  1,  0),
-    vec3( 1,  0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1,  0, -1),
-    vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
-  );
-
-  float PCFCube(samplerCube depths, vec2 size, vec3 direction, float compare) {
-    float result = 0.0;
-
-    for (int i = 0; i < 20; i++) {
-      result += textureCubeCompare(depths, direction + sampleOffsetDirections[i] / float(size), compare);
+  #if (__VERSION__ < 300)
+    // Non optimised:
+    float PCFCube(samplerCube depths, vec2 size, vec3 direction, float compare) {
+      float result = 0.0;
+      for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+          for (int z = -1; z <= 1; z++) {
+            vec3 off = vec3(x, y, z) / float(size);
+            result += textureCubeCompare(depths, direction + off, compare);
+          }
+        }
+      }
+      return result /= 27.0;
     }
+  #else
+    // https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
+    vec3 sampleOffsetDirections[20] = vec3[](
+      vec3( 1,  1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1,  1,  1),
+      vec3( 1,  1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1,  1, -1),
+      vec3( 1,  1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1,  1,  0),
+      vec3( 1,  0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1,  0, -1),
+      vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
+    );
 
-    return result /= 20.0;
-  }
-  // Non optimised:
-  // float PCFCube(samplerCube depths, vec2 size, vec3 direction, float compare) {
-  //   float result = 0.0;
-  //   for (int x = -1; x <= 1; x++) {
-  //     for (int y = -1; y <= 1; y++) {
-  //       for (int z = -1; z <= 1; z++) {
-  //         vec3 off = vec3(x, y, z) / float(size);
-  //         result += textureCubeCompare(depths, direction + off, compare, near, far);
-  //       }
-  //     }
-  //   }
-  //   return result /= 27.0;
-  // }
+    float PCFCube(samplerCube depths, vec2 size, vec3 direction, float compare) {
+      float result = 0.0;
+
+      for (int i = 0; i < 20; i++) {
+        result += textureCubeCompare(depths, direction + sampleOffsetDirections[i] / float(size), compare);
+      }
+
+      return result /= 20.0;
+    }
+  #endif
 
   float getPunctualShadow(samplerCube depths, vec2 size, vec3 direction, float compare) {
     #if SHADOW_QUALITY == 0

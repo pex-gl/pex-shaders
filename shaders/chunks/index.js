@@ -32,8 +32,11 @@ import depthUnpack from "./depth-unpack.glsl.js";
 import depthPack from "./depth-pack.glsl.js";
 import sky from "./sky.glsl.js";
 import fog from "./fog.glsl.js";
-import tonemapUncharted2 from "./tonemap-uncharted2.glsl.js";
 import fxaa from "./fxaa.glsl.js";
+import lut from "./lut.glsl.js";
+import colorCorrection from "./color-correction.glsl.js";
+import vignette from "./vignette.glsl.js";
+import tonemapUncharted2 from "./tonemap-uncharted2.glsl.js";
 
 export default {
   output,
@@ -77,6 +80,9 @@ export default {
 
   sky,
   fog,
-  tonemapUncharted2,
   fxaa,
+  lut,
+  colorCorrection,
+  vignette,
+  tonemapUncharted2,
 };

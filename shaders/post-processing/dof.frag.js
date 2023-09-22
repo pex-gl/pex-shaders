@@ -8,9 +8,9 @@ precision highp float;
 ${SHADERS.output.frag}
 
 varying vec2 vTexCoord0;
-uniform sampler2D image; //Image to be processed
-uniform vec2 imageSize;
-uniform sampler2D depthMap; //Linear depth, where 1.0 == far plane
+uniform sampler2D uTexture; //Image to be processed
+uniform sampler2D uDepthTexture; //Linear depth, where 1.0 == far plane
+uniform vec2 uViewportSize;
 
 uniform vec2 uPixelSize; //The size of a pixel: vec2(1.0/width, 1.0/height)
 uniform float uFar; // Far plane
@@ -34,9 +34,9 @@ float getCoCSize(float depth, float focusDistance, float maxCoC) {
 }
 
 vec3 depthOfField(vec2 texCoord, float focusDistance, float maxCoC) {
-  float resolutionScale = imageSize.y / 1080.0;
+  float resolutionScale = uViewportSize.y / 1080.0;
 
-  float centerDepth = readDepth(depthMap, texCoord, uNear, uFar) * 1000.0; //m -> mm
+  float centerDepth = readDepth(uDepthTexture, texCoord, uNear, uFar) * 1000.0; //m -> mm
   float centerSize = getCoCSize(centerDepth, focusDistance, maxCoC);
 
   if (uDOFDebug && texCoord.x > 0.5) {
@@ -74,13 +74,13 @@ vec3 depthOfField(vec2 texCoord, float focusDistance, float maxCoC) {
     if (coc > 0.0) return vec3(c, 0.0, 0.0);
     else return vec3(0.0, 0.0, c);
   }
-  vec3 color = texture2D(image, vTexCoord0).rgb;
+  vec3 color = texture2D(uTexture, vTexCoord0).rgb;
   float tot = 1.0;
   float radius = RAD_SCALE;
   for (float ang = 0.0; ang < GOLDEN_ANGLE * NUM_ITERATIONS; ang += GOLDEN_ANGLE){
     vec2 tc = texCoord + vec2(cos(ang), sin(ang)) * uPixelSize * radius * resolutionScale;
-    vec3 sampleColor = texture2D(image, tc).rgb;
-    float sampleDepth = readDepth(depthMap, tc, uNear, uFar) * 1000.0; //m -> mm;
+    vec3 sampleColor = texture2D(uTexture, tc).rgb;
+    float sampleDepth = readDepth(uDepthTexture, tc, uNear, uFar) * 1000.0; //m -> mm;
     float sampleSize = getCoCSize(sampleDepth, focusDistance, maxCoC);
     if (sampleDepth > centerDepth)
       sampleSize = clamp(sampleSize, 0.0, centerSize * 2.0);

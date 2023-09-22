@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.8](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.7...v1.0.0-alpha.8) (2023-09-22)
+
+
+### Bug Fixes
+
+* support glsl < 300 for punctual shadow ([fd9a4af](https://github.com/pex-gl/pex-shaders/commit/fd9a4afa7b7293a473dc856e98058bb9c79fa5b7))
+
+
+### Features
+
+* add lut, color correction vignette + update post-processing uniforms ([ab894dc](https://github.com/pex-gl/pex-shaders/commit/ab894dc5a19af59c7be487d68822a1deb1519d4e))
+
+
+
 # [1.0.0-alpha.7](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.6...v1.0.0-alpha.7) (2023-09-14)
 
 

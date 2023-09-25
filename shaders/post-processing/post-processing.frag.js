@@ -1,7 +1,6 @@
 import SHADERS from "../chunks/index.js";
 
-export default /* glsl */ `
-precision highp float;
+export default /* glsl */ `precision highp float;
 
 ${SHADERS.output.frag}
 
@@ -21,54 +20,59 @@ uniform float uFar;
 uniform float uFov;
 uniform float uExposure;
 
-// Fog
-uniform bool uFog;
-uniform float uFogStart;
-uniform vec3 uSunPosition;
-
-// AA
-uniform bool uFXAA;
-
-// Bloom
-uniform sampler2D uBloomTexture;
-uniform bool uBloom;
-uniform float uBloomIntensity;
-
-// LUT
-uniform bool uLUT;
-uniform sampler2D uLUTTexture;
-uniform float uLUTTextureSize;
-
-// Color correction
-uniform bool uColorCorrection;
-// TODO: group in vec4
-uniform float uBrightness;
-uniform float uContrast;
-uniform float uSaturation;
-uniform float uHue;
-
-// Vignette
-uniform bool uVignette;
-uniform float uVignetteRadius;
-uniform float uVignetteIntensity;
-
-uniform float uOpacity;
-
-uniform int uOutputEncoding;
-
-varying vec2 vTexCoord0;
-
 // Includes
 ${SHADERS.math.PI}
 ${SHADERS.rgbm}
 ${SHADERS.gamma}
 ${SHADERS.encodeDecode}
 ${SHADERS.depthRead}
-${SHADERS.fxaa}
-${SHADERS.lut}
-${SHADERS.colorCorrection}
-${SHADERS.vignette}
-${SHADERS.fog}
+
+#ifdef USE_FOG
+  uniform float uFogStart;
+  uniform vec3 uSunPosition;
+
+  ${SHADERS.fog}
+#endif
+
+#ifdef USE_AA
+  ${SHADERS.luma}
+  ${SHADERS.fxaa}
+#endif
+
+#ifdef USE_BLOOM
+  uniform sampler2D uBloomTexture;
+  uniform float uBloomIntensity;
+#endif
+
+#ifdef USE_LUT
+  uniform sampler2D uLUTTexture;
+  uniform float uLUTTextureSize;
+
+  ${SHADERS.lut}
+#endif
+
+#ifdef USE_COLOR_CORRECTION
+  // TODO: group in vec4
+  uniform float uBrightness;
+  uniform float uContrast;
+  uniform float uSaturation;
+  uniform float uHue;
+
+  ${SHADERS.colorCorrection}
+#endif
+
+#ifdef USE_VIGNETTE
+  uniform float uVignetteRadius;
+  uniform float uVignetteIntensity;
+
+  ${SHADERS.vignette}
+#endif
+
+uniform float uOpacity;
+
+uniform int uOutputEncoding;
+
+varying vec2 vTexCoord0;
 
 vec3 tonemapAces( vec3 x ) {
   float tA = 2.5;
@@ -112,27 +116,33 @@ void main() {
   vec2 uv = vTexCoord0;
 
   // Anti-aliasing
-  if (uFXAA) {
+  #ifdef USE_AA
     // LDR
-    color = fxaa(uTexture, uv * uViewportSize, uViewportSize);
+    #ifdef USE_FXAA_3
+      color = fxaa3(uTexture, uv, uViewportSize);
+    #else
+      color = fxaa2(uTexture, uv, uViewportSize);
+    #endif
     color.rgb = reinhardInverse(color.rgb);
-  } else {
+  #else
     color = texture2D(uTexture, uv);
-  }
+  #endif
+
+  // color = decode(color, uTextureEncoding);
 
   // HDR effects
-  if (uFog) {
+  #ifdef USE_FOG
     float z = readDepth(uDepthTexture, uv, uNear, uFar);
     vec3 pos = reconstructPositionFromDepth(uv, z);
     float rayLength = length(pos);
     vec3 rayDir = pos / rayLength;
     vec3 sunDir = normalize(vec3(uViewMatrix * vec4(normalize(uSunPosition), 0.0)));
     color.rgb = fog(color.rgb, rayLength - uFogStart, rayDir, sunDir);
-  }
+  #endif
 
-  if (uBloom) {
+  #ifdef USE_BLOOM
     color.rgb += texture2D(uBloomTexture, uv).rgb * uBloomIntensity;
-  }
+  #endif
 
   color.rgb *= uExposure;
 
@@ -143,19 +153,19 @@ void main() {
   color.rgb = toGamma(color.rgb);
 
   // LDR effects
-  if (uLUT) {
+  #ifdef USE_LUT
     color.rgb = lut(vec4(color.rgb, 1.0), uLUTTexture, uLUTTextureSize).rgb;
-  }
+  #endif
 
-  if (uColorCorrection) {
+  #ifdef USE_COLOR_CORRECTION
     color.rgb = brightnessContrast(color.rgb, uBrightness, uContrast);
     color.rgb = saturation(color.rgb, uSaturation);
     color.rgb = hue(color.rgb, uHue / 180.0 * PI);
-  }
+  #endif
 
-  if (uVignette) {
+  #ifdef USE_VIGNETTE
     color.rgb = vignette(color.rgb, uv, uVignetteRadius, uVignetteIntensity);
-  }
+  #endif
 
   gl_FragColor = color;
 

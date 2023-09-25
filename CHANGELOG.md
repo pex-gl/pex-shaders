@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.9](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.8...v1.0.0-alpha.9) (2023-09-25)
+
+
+### Bug Fixes
+
+* add define for clear coat and sheen using the packed texture ([a7968c2](https://github.com/pex-gl/pex-shaders/commit/a7968c2068c8a91507e43e7c08aede092e3cb8ef))
+* sampleBloom crash as texture is reserved keyword ([5014a68](https://github.com/pex-gl/pex-shaders/commit/5014a680f36b7ca04174403580e85393da3a5054))
+
+
+### Features
+
+* add fxaa 3 ([cc758cc](https://github.com/pex-gl/pex-shaders/commit/cc758cc0aa2446c738800b7a0f9b383982366425))
+* use define in post processing ([a576ed2](https://github.com/pex-gl/pex-shaders/commit/a576ed2473db829700ea0dd719fe8746b5220921))
+* use uViewportSize instead of uPixelSize in dof ([9c5e9b2](https://github.com/pex-gl/pex-shaders/commit/9c5e9b29e404c842151d7856410901a7bac2148b))
+* use vTexCoord0 instead of gl_FragCoord in threshold ([a39507a](https://github.com/pex-gl/pex-shaders/commit/a39507a4e04f415ec7d83578b89b51a24ddb6a3c))
+
+
+
 # [1.0.0-alpha.8](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.7...v1.0.0-alpha.8) (2023-09-22)
 
 

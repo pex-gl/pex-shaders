@@ -16,8 +16,13 @@ export default /* glsl */ `
       #else
         vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_TEXTURE_TEX_COORD);
       #endif
+      vec4 texelColor = texture2D(uClearCoatTexture, texCoord);
 
-      data.clearCoat = uClearCoat * texture2D(uClearCoatTexture, texCoord).r;
+      data.clearCoat = uClearCoat * texelColor.r;
+
+      #ifdef USE_CLEAR_COAT_ROUGHNESS_FROM_MAIN_TEXTURE
+      data.clearCoatRoughness = uClearCoatRoughness * texelColor.g;
+      #endif
     }
   #else
     void getClearCoat(inout PBRData data) {
@@ -43,7 +48,9 @@ export default /* glsl */ `
     }
   #else
     void getClearCoatRoughness(inout PBRData data) {
+      #if !defined(USE_CLEAR_COAT_ROUGHNESS_FROM_MAIN_TEXTURE)
       data.clearCoatRoughness = uClearCoatRoughness;
+      #endif
     }
   #endif
 

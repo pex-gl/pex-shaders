@@ -234,6 +234,7 @@ void main() {
 
     #ifdef USE_SHEEN
       getSheenColor(data);
+      getSheenRoughness(data);
     #endif
 
     float ao = 1.0;

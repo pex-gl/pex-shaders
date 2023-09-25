@@ -11,18 +11,18 @@ uniform vec2 uViewportSize;
 
 varying vec2 vTexCoord0;
 
-vec3 sampleBloom (sampler2D texture, vec2 uv) {
+vec3 sampleBloom (sampler2D tex, vec2 uv) {
   vec3 color = vec3(0.0);
   vec2 s = 1.0 / uViewportSize;
-  color += texture2D(texture, uv + vec2(-1.0, -1.0) * s).rgb;
-  color += texture2D(texture, uv + vec2( 0.0, -1.0) * s).rgb;
-  color += texture2D(texture, uv + vec2( 1.0, -1.0) * s).rgb;
-  color += texture2D(texture, uv + vec2( 0.0, -1.0) * s).rgb;
-  color += texture2D(texture, uv + vec2( 0.0,  0.0) * s).rgb;
-  color += texture2D(texture, uv + vec2( 0.0,  1.0) * s).rgb;
-  color += texture2D(texture, uv + vec2(-1.0,  1.0) * s).rgb;
-  color += texture2D(texture, uv + vec2( 0.0,  1.0) * s).rgb;
-  color += texture2D(texture, uv + vec2( 1.0,  1.0) * s).rgb;
+  color += texture2D(tex, uv + vec2(-1.0, -1.0) * s).rgb;
+  color += texture2D(tex, uv + vec2( 0.0, -1.0) * s).rgb;
+  color += texture2D(tex, uv + vec2( 1.0, -1.0) * s).rgb;
+  color += texture2D(tex, uv + vec2( 0.0, -1.0) * s).rgb;
+  color += texture2D(tex, uv + vec2( 0.0,  0.0) * s).rgb;
+  color += texture2D(tex, uv + vec2( 0.0,  1.0) * s).rgb;
+  color += texture2D(tex, uv + vec2(-1.0,  1.0) * s).rgb;
+  color += texture2D(tex, uv + vec2( 0.0,  1.0) * s).rgb;
+  color += texture2D(tex, uv + vec2( 1.0,  1.0) * s).rgb;
   color /= 9.0;
   return color;
 }

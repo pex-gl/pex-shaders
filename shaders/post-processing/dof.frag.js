@@ -12,7 +12,6 @@ uniform sampler2D uTexture; //Image to be processed
 uniform sampler2D uDepthTexture; //Linear depth, where 1.0 == far plane
 uniform vec2 uViewportSize;
 
-uniform vec2 uPixelSize; //The size of a pixel: vec2(1.0/width, 1.0/height)
 uniform float uFar; // Far plane
 uniform float uNear;
 uniform float uFocusDistance;
@@ -77,8 +76,9 @@ vec3 depthOfField(vec2 texCoord, float focusDistance, float maxCoC) {
   vec3 color = texture2D(uTexture, vTexCoord0).rgb;
   float tot = 1.0;
   float radius = RAD_SCALE;
+  vec2 pixelSize = 1.0 / uViewportSize;
   for (float ang = 0.0; ang < GOLDEN_ANGLE * NUM_ITERATIONS; ang += GOLDEN_ANGLE){
-    vec2 tc = texCoord + vec2(cos(ang), sin(ang)) * uPixelSize * radius * resolutionScale;
+    vec2 tc = texCoord + vec2(cos(ang), sin(ang)) * pixelSize * radius * resolutionScale;
     vec3 sampleColor = texture2D(uTexture, tc).rgb;
     float sampleDepth = readDepth(uDepthTexture, tc, uNear, uFar) * 1000.0; //m -> mm;
     float sampleSize = getCoCSize(sampleDepth, focusDistance, maxCoC);

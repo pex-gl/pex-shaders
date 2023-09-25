@@ -3,6 +3,7 @@ import math from "./math.glsl.js";
 import encodeDecode from "./encode-decode.glsl.js";
 import rgbm from "./rgbm.glsl.js";
 import gamma from "./gamma.glsl.js";
+import luma from "./luma.glsl.js";
 import lightAmbient from "./light-ambient.glsl.js";
 import lightDirectional from "./light-directional.glsl.js";
 import lightPoint from "./light-point.glsl.js";
@@ -45,6 +46,7 @@ export default {
   encodeDecode,
   rgbm,
   gamma,
+  luma,
 
   lightAmbient,
   lightDirectional,

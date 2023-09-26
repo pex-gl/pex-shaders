@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.10](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.9...v1.0.0-alpha.10) (2023-09-26)
+
+
+### Bug Fixes
+
+* add missing USE_FXAA_2 in main post pro pass ([34c4f82](https://github.com/pex-gl/pex-shaders/commit/34c4f82446483f1f6bd1aa0059f39617392f2dc7))
+
+
+### Features
+
+* upgrade dof ([433563b](https://github.com/pex-gl/pex-shaders/commit/433563b1a4e66c65097527b8dc41720602865363))
+
+
+
 # [1.0.0-alpha.9](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.8...v1.0.0-alpha.9) (2023-09-25)
 
 

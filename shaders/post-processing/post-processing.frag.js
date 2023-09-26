@@ -120,7 +120,8 @@ void main() {
     // LDR
     #ifdef USE_FXAA_3
       color = fxaa3(uTexture, uv, uViewportSize);
-    #else
+    #endif
+    #ifdef USE_FXAA_2
       color = fxaa2(uTexture, uv, uViewportSize);
     #endif
     color.rgb = reinhardInverse(color.rgb);

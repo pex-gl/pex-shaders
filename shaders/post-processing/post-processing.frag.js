@@ -31,6 +31,7 @@ ${SHADERS.depthRead}
   uniform float uFogStart;
   uniform vec3 uSunPosition;
 
+  ${SHADERS.depthPosition}
   ${SHADERS.fog}
 #endif
 
@@ -95,19 +96,6 @@ vec3 reinhardInverse(vec3 x) {
   // https://github.com/luluco250/FXShaders/blob/master/Shaders/FXShaders/Tonemap.fxh
   // return -(x / min(x - 1.0, -0.1));
   return x / max(vec3(1.0) - x, 0.001);
-}
-
-vec3 getFarViewDir(vec2 tc) {
-  float hfar = 2.0 * tan(uFov/2.0) * uFar;
-  float wfar = hfar * uViewportSize.x / uViewportSize.y;
-  vec3 dir = (vec3(wfar * (tc.x - 0.5), hfar * (tc.y - 0.5), -uFar));
-  return dir;
-}
-
-vec3 reconstructPositionFromDepth(vec2 texCoord, float z) {
-  vec3 ray = getFarViewDir(texCoord);
-  vec3 pos = ray;
-  return pos * z / uFar;
 }
 
 void main() {

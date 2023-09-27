@@ -29,6 +29,7 @@ import normalPerturb from "./normal-perturb.glsl.js";
 import metallicRoughness from "./metallic-roughness.glsl.js";
 import specularGlossiness from "./specular-glossiness.glsl.js";
 import depthRead from "./depth-read.glsl.js";
+import depthPosition from "./depth-position.glsl.js";
 import depthUnpack from "./depth-unpack.glsl.js";
 import depthPack from "./depth-pack.glsl.js";
 import sky from "./sky.glsl.js";
@@ -77,6 +78,7 @@ export default {
   specularGlossiness,
 
   depthRead,
+  depthPosition,
   depthUnpack,
   depthPack,
 

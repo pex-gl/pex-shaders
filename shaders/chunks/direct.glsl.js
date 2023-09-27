@@ -90,7 +90,7 @@ void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
   data.directColor += (color * lightColor) * (light.color.a * light.attenuation * illuminated);
 
   #ifdef USE_TRANSMISSION
-  // data.directDiffuse = texture2D(uCaptureTexture, gl_FragCoord.xy / uScreenSize.xy).rgb;
+  // data.directDiffuse = texture2D(uCaptureTexture, gl_FragCoord.xy / uViewportSize.xy).rgb;
 
   float uIOR = 1.0;
   vec3 IoR_Values = mix(vec3(1.0), vec3(1.14, 1.12, 1.10), uIOR);
@@ -115,8 +115,8 @@ void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
 
   // vec3 IoR_Values = mix(vec3(1.0), vec3(1.14, 1.12, 1.10), uIOR);
   float level = clamp(data.roughness + (1.0 - data.opacity), 0.0, 1.0) * 5.0; //Opacity Hack
-  vec2 uv = gl_FragCoord.xy / uScreenSize.xy;
-  vec2 refractionAspect = vec2(1.0 * uScreenSize.y/uScreenSize.x, 1.0);
+  vec2 uv = gl_FragCoord.xy / uViewportSize.xy;
+  vec2 refractionAspect = vec2(1.0 * uViewportSize.y/uViewportSize.x, 1.0);
   refractColor.x = texture2DLodEXT(uCaptureTexture, compensateStretch(uv + refractAmount * refract(incident, data.normalWorld, 1.0 / IoR_Values.x).xy), level).x;
   refractColor.y = texture2DLodEXT(uCaptureTexture, compensateStretch(uv + refractAmount * refract(incident, data.normalWorld, 1.0 / IoR_Values.y).xy), level).y;
   refractColor.z = texture2DLodEXT(uCaptureTexture, compensateStretch(uv + refractAmount * refract(incident, data.normalWorld, 1.0 / IoR_Values.z).xy), level).z;
@@ -126,7 +126,7 @@ void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
 
   data.directColor *= 0.3;
   data.directColor += data.diffuseColor * mix(refractColor, reflectColor, f);
-  // data.directColor = vec3(uScreenSize.xy, 0.0);
+  // data.directColor = vec3(uViewportSize.xy, 0.0);
   // data.directColor += refractColor;
   // data.directColor = vec3(f);
   // data.directColor = reflectColor;

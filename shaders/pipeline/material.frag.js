@@ -16,6 +16,8 @@ precision mediump float;
 ${SHADERS.output.frag}
 
 // Variables
+uniform vec2 uViewportSize;
+
 uniform highp mat4 uInverseViewMatrix;
 uniform highp mat4 uViewMatrix;
 uniform highp mat3 uNormalMatrix;
@@ -29,13 +31,6 @@ uniform int uOutputEncoding;
   ${SHADERS.tonemapUncharted2}
   uniform float uExposure;
 #endif
-
-#ifdef USE_TRANSMISSION
-  uniform sampler2D uCaptureTexture;
-  uniform float uRefraction;
-#endif
-
-uniform vec2 uScreenSize;
 
 varying vec3 vNormalWorld;
 varying vec3 vNormalView;
@@ -54,6 +49,11 @@ varying highp vec3 vPositionView;
 
 #if defined(USE_VERTEX_COLORS) || defined(USE_INSTANCED_COLOR)
   varying vec4 vColor;
+#endif
+
+#ifdef USE_TRANSMISSION
+  uniform sampler2D uCaptureTexture;
+  uniform float uRefraction;
 #endif
 
 struct PBRData {
@@ -89,6 +89,7 @@ struct PBRData {
   vec3 sheenColor;
   float sheenRoughness;
   vec3 sheen;
+  float ao;
 };
 
 // Includes
@@ -176,6 +177,7 @@ void main() {
     data.indirectDiffuse = vec3(0.0);
     data.indirectSpecular = vec3(0.0);
     data.sheen = vec3(0.0);
+    data.ao = 1.0;
     data.opacity = 1.0;
 
     #define HOOK_FRAG_BEFORE_TEXTURES
@@ -237,30 +239,18 @@ void main() {
       getSheenRoughness(data);
     #endif
 
-    float ao = 1.0;
-    #ifdef USE_OCCLUSION_TEXTURE
-      #ifdef USE_OCCLUSION_TEXTURE_MATRIX
-        vec2 aoTexCoord = getTextureCoordinates(data, OCCLUSION_TEXTURE_TEX_COORD, uOcclusionTextureMatrix);
-      #else
-        vec2 aoTexCoord = getTextureCoordinates(data, OCCLUSION_TEXTURE_TEX_COORD);
-      #endif
-      ao *= texture2D(uOcclusionTexture, aoTexCoord).r;
-    #endif
-    #ifdef USE_AO
-      vec2 vUV = vec2(gl_FragCoord.x / uScreenSize.x, gl_FragCoord.y / uScreenSize.y);
-      ao *= texture2D(uAO, vUV).r;
-    #endif
+    getOcclusion(data);
 
     //TODO: No kd? so not really energy conserving
     //we could use disney brdf for irradiance map to compensate for that like in Frostbite
     #ifdef USE_REFLECTION_PROBES
       data.reflectionWorld = reflect(-data.eyeDirWorld, data.normalWorld);
-      EvaluateLightProbe(data, ao);
+      EvaluateLightProbe(data, data.ao);
     #endif
     #if NUM_AMBIENT_LIGHTS > 0
       #pragma unroll_loop
       for (int i = 0; i < NUM_AMBIENT_LIGHTS; i++) {
-        EvaluateAmbientLight(data, uAmbientLights[i], ao);
+        EvaluateAmbientLight(data, uAmbientLights[i], data.ao);
       }
     #endif
     #if NUM_DIRECTIONAL_LIGHTS > 0
@@ -284,14 +274,14 @@ void main() {
     #if NUM_AREA_LIGHTS > 0
       #pragma unroll_loop
       for (int i = 0; i < NUM_AREA_LIGHTS; i++) {
-        EvaluateAreaLight(data, uAreaLights[i], uAreaLightShadowMaps[i], ao);
+        EvaluateAreaLight(data, uAreaLights[i], uAreaLightShadowMaps[i], data.ao);
       }
     #endif
 
     #ifdef USE_TRANSMISSION
     data.indirectDiffuse  *= 0.0;//not sure how to compute it yet
     data.indirectSpecular *= 1.0;//not sure how to compute it yet
-    // vec2 uv = gl_FragCoord.xy / uScreenSize.xy;
+    // vec2 uv = gl_FragCoord.xy / uViewportSize.xy;
     // texture2DLodEXT(uCaptureTexture, uv, level).x;
     // data.indirectSpecular *=
     #endif

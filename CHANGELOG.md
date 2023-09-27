@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.11](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.10...v1.0.0-alpha.11) (2023-09-27)
+
+
+### Bug Fixes
+
+* uScreenSize redefinition + move ao into chunk ([87d14cc](https://github.com/pex-gl/pex-shaders/commit/87d14ccee885c29286dffcc6638dd786709db7b5))
+
+
+### Features
+
+* upgrade SAO ([507dc5d](https://github.com/pex-gl/pex-shaders/commit/507dc5d52685a4dbaf4337dc492c4382fbdfedf3))
+
+
+
 # [1.0.0-alpha.10](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.9...v1.0.0-alpha.10) (2023-09-26)
 
 

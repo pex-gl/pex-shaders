@@ -27,7 +27,7 @@ export default /* glsl */ `
     return specularColor * AB.x + AB.y;
   }
 
-  #if defined(USE_CLEAR_COAT)
+  #ifdef USE_CLEAR_COAT
     // https://google.github.io/filament/Filament.md.html#lighting/imagebasedlights/clearcoat
     void evaluateClearCoatIBL(const PBRData data, float ao, inout vec3 Fd, inout vec3 Fr) {
       #if defined(USE_NORMAL_TEXTURE) || defined(USE_CLEAR_COAT_NORMAL_TEXTURE)
@@ -40,9 +40,30 @@ export default /* glsl */ `
       // The clear coat layer assumes an IOR of 1.5 (4% reflectance)
       float Fc = F_Schlick(0.04, 1.0, clearCoatNoV) * data.clearCoat;
       float attenuation = 1.0 - Fc;
-      Fr *= (attenuation * attenuation);
+      // https://github.com/google/filament/commit/6a8e6d45b5c57280898ad064426bc197978e71c5
+      // Fr *= (attenuation * attenuation);
+      Fr *= attenuation;
       Fr += getPrefilteredReflection(clearCoatR, data.clearCoatRoughness) * (ao * Fc);
       Fd *= attenuation;
+    }
+  #endif
+
+  #ifdef USE_SHEEN
+    // https://github.com/google/filament/blob/21ea99a1d934e37d876f15bed5b025ed181bc08f/shaders/src/light_indirect.fs#L394
+    void evaluateSheenIBL(inout PBRData data, float ao, inout vec3 Fd, inout vec3 Fr) {
+      // Albedo scaling of the base layer before we layer sheen on top
+      // Fd *= data.sheenAlbedoScaling;
+      // Fr *= data.sheenAlbedoScaling;
+
+      vec3 reflectance = EnvBRDFApprox(data.sheenColor, data.sheenRoughness, data.NdotV);
+      reflectance *= ao;
+
+      vec3 radiance = getPrefilteredReflection(data.reflectionWorld, data.sheenRoughness);
+      // Fr += reflectance * radiance;
+
+      // // vec3 Fs = radiance + reflectance * ao;
+      // vec3 Fs = vec3(0.0);
+      // data.sheen += Fs;
     }
   #endif
 
@@ -50,6 +71,7 @@ export default /* glsl */ `
     // TODO: energyCompensation
     float energyCompensation = 1.0;
 
+    // diffuse layer
     vec3 diffuseIrradiance = getIrradiance(data.normalWorld, uReflectionMap, uReflectionMapSize, uReflectionMapEncoding);
     vec3 Fd = data.diffuseColor * diffuseIrradiance * ao;
 
@@ -59,12 +81,10 @@ export default /* glsl */ `
     vec3 Fr = specularReflectance * prefilteredRadiance * ao;
     Fr *= energyCompensation;
 
-    // vec3 Fs = EvaluateSheen(data, NdotH, data.NdotV, NdotL);
-    vec3 sheenReflectance = EnvBRDFApprox(data.sheenColor, data.sheenRoughness, data.NdotV);
-    vec3 sheenRadiance = getPrefilteredReflection(data.reflectionWorld, data.sheenRoughness);
-    // vec3 Fs = sheenRadiance + sheenReflectance * ao;
-    vec3 Fs = vec3(0.0);
-    data.sheen += Fs;
+
+    // #ifdef USE_SHEEN
+    //   evaluateSheenIBL(data, ao, Fd, Fr);
+    // #endif
 
     #ifdef USE_CLEAR_COAT
       evaluateClearCoatIBL(data, ao, Fd, Fr);
@@ -72,7 +92,6 @@ export default /* glsl */ `
 
     data.indirectDiffuse += Fd;
     data.indirectSpecular += Fr;
-    data.indirectSpecular += Fs;
   }
 #endif
 `;

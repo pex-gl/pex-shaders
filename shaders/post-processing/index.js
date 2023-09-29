@@ -5,6 +5,7 @@ import downSampleFrag from "./down-sample.frag.js";
 import postProcessingFrag from "./post-processing.frag.js";
 import postProcessingVert from "./post-processing.vert.js";
 import saoFrag from "./sao.frag.js";
+import gtaoFrag from "./gtao.frag.js";
 import thresholdFrag from "./threshold.frag.js";
 
 export default {
@@ -14,5 +15,6 @@ export default {
   downSample: { frag: downSampleFrag },
   postProcessing: { vert: postProcessingVert, frag: postProcessingFrag },
   sao: { frag: saoFrag },
+  gtao: { frag: gtaoFrag },
   threshold: { frag: thresholdFrag },
 };

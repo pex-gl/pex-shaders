@@ -106,6 +106,7 @@ ${SHADERS.textureCoordinates}
 ${SHADERS.baseColor}
 ${SHADERS.sheenColor}
 ${SHADERS.alpha}
+${SHADERS.ambientOcclusion}
 
 #ifndef USE_UNLIT_WORKFLOW
   // Lighting
@@ -126,7 +127,6 @@ ${SHADERS.alpha}
 
   // Material and geometric context
   ${SHADERS.emissiveColor}
-  ${SHADERS.ambientOcclusion}
   ${SHADERS.normal}
   ${SHADERS.metallicRoughness}
   ${SHADERS.specularGlossiness}
@@ -240,7 +240,7 @@ void main() {
       getSheenRoughness(data);
     #endif
 
-    getOcclusion(data);
+    getAmbientOcclusion(data);
 
     //TODO: No kd? so not really energy conserving
     //we could use disney brdf for irradiance map to compensate for that like in Frostbite
@@ -290,6 +290,15 @@ void main() {
     #define HOOK_FRAG_AFTER_LIGHTING
 
     color = data.emissiveColor + data.indirectDiffuse + data.indirectSpecular + data.directColor;
+
+    // TODO: verify math. is this the right place. What should be the mix factor
+    #if defined(USE_SSAO) && defined(USE_SSAO_TEXTURE) && defined(USE_SSAO_COLORS)
+      vec2 aoTexCoord = gl_FragCoord.xy / uViewportSize;
+      vec4 aoData = texture2D(uSSAOTexture, aoTexCoord);
+      float uSSAOMix = 1.0;
+      vec3 rgb = mix(color.rgb, color.rgb * gtaoMultiBounce(aoData.a, color.rgb), uSSAOMix);
+      color.rgb = vec3(rgb + aoData.rgb * color.rgb * 2.0);
+    #endif
 
     #ifdef USE_TONEMAPPING
       color.rgb *= uExposure;

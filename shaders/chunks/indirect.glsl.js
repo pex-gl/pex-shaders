@@ -81,6 +81,9 @@ export default /* glsl */ `
     vec3 Fr = specularReflectance * prefilteredRadiance * ao;
     Fr *= energyCompensation;
 
+    // extra ambient occlusion term for the base and subsurface layers
+    multiBounceAO(ao, data.diffuseColor, Fd);
+    // multiBounceSpecularAO(specularAO, data.f0, Fr);
 
     // #ifdef USE_SHEEN
     //   evaluateSheenIBL(data, ao, Fd, Fr);

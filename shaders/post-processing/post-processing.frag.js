@@ -40,6 +40,11 @@ ${SHADERS.depthRead}
   ${SHADERS.fxaa}
 #endif
 
+#ifdef USE_SSAO_POST
+  uniform sampler2D uSSAOTexture;
+  uniform float uSSAOMix;
+#endif
+
 #ifdef USE_BLOOM
   uniform sampler2D uBloomTexture;
   uniform float uBloomIntensity;
@@ -98,6 +103,16 @@ vec3 reinhardInverse(vec3 x) {
   return x / max(vec3(1.0) - x, 0.001);
 }
 
+vec3 gtaoMultiBounce(float ao, vec3 albedo) {
+  vec3 x = vec3(ao);
+
+  vec3 a = 2.0404 * albedo - vec3( 0.3324 );
+  vec3 b = -4.7951 * albedo + vec3( 0.6417 );
+  vec3 c = 2.7552 * albedo + vec3( 0.6903 );
+
+  return max(x, ((x * a + b ) * x + c) * x);
+}
+
 void main() {
   vec4 color = vec4(0.0);
 
@@ -127,6 +142,18 @@ void main() {
     vec3 rayDir = pos / rayLength;
     vec3 sunDir = normalize(vec3(uViewMatrix * vec4(normalize(uSunPosition), 0.0)));
     color.rgb = fog(color.rgb, rayLength - uFogStart, rayDir, sunDir);
+  #endif
+
+  #ifdef USE_SSAO_POST
+    vec4 aoData = texture2D(uSSAOTexture, uv);
+
+    #ifdef USE_SSAO_COLORS
+      vec3 rgb = mix(color.rgb, color.rgb * gtaoMultiBounce(aoData.a, color.rgb), uSSAOMix);
+      color.rgb = vec3(rgb + aoData.rgb * color.rgb * 2.0);
+      // color.rgb = vec3(color.rgb * (0.25 + 0.75 * aoData.a) + aoData.rgb * color.rgb * 2.0);
+    #else
+      color.rgb *= mix(vec3(1.0), vec3(aoData.r), uSSAOMix);
+    #endif
   #endif
 
   #ifdef USE_BLOOM

@@ -63,9 +63,8 @@ vec3 getOffsetPositionVS(vec2 uv, vec2 unitOffset, float radiusSS) {
   return getPositionVS(uv);
 }
 
-float sampleAO(vec2 uv, vec3 positionVS, vec3 normalVS, float sampleRadiusSS, int tapIndex, float rotationAngle) {
+float sampleAO(vec2 uv, vec3 positionVS, vec3 normalVS, float sampleRadiusSS, int tapIndex, float rotationAngle, float radius2) {
   const float epsilon = 0.01;
-  float radius2 = uRadius * uRadius;
 
 	// Offset on the unit disk, spun for this pixel
   float radiusSS = 0.0;
@@ -80,21 +79,23 @@ float sampleAO(vec2 uv, vec3 positionVS, vec3 normalVS, float sampleRadiusSS, in
   float vn = dot(v, normalVS) - uBias;
 
 #if VARIATION == 0
-  // (from the HPG12 paper)
+  // A: From the HPG12 paper
   // Note large epsilon to avoid overdarkening within cracks
-  return float(vv < radius2) * max(vn / (epsilon + vv), 0.0);
+  return float(vv < radius2) * max((vn - bias) / (epsilon + vv), 0.0) * radius2 * 0.6;
+  // return float(vv < radius2) * max(vn / (epsilon + vv), 0.0);
 #elif VARIATION == 1 // default / recommended
-  // Smoother transition to zero (lowers contrast, smoothing out corners). [Recommended]
+  // B: Smoother transition to zero (lowers contrast, smoothing out corners). [Recommended]
+  // float f = max(radius2 - vv, 0.0);
   float f = max(radius2 - vv, 0.0) / radius2;
   return f * f * f * max((vn) / (epsilon + vv), 0.0);
 #elif VARIATION == 2
-  // Medium contrast (which looks better at high radii), no division.  Note that the
+  // C: Medium contrast (which looks better at high radii), no division.  Note that the
   // contribution still falls off with radius^2, but we've adjusted the rate in a way that is
   // more computationally efficient and happens to be aesthetically pleasing.
   float invRadius2 = 1.0 / radius2;
   return 4.0 * max(1.0 - vv * invRadius2, 0.0) * max(vn, 0.0);
 #else
-  // Low contrast, no division operation
+  // D: Low contrast, no division operation
   return 2.0 * float(vv < radius2) * max(vn, 0.0);
 #endif
 }
@@ -119,10 +120,11 @@ void main() {
 
     float projScale = 1.0 / (2.0 * tan(uFov * 0.5));
 
+    float radius2 = uRadius * uRadius;
     float radiusSS = projScale * uRadius / originVS.z; // radius of influence in screen space
 
     for (int i = 0; i < NUM_SAMPLES; ++i) {
-      occlusion += sampleAO(vUV, originVS, normalVS, radiusSS, i, randomPatternRotationAngle);
+      occlusion += sampleAO(vUV, originVS, normalVS, radiusSS, i, randomPatternRotationAngle, radius2);
     }
 
     occlusion = 1.0 - occlusion / (4.0 * NUM_SAMPLES_FLOAT);
@@ -133,7 +135,7 @@ void main() {
   // TODO: threshold? otherwise everything gets darker
   occlusion = clamp(brightnessContrast(occlusion, uBrightness, uContrast), 0.0, 1.0);
 
-  gl_FragColor = vec4(occlusion, occlusion, occlusion, 1.0);
+  gl_FragColor = vec4(occlusion, 0.0, 0.0, 1.0);
 
   ${SHADERS.output.assignment}
 }

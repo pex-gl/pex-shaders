@@ -11,7 +11,7 @@ export default /* glsl */ `
   #endif
 #endif
 
-precision mediump float;
+precision highp float;
 
 ${SHADERS.output.frag}
 

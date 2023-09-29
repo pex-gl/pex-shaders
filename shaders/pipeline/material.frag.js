@@ -89,6 +89,7 @@ struct PBRData {
   vec3 sheenColor;
   float sheenRoughness;
   vec3 sheen;
+  float sheenAlbedoScaling;
   float ao;
 };
 

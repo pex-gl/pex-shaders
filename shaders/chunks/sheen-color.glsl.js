@@ -72,6 +72,14 @@ export default /* glsl */ `
     return abs(cosTheta) < 0.5 ? exp(Sheen_l(cosTheta, alphaG)) : exp(2.0 * Sheen_l(0.5, alphaG) - Sheen_l(1.0 - cosTheta, alphaG));
   }
 
+  // https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_materials_sheen/README.md#albedo-scaling-technique
+  // float EvaluateSheenAlbedoScaling(inout PBRData data, float VdotN) {
+  //   // TODO: need the lookup table
+  //   // https://dassaultsystemes-technology.github.io/EnterprisePBRShadingModel/spec-2021x.md.html#appendix/energycompensation/sheenbrdf
+  //   float max3(vec3 v) { return max(max(v.x, v.y), v.z); }
+  //   return 1.0 - max3(data.sheenColor) * E(VdotN)
+  // }
+
   vec3 EvaluateSheen(inout PBRData data, float NdotH, float NdotV, float NdotL) {
     float alphaG = data.sheenRoughness * data.sheenRoughness;
     float invR = 1.0 / alphaG;
@@ -87,10 +95,10 @@ export default /* glsl */ `
     vec3 sheen = data.sheenColor * sheenDistribution * sheenVisibility;
     data.sheen += sheen;
 
-    return sheen;
+    // TODO:
+    // data.sheenAlbedoScaling = EvaluateSheenAlbedoScaling(data, VdotN);
 
-    // TODO: add albedo scaling
-    // https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_materials_sheen/README.md#albedo-scaling-technique
+    return sheen;
   }
 #endif
 `;

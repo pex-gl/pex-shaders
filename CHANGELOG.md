@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.12](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.11...v1.0.0-alpha.12) (2023-09-29)
+
+
+### Bug Fixes
+
+* clear coat attenuation for specular is not squared ([351bae4](https://github.com/pex-gl/pex-shaders/commit/351bae448a69a92b81d17c02a3e51cd909418349))
+* use precision highp float for material shader ([7a3fa31](https://github.com/pex-gl/pex-shaders/commit/7a3fa316665cdf4617f8759ca0e89b8578bf873e))
+
+
+### Features
+
+* add GTAO (wip) ([1e7fc1c](https://github.com/pex-gl/pex-shaders/commit/1e7fc1c7830b68b80a041aed466b02e7d37afd3a))
+* compute radius2 once in sao ([1699037](https://github.com/pex-gl/pex-shaders/commit/1699037a42717c1a99dda13f21c956136a9977d0))
+
+
+
 # [1.0.0-alpha.11](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.10...v1.0.0-alpha.11) (2023-09-27)
 
 

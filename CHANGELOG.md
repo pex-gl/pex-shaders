@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [1.0.0-alpha.14](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.13...v1.0.0-alpha.14) (2023-10-04)
+
+
+### Bug Fixes
+
+* remove left over reference to this.GLSL3 ([e6d7496](https://github.com/pex-gl/pex-shaders/commit/e6d74965421a3e10acce5155785290c307012c0d))
+
+
+
 # [1.0.0-alpha.13](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.12...v1.0.0-alpha.13) (2023-10-04)
 
 

@@ -34,7 +34,7 @@ export function formatDefines(defines = []) {
  * @returns {string}
  */
 export function build(ctx, src, defines = [], extensions = {}) {
-  return `${ctx.capabilities.isWebGL2 ? this.GLSL3 : ""}
+  return `${ctx.capabilities.isWebGL2 ? GLSL3 : ""}
 ${formatExtensions(extensions)}
 ${formatDefines(defines)}
 ${src}`;
@@ -99,7 +99,7 @@ layout (location = 2) out vec4 outNormal;`
       .replace(/gl_FragData\[2\]/g, "outNormal");
   }
 
-  return `${this.GLSL3}\n${src}`;
+  return `${GLSL3}\n${src}`;
 }
 
 /**

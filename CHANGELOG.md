@@ -1,6 +1,15 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+# [1.0.0-alpha.13](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.12...v1.0.0-alpha.13) (2023-10-04)
+
+
+### Features
+
+* interpolate colors between segment vertices ([7d81395](https://github.com/pex-gl/pex-shaders/commit/7d81395f9ce5991caf510b69c9046e72454fb4f1))
+
+
 
 # [1.0.0-alpha.12](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.11...v1.0.0-alpha.12) (2023-09-29)
 

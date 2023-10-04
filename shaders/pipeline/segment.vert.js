@@ -7,6 +7,7 @@ attribute vec3 aPosition;
 attribute vec3 aPointA;
 attribute vec3 aPointB;
 attribute vec4 aColorA;
+attribute vec4 aColorB;
 
 uniform mat4 uProjectionMatrix;
 uniform mat4 uViewMatrix;
@@ -21,7 +22,6 @@ varying vec4 vColor;
 #define HOOK_VERT_DECLARATIONS_END
 
 void main() {
-  vColor = aColorA;
   vec4 clip0 = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPointA, 1.0);
   vec4 clip1 = uProjectionMatrix * uViewMatrix * uModelMatrix * vec4(aPointB, 1.0);
   vec2 screen0 = uResolution * (0.5 * clip0.xy/clip0.w + 0.5);
@@ -33,6 +33,7 @@ void main() {
   vec2 pt1 = screen1 + aColorA.a * uLineWidth * (aPosition.x * xBasis + aPosition.y * yBasis);
   vec2 pt = mix(pt0, pt1, aPosition.z);
   vec4 clip = mix(clip0, clip1, aPosition.z);
+  vColor = mix(aColorA, aColorB, aPosition.z);
 
   gl_Position = vec4(clip.w * ((2.0 * pt) / uResolution - 1.0), clip.z + uLineZOffset, clip.w);
 

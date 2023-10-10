@@ -23,6 +23,7 @@ ${SHADERS.output.frag}
 uniform sampler2D uTexture;
 uniform sampler2D uDepthTexture;
 uniform sampler2D uNormalTexture;
+uniform vec2 uViewportSize;
 uniform vec2 uTexelSize;
 
 #ifdef USE_NOISE_TEXTURE

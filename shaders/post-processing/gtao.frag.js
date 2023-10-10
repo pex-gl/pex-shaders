@@ -1,284 +1,244 @@
 import SHADERS from "../chunks/index.js";
 
+/**
+ * GTAO (Ground Truth)
+ * Paper: https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf
+ * Reference Implementation: https://github.com/GameTechDev/XeGTAO/blob/master/Source/Rendering/Shaders/XeGTAO.hlsli
+ */
 export default /* glsl */ `
 precision highp float;
+
+// Required defines:
+// Number of hemisphere slices:
+// #define NUM_SLICES 11
+// Number of sample per slice:
+// #define NUM_SAMPLES 7
+
+// Optional defines:
+// #define USE_NOISE_TEXTURE
+// #define USE_COLOR_BOUNCE
 
 ${SHADERS.output.frag}
 
 uniform sampler2D uTexture;
 uniform sampler2D uDepthTexture;
 uniform sampler2D uNormalTexture;
-uniform vec2 uViewportSize;
+uniform vec2 uTexelSize;
 
-uniform sampler2D uNoiseTexture;
+#ifdef USE_NOISE_TEXTURE
+  uniform sampler2D uNoiseTexture;
+  uniform float uNoiseTextureSize;
+#endif
+
 uniform float uNear;
 uniform float uFar;
 uniform float uFov;
 
-uniform float uIntensity; // Darkending factor
-uniform float uRadius; // World-space AO radius in scene units (r).  e.g., 1.0m
-// uniform float uBias; // Bias to avoid AO in smooth corners, e.g., 0.01m
+uniform float uIntensity;
+uniform float uRadius; // world (viewspace) maximum size of the shadow
+uniform float uBias;
 uniform float uBrightness;
 uniform float uContrast;
-// uniform vec2 uNoiseScale;
-vec2 uNoiseScale = vec2(10.0);
 
 #ifdef USE_COLOR_BOUNCE
 uniform float uColorBounceIntensity;
 #endif
 
 // Includes
-${SHADERS.math.random}
+${SHADERS.math.saturate}
+${SHADERS.math.round}
+${SHADERS.math.HALF_PI}
+${SHADERS.math.PI}
 ${SHADERS.math.TWO_PI}
 ${SHADERS.depthRead}
 ${SHADERS.depthPosition}
 ${SHADERS.colorCorrection}
 
+const float NUM_SLICES_FLOAT = float(NUM_SLICES);
+const float NUM_SAMPLES_FLOAT = float(NUM_SAMPLES);
+const float COLOR_DIVIDER = (NUM_SAMPLES_FLOAT * NUM_SLICES_FLOAT) * 2.0;
 
-// GTAO (Ground Truth)
-// https://github.com/gkjohnson/threejs-sandbox/blob/8ebf61b0a36d188ccf50f31d31dacc44319e3986/gtaoPass/src/GTAOShader.js#L16
-
-// #define USE_COLOR_BOUNCE
-// Total number of direct samples to take at each pixel
-// #define NUM_SAMPLES 11
-// const float NUM_SAMPLES_FLOAT = float(NUM_SAMPLES);
-// const float INV_NUM_SAMPLES_FLOAT = 1.0 / NUM_SAMPLES_FLOAT;
-
-${SHADERS.math.saturate}
-${SHADERS.math.PI}
-
-vec3 getPositionVS(vec2 uv) {
+vec3 getPositionView(vec2 uv) {
+  // TODO: sample depth from miplevel
   return reconstructPositionFromDepth(uv, readDepth(uDepthTexture, uv, uNear, uFar));
 }
 
-#define HALF_PI			1.5707963267948966
-#define ONE_OVER_PI		0.3183098861837906
-
-#define NUM_DIRECTIONS 16
-#define NUM_STEPS 16
-// #define RADIUS 5.0 // in world space
-
-#define ENABLE_FALLOFF 1
-#define FALLOFF_START2 0.16
-#define FALLOFF_END2 4.0
-
-// NONE: 0,
-// RANDOM: 1,
-// BLUE_NOISE: 2,
-#define ENABLE_ROTATION_JITTER 2
-#define ENABLE_RADIUS_JITTER 2
-
-// uniform vec4 params;
-vec4 params = vec4(0.0);
-
-// float round( float f ) {
-//   return f < 0.5 ? floor( f ) : ceil( f );
-// }
-// vec2 round( vec2 v ) {
-//   v.x = round( v.x );
-//   v.y = round( v.y );
-//   return v;
-// }
-
-float Falloff( float dist2 ) {
-  return 2.0 * clamp(
-    ( dist2 - FALLOFF_START2 ) / ( FALLOFF_END2 - FALLOFF_START2 ),
-    0.0,
-    1.0
-  );
+vec3 addColorBounce(vec3 normalView, vec2 uv, vec3 horizon, float radius) {
+  return texture2D(uTexture, uv).rgb *
+    saturate(dot(normalize(horizon), normalView)) *
+    pow(1.0 - saturate(length(horizon) / radius), 2.0);
 }
 
+#define FALLOFF_RANGE 0.615 // distant samples contribute less
+#define SAMPLE_DISTRIBUTION_POWER 2.0 // small crevices more important than big surfaces
+
+// if the offset is under approx pixel size (pixelTooCloseThreshold), push it out to the minimum distance
+const float pixelTooCloseThreshold = 1.3;
+
 void main() {
-  float occlusion = 0.0;
+  float visibility = 0.0;
 
   #ifdef USE_COLOR_BOUNCE
     vec3 color = vec3(0.0);
   #endif
 
-  vec2 vUV = gl_FragCoord.xy / uViewportSize;
-  vec3 originVS = getPositionVS(vUV);
+  vec2 vUV = gl_FragCoord.xy * uTexelSize;
+  vec3 centerPositionView = getPositionView(vUV);
 
-  float depth = clamp(smoothstep(uNear, uFar, -originVS.z), 0.0, 1.0);
+  float depth = saturate(smoothstep(uNear, uFar, -centerPositionView.z));
 
   if (depth >= 1.0) {
-  // if (normalColor.a == 0.0) {
-    // gl_FragColor = currColor;
-    // gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    // gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
-    // return;
-    occlusion = 1.0;
+    visibility = 1.0;
   } else {
-    vec4 normalColor = texture2D(uNormalTexture, vUV);
+    vec3 normalView = texture2D(uNormalTexture, vUV).rgb * 2.0 - 1.0;
 
-    vec3 normalVS = normalColor.rgb * 2.0 - 1.0;
-    vec2 screenCoord = gl_FragCoord.xy;
-    vec3 vpos = originVS; //GetViewPosition( renderSize * vUv );
+    vec3 viewVec = normalize(-centerPositionView);
 
-    // vpos.z *= -1.0;
-    // if it's the background
-    // if ( vpos.w == 1.0 ) {
-    //   gl_FragColor = vec4( 0.0, 0.0, 0.0, 1.0);
-    //   return;
-    // }
+    float sampleDistributionPower = SAMPLE_DISTRIBUTION_POWER;
+    float thinOccluderCompensation = uBias;
+    float falloffRange = FALLOFF_RANGE * uRadius;
 
-    vec3 s;
-    vec3 vnorm	= normalVS;//UnpackNormal( texture2D( normalBuffer, vUv ) );
-    vec3 vdir	= normalize( - vpos.xyz );
-    vec3 dir, ws;
+    float falloffFrom = uRadius * (1.0 - FALLOFF_RANGE);
 
-    // calculation uses left handed system
-    // vnorm.z = - vnorm.z;
+    // fadeout precompute optimisation
+    float falloffMul = -1.0 / falloffRange;
+    float falloffAdd = falloffFrom / falloffRange + 1.0;
 
-    vec2 noises	= vec2( 0.0 );
-    vec2 offset;
-    vec2 horizons = vec2( - 1.0, - 1.0 );
+    // Get the screen space radius
+    float projScale = 1.0 / (2.0 * tan(uFov * 0.5));
+    float viewspaceZ = texture2D(uDepthTexture, vUV).x;
+    // const vec2 pixelDirRBViewspaceSizeAtCenterZ = viewspaceZ.xx * consts.NDCToViewMul_x_PixelSize;
+    float pixelDirRBViewspaceSizeAtCenterZ = viewspaceZ * (projScale * uTexelSize.x);
+    float screenspaceRadius = uRadius / pixelDirRBViewspaceSizeAtCenterZ;
 
-    // scale the search radius by the depth and camera FOV
-    //float radius = ( RADIUS * clipInfo.z ) / vpos.z;
-    float RADIUS = uRadius / 10.0;
-    float radius = ( RADIUS * uFar ) / vpos.z;
-    radius = max( float( NUM_STEPS ), radius );
-    // radius = float(NUM_STEPS) * 20.0;
-
-    // float stepSize	= radius / float( NUM_STEPS );
-    float stepSize	= radius / float( NUM_STEPS ) * 6.0; //TEMP
-    float phi		= 0.0;
-    float division	= noises.y * stepSize;
-    float currStep	= 1.0 + division + 0.25 * stepSize * params.y;
-    float dist2, invdist, falloff, cosh;
-
-
-    #if ENABLE_ROTATION_JITTER == 1
+    #ifdef USE_NOISE_TEXTURE
+      vec2 noise = texture2D(uNoiseTexture, gl_FragCoord.xy / uNoiseTextureSize).xy;
+      float noiseSlice = noise.x;
+      float noiseSample = noise.y;
+    #else
       // Rotation jitter approach from
       // https://github.com/MaxwellGengYF/Unity-Ground-Truth-Ambient-Occlusion/blob/9cc30e0f31eb950a994c71866d79b2798d1c508e/Shaders/GTAO_Common.cginc#L152-L155
-      float rotJitterOffset = PI * fract( 52.9829189 * fract( dot( screenCoord, vec2( 0.06711056, 0.00583715 ) ) ) );
-    #elif ENABLE_ROTATION_JITTER == 2
-      // float rotJitterOffset = PI * texture2D( blueNoiseTex, gl_FragCoord.xy / blueNoiseSize ).r;
-      float rotJitterOffset = PI * texture2D(uNoiseTexture, gl_FragCoord.xy * uNoiseScale).x;
+      float noiseSlice = fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));
+      float jitterMod = (gl_FragCoord.x + gl_FragCoord.y) * 0.25;
+      float noiseSample = mod(jitterMod, 1.0) * (screenspaceRadius / NUM_SAMPLES_FLOAT) * 0.25;
     #endif
 
-    #if ENABLE_RADIUS_JITTER == 1
-      float jitterMod = ( gl_FragCoord.x + gl_FragCoord.y ) * 0.25;
-      float radiusJitterOffset = mod( jitterMod, 1.0 ) * stepSize * 0.25;
-    #elif ENABLE_RADIUS_JITTER == 2
-      // float radiusJitterOffset = PI * texture2D( blueNoiseTex, gl_FragCoord.xy / blueNoiseSize ).g;
-      float radiusJitterOffset = PI * texture2D(uNoiseTexture, gl_FragCoord.xy * uNoiseScale).y;
-    #endif
+    // fade out for small screen radii
+    visibility += saturate((10.0 - screenspaceRadius) / 100.0) * 0.5;
 
-    // #pragma unroll_loop_start
-    for ( int i = 0; i < NUM_DIRECTIONS; i ++ ) {
-      phi = float( i ) * ( PI / float( NUM_DIRECTIONS ) ) + params.x * PI;
+    if (screenspaceRadius < pixelTooCloseThreshold) {
+      gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+      return;
+    }
 
-      #if ENABLE_ROTATION_JITTER != 0
-        phi += rotJitterOffset;
-      #endif
+    // this is the min distance to start sampling from to avoid sampling from the center pixel (no useful data obtained from sampling center pixel)
+    float minS = pixelTooCloseThreshold / screenspaceRadius;
 
-      currStep = 1.0 + 0.25 * stepSize * params.y;
+    for (int slice = 0; slice < NUM_SLICES; slice++) {
+      float sliceFloat = float(slice);
+      float sliceK = (sliceFloat + noiseSlice) / NUM_SLICES_FLOAT;
+      float phi = sliceK * PI;
+      float cosPhi = cos(phi);
+      float sinPhi = sin(phi);
+      vec2 omega = vec2(cosPhi, sinPhi);
 
-      #if ENABLE_RADIUS_JITTER != 0
-        currStep += radiusJitterOffset;
-      #endif
+      // convert to screen units (pixels) for later use
+      omega *= screenspaceRadius;
 
-      dir = vec3( cos( phi ), sin( phi ), 0.0 );
-      horizons = vec2( - 1.0 );
+      vec3 directionVec = vec3(cosPhi, sinPhi, 0);
+      vec3 orthoDirectionVec = directionVec - (dot(directionVec, viewVec) * viewVec);
+      // axisVec is orthogonal to directionVec and viewVec, used to define projectedNormal
+      vec3 axisVec = normalize(cross(orthoDirectionVec, viewVec));
+      vec3 projectedNormalVec = normalView - axisVec * dot(normalView, axisVec);
 
-      // calculate horizon angles
-      for ( int j = 0; j < NUM_STEPS; ++ j ) {
-        offset = round( dir.xy * currStep );
+      float signNorm = sign(dot(orthoDirectionVec, projectedNormalVec));
+      float projectedNormalVecLength = length(projectedNormalVec);
+      float cosNorm = saturate(dot(projectedNormalVec, viewVec) / projectedNormalVecLength);
+      float n = signNorm * acos(cosNorm);
 
-        // h1
-        // s = GetViewPosition( screenCoord + offset );
-        // TODO: getOffsetPositionVS
-        s = getPositionVS((screenCoord + offset)/uViewportSize);
-        ws = s.xyz - vpos.xyz;
+      // this is a lower weight target; not using -1 as in the original paper because it is under horizon, so a 'weight' has different meaning based on the normal
+      float lowHorizonCos0 = cos(n + HALF_PI);
+      float lowHorizonCos1 = cos(n - HALF_PI);
 
-        dist2 = dot( ws, ws );
-        invdist = inversesqrt( dist2 );
-        cosh = invdist * dot( ws, vdir );
+      float horizonCos0 = lowHorizonCos0;
+      float horizonCos1 = lowHorizonCos1;
 
-        #if ENABLE_FALLOFF
-          falloff = Falloff( dist2 );
-        #endif
+      for (int j = 0; j < NUM_SAMPLES; j++) {
+        float stepFloat = float(j);
+        float stepNoise = fract(
+          noiseSample +
+          // R1 sequence (http://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences/)
+          (sliceFloat + stepFloat * NUM_SAMPLES_FLOAT) * 0.6180339887498948482
+        );
 
-        horizons.x = max( horizons.x, cosh - falloff );
+        // Snap to pixel center (more correct direction math, avoids artifacts due to sampling pos not matching depth texel center - messes up slope - but adds other
+        // artifacts due to them being pushed off the slice). Also use full precision for high res cases.
+        vec2 sampleOffset = round(
+          (
+            // minS to avoid sampling center pixel
+            pow((stepFloat + stepNoise) / NUM_SAMPLES_FLOAT, sampleDistributionPower) + minS
+          ) * omega
+        ) * uTexelSize;
 
-        #ifdef USE_COLOR_BOUNCE
-          vec3 ptColor, ptDir;
-          float alpha;
-          //ptColor = texture2D( colorBuffer, ( screenCoord + offset ) / renderSize ).rgb;
-          ptColor = texture2D( uTexture, ( screenCoord + offset ) / uViewportSize ).rgb;
-          ptDir = normalize( ws );
-          alpha = saturate( length( ws ) / float( RADIUS ) );
-          color += ptColor * saturate( dot( ptDir, vnorm ) ) * pow( ( 1.0 - alpha ), 2.0 );
-        #endif
+        vec2 sampleScreenPos0 = vUV + sampleOffset;
+        vec2 sampleScreenPos1 = vUV - sampleOffset;
 
-        // h2
-        // s = GetViewPosition( screenCoord - offset );
-        s = getPositionVS((screenCoord - offset)/uViewportSize);
-        ws = s.xyz - vpos.xyz;
-
-        dist2 = dot( ws, ws );
-        invdist = inversesqrt( dist2 );
-        cosh = invdist * dot( ws, vdir );
-
-        #if ENABLE_FALLOFF
-          falloff = Falloff( dist2 );
-        #endif
-
-        horizons.y = max( horizons.y, cosh - falloff );
-
-        // increment
-        currStep += stepSize;
+        vec3 sampleDelta0 = getPositionView(sampleScreenPos0) - centerPositionView;
+        vec3 sampleDelta1 = getPositionView(sampleScreenPos1) - centerPositionView;
+        float sampleDist0 = length(sampleDelta0);
+        float sampleDist1 = length(sampleDelta1);
 
         #ifdef USE_COLOR_BOUNCE
-          // ptColor = texture2D( colorBuffer, ( screenCoord - offset ) / renderSize ).rgb;
-          ptColor = texture2D( uTexture, ( screenCoord - offset ) / uViewportSize ).rgb;
-          ptDir = normalize( ws );
-          alpha = saturate( length( ws ) / float( RADIUS ) );
-          color += ptColor * saturate( dot( ptDir, vnorm ) ) * pow( ( 1.0 - alpha ), 2.0 );
+          color += addColorBounce(normalView, sampleScreenPos0, sampleDelta0, uRadius);
+          color += addColorBounce(normalView, sampleScreenPos1, sampleDelta1, uRadius);
         #endif
+
+        vec3 sampleHorizonVec0 = vec3(sampleDelta0 / sampleDist0);
+        vec3 sampleHorizonVec1 = vec3(sampleDelta1 / sampleDist1);
+
+        // this is our own thickness heuristic that relies on sooner discarding samples behind the center
+        float falloffBase0 = length(vec3(sampleDelta0.x, sampleDelta0.y, sampleDelta0.z * (1.0 + thinOccluderCompensation)));
+        float falloffBase1 = length(vec3(sampleDelta1.x, sampleDelta1.y, sampleDelta1.z * (1.0 + thinOccluderCompensation)));
+        float weight0 = saturate(falloffBase0 * falloffMul + falloffAdd);
+        float weight1 = saturate(falloffBase1 * falloffMul + falloffAdd);
+
+        // sample horizon cos
+        float shc0 = dot(sampleHorizonVec0, viewVec);
+        float shc1 = dot(sampleHorizonVec1, viewVec);
+
+        // discard unwanted samples
+        // this would be more correct but too expensive: cos(mix(acos(lowHorizonCosN), acos(shcN), weightN));
+        shc0 = mix(lowHorizonCos0, shc0, weight0);
+        shc1 = mix(lowHorizonCos1, shc1, weight1);
+
+        // thicknessHeuristic disabled
+        // https://github.com/GameTechDev/XeGTAO/tree/master#thin-occluder-conundrum
+        horizonCos0 = max(horizonCos0, shc0);
+        horizonCos1 = max(horizonCos1, shc1);
       }
 
-      horizons = acos( horizons );
+      // I can't figure out the slight overdarkening on high slopes, so I'm adding this fudge - in the training set, 0.05 is close (PSNR 21.34) to disabled (PSNR 21.45)
+      projectedNormalVecLength = mix(projectedNormalVecLength, 1.0, 0.05);
 
-      // calculate gamma
-      vec3 bitangent	= normalize( cross( dir, vdir ) );
-      vec3 tangent	= cross( vdir, bitangent );
-      vec3 nx			= vnorm - bitangent * dot( vnorm, bitangent );
+      float h0 = 2.0 * -acos(horizonCos1);
+      float h1 = 2.0 * acos(horizonCos0);
 
-      float nnx		= length( nx );
-      float invnnx	= 1.0 / ( nnx + 1e-6 );			// to avoid division with zero
-      float cosxi		= dot( nx, tangent ) * invnnx;	// xi = gamma + HALF_PI
-      float gamma		= acos( cosxi ) - HALF_PI;
-      float cosgamma	= dot( nx, vdir ) * invnnx;
-      float singamma2	= - 2.0 * cosxi;					// cos(x + HALF_PI) = -sin(x)
-
-      // clamp to normal hemisphere
-      horizons.x = gamma + max( - horizons.x - gamma, - HALF_PI );
-      horizons.y = gamma + min( horizons.y - gamma, HALF_PI );
-
-      // Riemann integral is additive
-      occlusion += nnx * 0.25 * (
-        ( horizons.x * singamma2 + cosgamma - cos( 2.0 * horizons.x - gamma ) ) +
-        ( horizons.y * singamma2 + cosgamma - cos( 2.0 * horizons.y - gamma ) ) );
+      visibility += projectedNormalVecLength * (
+        (cosNorm + h0 * sin(n) - cos(h0 - n)) +
+        (cosNorm + h1 * sin(n) - cos(h1 - n))
+      ) * 0.25;
     }
-    // #pragma unroll_loop_end
 
-    // PDF = 1 / pi and must normalize with pi because of Lambert
-    occlusion = occlusion / float( NUM_DIRECTIONS );
-
-    occlusion = clamp(pow(occlusion, 1.0 + uIntensity), 0.0, 1.0);
-    // occlusion = 0.25 + 0.75 * occlusion;
+    visibility = max(0.03, pow(visibility / NUM_SLICES_FLOAT, 1.0 + uIntensity));
   }
 
-  occlusion = clamp(brightnessContrast(occlusion, uBrightness, uContrast), 0.0, 1.0);
+  visibility = saturate(brightnessContrast(visibility, uBrightness, uContrast));
 
   #ifdef USE_COLOR_BOUNCE
-    color /= float( NUM_STEPS * NUM_DIRECTIONS ) * 2.0 / uColorBounceIntensity;
-    gl_FragColor = vec4(color, occlusion);
+    color /= COLOR_DIVIDER / uColorBounceIntensity;
+    gl_FragColor = vec4(color, visibility);
   #else
-  // gl_FragColor = vec4(0.0, 0.0, 0.0, occlusion);
-  gl_FragColor = vec4(occlusion, 0.0, 0.0, 1.0);
+    gl_FragColor = vec4(visibility, 0.0, 0.0, 1.0);
   #endif
 
   ${SHADERS.output.assignment}

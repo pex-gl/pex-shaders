@@ -1,3 +1,6 @@
+const HALF_PI = /* glsl */ `
+const float HALF_PI = 1.57079632679;
+`;
 const PI = /* glsl */ `
 const float PI = 3.14159265359;
 `;
@@ -16,6 +19,20 @@ const saturate = /* glsl */ `
 #define saturateMediump(x) min(x, MEDIUMP_FLT_MAX)
 
 #define saturate(x) clamp(x, 0.0, 1.0)
+`;
+
+const round = /* glsl */ `
+#if (__VERSION__ < 300)
+float round(float f) {
+  return f < 0.5 ? floor(f) : ceil(f);
+}
+
+vec2 round(vec2 v) {
+  v.x = round(v.x);
+  v.y = round(v.y);
+  return v;
+}
+#endif
 `;
 
 const quatToMat4 = /* glsl */ `
@@ -178,16 +195,19 @@ mat4 inverse(mat4 m) {
 }
 #endif
 `;
+
 const random = /* glsl */ `
 float rand(vec2 seed) {
-	return fract(sin(dot(seed ,vec2(12.9898,78.233))) * 43758.5453); // * 1231534.9);
+  return fract(sin(dot(seed ,vec2(12.9898,78.233))) * 43758.5453); // * 1231534.9);
 }
 `;
 
 export default {
+  HALF_PI,
   PI,
   TWO_PI,
   saturate,
+  round,
   quatToMat4,
   multQuat,
   transposeMat3,

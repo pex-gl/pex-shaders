@@ -8,6 +8,7 @@ ${SHADERS.output.frag}
 uniform sampler2D uTexture;
 uniform sampler2D uDepthTexture;
 uniform vec2 uViewportSize;
+uniform vec2 uTexelSize;
 
 uniform float uNear;
 uniform float uFar;
@@ -97,7 +98,6 @@ vec3 depthOfFieldGustafsson(vec2 texCoord, float focusDistance) {
   float A = F / uFStop;
   float focusScale = A * F / (focusDistance - F); // mm * mm / mm = mm
 
-  vec2 texelSize = 1.0 / uViewportSize;
   float resolutionScale = uViewportSize.y / 1080.0; // pow(uViewportSize.y / 1080.0, 2.0);
   float centerDepth = readDepth(uDepthTexture, texCoord, uNear, uFar) * 1000.0; // m -> mm
   float centerSize = getBlurSize(centerDepth, focusDistance, focusScale); // mm
@@ -115,7 +115,7 @@ vec3 depthOfFieldGustafsson(vec2 texCoord, float focusDistance) {
 
   for (float ang = 0.0; ang < MAX_BLUR_SIZE * float(NUM_SAMPLES); ang += GOLDEN_ANGLE) {
   // for (float ang = 0.0; ang < 180.0; ang += GOLDEN_ANGLE) {
-    vec2 tc = texCoord + vec2(cos(ang), sin(ang)) * texelSize * radius;
+    vec2 tc = texCoord + vec2(cos(ang), sin(ang)) * uTexelSize * radius;
 
     float sampleDepth = readDepth(uDepthTexture, tc, uNear, uFar) * 1000.0; // m -> mm;
     float sampleSize = getBlurSize(sampleDepth, focusDistance, focusScale); // mm
@@ -128,7 +128,7 @@ vec3 depthOfFieldGustafsson(vec2 texCoord, float focusDistance) {
     // tot += 1.0;
 
     // Apply chromatic aberration
-    color += processSample(tc, m, texelSize) * m;
+    color += processSample(tc, m, uTexelSize) * m;
     tot += m;
 
     radius += RAD_SCALE / radius * resolutionScale;
@@ -185,8 +185,6 @@ float bias = 0.5; // bokeh edge bias
 #endif
 
 vec3 depthOfFieldUpitis(vec2 texCoord, float focusDistance) {
-  vec2 texelSize = 1.0 / uViewportSize;
-
   float centerDepth = readDepth(uDepthTexture, texCoord, uNear, uFar) * 1000.0;
 
   float plane = (centerDepth * uFocalLength) / (centerDepth - uFocalLength);
@@ -205,7 +203,7 @@ vec3 depthOfFieldUpitis(vec2 texCoord, float focusDistance) {
   vec3 color = texture2D(uTexture, texCoord).rgb;
 
   if (blur >= 0.05) {
-    vec2 blurFactor = blur * maxBlur * texelSize;
+    vec2 blurFactor = blur * maxBlur * uTexelSize;
 
     float s = 1.0;
     int ringSamples;
@@ -231,7 +229,7 @@ vec3 depthOfFieldUpitis(vec2 texCoord, float focusDistance) {
         #endif
 
         float m = mix(1.0, iFloat / ringFloat, bias) * p;
-        color += processSample(texCoord + wh * blurFactor, blur, texelSize) * m;
+        color += processSample(texCoord + wh * blurFactor, blur, uTexelSize) * m;
         s += m;
       }
     }

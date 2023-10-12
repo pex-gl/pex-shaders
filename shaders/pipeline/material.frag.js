@@ -95,6 +95,7 @@ struct PBRData {
 
 // Includes
 ${SHADERS.math.PI}
+${SHADERS.math.TWO_PI}
 ${SHADERS.math.saturate}
 ${SHADERS.math.transposeMat3}
 ${SHADERS.math.multQuat}
@@ -112,6 +113,7 @@ ${SHADERS.ambientOcclusion}
   // Lighting
   ${SHADERS.octMap}
   ${SHADERS.depthUnpack}
+  ${SHADERS.depthRead}
   ${SHADERS.normalPerturb}
   ${SHADERS.irradiance}
   ${SHADERS.shadowing}

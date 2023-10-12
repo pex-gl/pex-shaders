@@ -14,6 +14,7 @@ struct SpotLight {
   float near;
   float far;
   float bias;
+  vec2 radiusUV;
   vec2 shadowMapSize;
 };
 
@@ -27,7 +28,17 @@ void EvaluateSpotLight(inout PBRData data, SpotLight light, sampler2D shadowMap)
   vec3 lightDeviceCoordsPositionNormalized = lightDeviceCoordsPosition.xyz / lightDeviceCoordsPosition.w;
   vec2 lightUV = lightDeviceCoordsPositionNormalized.xy * 0.5 + 0.5;
 
-  float illuminated = bool(light.castShadows) ? getShadow(shadowMap, light.shadowMapSize, lightUV, lightDistView - light.bias, light.near, light.far) : 1.0;
+  float illuminated = bool(light.castShadows)
+    ? getShadow(shadowMap,
+        light.shadowMapSize,
+        lightUV,
+        lightDistView - light.bias,
+        light.near,
+        light.far,
+        lightDeviceCoordsPositionNormalized.z,
+        light.radiusUV
+      )
+    : 1.0;
 
   if (illuminated > 0.0) {
     vec3 posToLight = light.position - data.positionWorld;

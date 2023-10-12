@@ -7,6 +7,7 @@ struct PointLight {
   float range;
   bool castShadows;
   float bias;
+  float radius;
   vec2 shadowMapSize;
 };
 
@@ -18,7 +19,7 @@ void EvaluatePointLight(inout PBRData data, PointLight light, samplerCube shadow
   float lightDistWorld = length(positionToLightWorld);
 
   float illuminated = bool(light.castShadows)
-    ? getPunctualShadow(shadowMap, light.shadowMapSize, positionToLightWorld, lightDistWorld - light.bias)
+    ? getPunctualShadow(shadowMap, light.shadowMapSize, positionToLightWorld, lightDistWorld - light.bias, light.radius)
     : 1.0;
 
   if (illuminated > 0.0) {

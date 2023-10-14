@@ -69,60 +69,93 @@ const program = {
 <dd></dd>
 </dl>
 
+## Members
+
+<dl>
+<dt><a href="#default">default</a></dt>
+<dd><p>Down Sample
+Reference Implementation: <a href="https://github.com/keijiro/KinoBloom">https://github.com/keijiro/KinoBloom</a></p>
+</dd>
+<dt><a href="#default">default</a></dt>
+<dd><p>GTAO (Ground Truth)
+Paper: <a href="https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf">https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf</a>
+Reference Implementation: <a href="https://github.com/GameTechDev/XeGTAO/blob/master/Source/Rendering/Shaders/XeGTAO.hlsli">https://github.com/GameTechDev/XeGTAO/blob/master/Source/Rendering/Shaders/XeGTAO.hlsli</a></p>
+</dd>
+<dt><a href="#default">default</a></dt>
+<dd><p>SAO (Scalable Ambient Obscurance)
+Paper: <a href="https://research.nvidia.com/sites/default/files/pubs/2012-06_Scalable-Ambient-Obscurance/McGuire12SAO.pdf">https://research.nvidia.com/sites/default/files/pubs/2012-06_Scalable-Ambient-Obscurance/McGuire12SAO.pdf</a>
+<a href="https://casual-effects.com/research/McGuire2012SAO/index.html">https://casual-effects.com/research/McGuire2012SAO/index.html</a>
+Reference Implementation: <a href="https://gist.github.com/transitive-bullshit/6770311">https://gist.github.com/transitive-bullshit/6770311</a>
+Updates: Marcin Ignac (2017-05-08) and Damien Seguin (2023-10)</p>
+</dd>
+<dt><a href="#default">default</a></dt>
+<dd><p>Up Sample
+Reference Implementation: <a href="https://github.com/keijiro/KinoBloom">https://github.com/keijiro/KinoBloom</a></p>
+</dd>
+</dl>
+
 <a name="module_pex-shaders"></a>
 
 ## pex-shaders
 
 - [pex-shaders](#module_pex-shaders)
-  - [.chunks](#module_pex-shaders.chunks) : <code>object</code>
-  - [.pipeline](#module_pex-shaders.pipeline) : <code>object</code>
-  - [.postProcessing](#module_pex-shaders.postProcessing) : <code>object</code>
-  - [.reflectionProbe](#module_pex-shaders.reflectionProbe) : <code>object</code>
-  - [.skybox](#module_pex-shaders.skybox) : <code>object</code>
-  - [.parser](#module_pex-shaders.parser) : <code>parser</code>
+  - [module.exports](#exp_module_pex-shaders--module.exports) : <code>object</code> ⏏
+    - [.chunks](#module_pex-shaders--module.exports.chunks) : <code>object</code>
+    - [.pipeline](#module_pex-shaders--module.exports.pipeline) : <code>object</code>
+    - [.postProcessing](#module_pex-shaders--module.exports.postProcessing) : <code>object</code>
+    - [.reflectionProbe](#module_pex-shaders--module.exports.reflectionProbe) : <code>object</code>
+    - [.skybox](#module_pex-shaders--module.exports.skybox) : <code>object</code>
+    - [.parser](#module_pex-shaders--module.exports.parser) : <code>parser</code>
 
-<a name="module_pex-shaders.chunks"></a>
+<a name="exp_module_pex-shaders--module.exports"></a>
 
-### pex-shaders.chunks : <code>object</code>
+### module.exports : <code>object</code> ⏏
+
+Re-export tone mapping functions
+
+**Kind**: Exported member
+<a name="module_pex-shaders--module.exports.chunks"></a>
+
+#### module.exports.chunks : <code>object</code>
 
 Various shader chunks to be inserted in main shaders
 
-**Kind**: static property of [<code>pex-shaders</code>](#module_pex-shaders)
-<a name="module_pex-shaders.pipeline"></a>
+**Kind**: static property of [<code>module.exports</code>](#exp_module_pex-shaders--module.exports)
+<a name="module_pex-shaders--module.exports.pipeline"></a>
 
-### pex-shaders.pipeline : <code>object</code>
+#### module.exports.pipeline : <code>object</code>
 
 Main shaders
 
-**Kind**: static property of [<code>pex-shaders</code>](#module_pex-shaders)
-<a name="module_pex-shaders.postProcessing"></a>
+**Kind**: static property of [<code>module.exports</code>](#exp_module_pex-shaders--module.exports)
+<a name="module_pex-shaders--module.exports.postProcessing"></a>
 
-### pex-shaders.postProcessing : <code>object</code>
+#### module.exports.postProcessing : <code>object</code>
 
 Post-processing shaders that operate on fullscreen
 
-**Kind**: static property of [<code>pex-shaders</code>](#module_pex-shaders)
-<a name="module_pex-shaders.reflectionProbe"></a>
+**Kind**: static property of [<code>module.exports</code>](#exp_module_pex-shaders--module.exports)
+<a name="module_pex-shaders--module.exports.reflectionProbe"></a>
 
-### pex-shaders.reflectionProbe : <code>object</code>
+#### module.exports.reflectionProbe : <code>object</code>
 
 Reflection probes specific shaders
 
-**Kind**: static property of [<code>pex-shaders</code>](#module_pex-shaders)
-<a name="module_pex-shaders.skybox"></a>
+**Kind**: static property of [<code>module.exports</code>](#exp_module_pex-shaders--module.exports)
+<a name="module_pex-shaders--module.exports.skybox"></a>
 
-### pex-shaders.skybox : <code>object</code>
+#### module.exports.skybox : <code>object</code>
 
 Skybox specific shaders
 
-**Kind**: static property of [<code>pex-shaders</code>](#module_pex-shaders)
-<a name="module_pex-shaders.parser"></a>
+**Kind**: static property of [<code>module.exports</code>](#exp_module_pex-shaders--module.exports)
+<a name="module_pex-shaders--module.exports.parser"></a>
 
-### pex-shaders.parser : <code>parser</code>
+#### module.exports.parser : <code>parser</code>
 
 Shader string manipulation helpers
 
-**Kind**: static property of [<code>pex-shaders</code>](#module_pex-shaders)
+**Kind**: static property of [<code>module.exports</code>](#exp_module_pex-shaders--module.exports)
 <a name="module_parser"></a>
 
 ## parser
@@ -220,6 +253,43 @@ Get a formatted error pointing at the issue line
 | ------- | ------------------- |
 | error   | <code>Error</code>  |
 | options | <code>Object</code> |
+
+<a name="default"></a>
+
+## default
+
+Down Sample
+Reference Implementation: https://github.com/keijiro/KinoBloom
+
+**Kind**: global variable
+<a name="default"></a>
+
+## default
+
+GTAO (Ground Truth)
+Paper: https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf
+Reference Implementation: https://github.com/GameTechDev/XeGTAO/blob/master/Source/Rendering/Shaders/XeGTAO.hlsli
+
+**Kind**: global variable
+<a name="default"></a>
+
+## default
+
+SAO (Scalable Ambient Obscurance)
+Paper: https://research.nvidia.com/sites/default/files/pubs/2012-06_Scalable-Ambient-Obscurance/McGuire12SAO.pdf
+https://casual-effects.com/research/McGuire2012SAO/index.html
+Reference Implementation: https://gist.github.com/transitive-bullshit/6770311
+Updates: Marcin Ignac (2017-05-08) and Damien Seguin (2023-10)
+
+**Kind**: global variable
+<a name="default"></a>
+
+## default
+
+Up Sample
+Reference Implementation: https://github.com/keijiro/KinoBloom
+
+**Kind**: global variable
 
 <!-- api-end -->
 

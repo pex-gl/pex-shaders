@@ -1,6 +1,24 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+
+# [1.0.0-alpha.15](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.14...v1.0.0-alpha.15) (2023-10-14)
+
+
+### Bug Fixes
+
+* add uViewportSize for depth position read in ssao ([b19b3b4](https://github.com/pex-gl/pex-shaders/commit/b19b3b410cb9bf5381d5d3789e06f8e671bf903f))
+
+
+### Features
+
+* add pipeline blit ([81eee7c](https://github.com/pex-gl/pex-shaders/commit/81eee7c627a5a9d5b934ddf72dd8d8bd9a61644c))
+* add tone map, exposure and output encoding to all pipeline shaders ([ac88db5](https://github.com/pex-gl/pex-shaders/commit/ac88db513492135e162e45b410a3365d53a63b26))
+* add uTexelSize to post pro + fix bloom ([912e5d3](https://github.com/pex-gl/pex-shaders/commit/912e5d34b9d62775312a740778cdaf61e9a4060b))
+* parametrize PCSS ([2a613c7](https://github.com/pex-gl/pex-shaders/commit/2a613c7005ed9b88c5c4318c3564f26a2ab876ec))
+* upgrade GTAO ([82f6d9e](https://github.com/pex-gl/pex-shaders/commit/82f6d9e4c9162df64ac3a9dc8664524dba7967df))
+
+
 
 # [1.0.0-alpha.14](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.13...v1.0.0-alpha.14) (2023-10-04)
 

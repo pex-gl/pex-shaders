@@ -1,6 +1,6 @@
 {
   "name": "pex-shaders",
-  "version": "1.0.0-alpha.14",
+  "version": "1.0.0-alpha.15",
   "description": "Shader library and manipulation for PEX.",
   "keywords": [
     "pex",
@@ -28,14 +28,14 @@
     "dev": "snowdev dev",
     "release": "snowdev release"
   },
+  "dependencies": {
+    "glsl-tone-map": "^2.0.1"
+  },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=8.6.0"
   },
   "snowdev": {
     "files": "{*.js,shaders/**/*.js}"
-  },
-  "dependencies": {
-    "glsl-tone-map": "^2.0.1"
   }
 }

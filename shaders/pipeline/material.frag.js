@@ -1,3 +1,5 @@
+import * as glslToneMap from "glsl-tone-map";
+
 import SHADERS from "../chunks/index.js";
 
 export default /* glsl */ `
@@ -25,12 +27,8 @@ uniform highp mat4 uModelMatrix;
 
 uniform vec3 uCameraPosition;
 
+uniform float uExposure;
 uniform int uOutputEncoding;
-
-#ifdef USE_TONEMAPPING
-  ${SHADERS.tonemapUncharted2}
-  uniform float uExposure;
-#endif
 
 varying vec3 vNormalWorld;
 varying vec3 vNormalView;
@@ -108,6 +106,7 @@ ${SHADERS.baseColor}
 ${SHADERS.sheenColor}
 ${SHADERS.alpha}
 ${SHADERS.ambientOcclusion}
+${Object.values(glslToneMap).join("\n")}
 
 #ifndef USE_UNLIT_WORKFLOW
   // Lighting
@@ -301,12 +300,13 @@ void main() {
       vec3 rgb = mix(color.rgb, color.rgb * gtaoMultiBounce(aoData.a, color.rgb), uSSAOMix);
       color.rgb = vec3(rgb + aoData.rgb * color.rgb * 2.0);
     #endif
-
-    #ifdef USE_TONEMAPPING
-      color.rgb *= uExposure;
-      color.rgb = tonemapUncharted2(color.rgb);
-    #endif
   #endif // USE_UNLIT_WORKFLOW
+
+  color.rgb *= uExposure;
+
+  #if defined(TONEMAP)
+    color.rgb = TONEMAP(color.rgb);
+  #endif
 
   gl_FragData[0] = encode(vec4(color, 1.0), uOutputEncoding);
 

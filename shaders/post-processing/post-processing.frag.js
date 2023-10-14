@@ -1,3 +1,5 @@
+import * as glslToneMap from "glsl-tone-map";
+
 import SHADERS from "../chunks/index.js";
 
 export default /* glsl */ `precision highp float;
@@ -10,7 +12,7 @@ uniform sampler2D uDepthTexture;
 uniform vec4 uViewport;
 uniform vec2 uViewportSize;
 
-uniform int uTextureEncoding;
+// uniform int uTextureEncoding;
 
 // Camera
 uniform mat4 uViewMatrix;
@@ -19,13 +21,16 @@ uniform float uNear;
 uniform float uFar;
 uniform float uFov;
 uniform float uExposure;
+uniform int uOutputEncoding;
 
 // Includes
 ${SHADERS.math.PI}
+${SHADERS.math.saturate}
 ${SHADERS.rgbm}
 ${SHADERS.gamma}
 ${SHADERS.encodeDecode}
 ${SHADERS.depthRead}
+${Object.values(glslToneMap).join("\n")}
 
 #ifdef USE_FOG
   uniform float uFogStart;
@@ -76,23 +81,7 @@ ${SHADERS.depthRead}
 
 uniform float uOpacity;
 
-uniform int uOutputEncoding;
-
 varying vec2 vTexCoord0;
-
-vec3 tonemapAces( vec3 x ) {
-  float tA = 2.5;
-  float tB = 0.03;
-  float tC = 2.43;
-  float tD = 0.59;
-  float tE = 0.14;
-  return clamp((x*(tA*x+tB))/(x*(tC*x+tD)+tE),0.0,1.0);
-}
-
-// HDR [0, Infinity) -> LDR [0, 1)
-// vec3 reinhard(vec3 x) {
-//   return x / (1.0 + x);
-// }
 
 // LDR -> HDR
 // Do I need more complex like: https://github.com/libretro/slang-shaders/blob/master/bezel/Mega_Bezel/shaders/megatron/include/inverse_tonemap.h
@@ -160,13 +149,15 @@ void main() {
     color.rgb += texture2D(uBloomTexture, uv).rgb * uBloomIntensity;
   #endif
 
+  // Tonemapping and gamma conversion
   color.rgb *= uExposure;
 
-  // Tonemapping and gamma conversion
-  // TODO: custom tonemap
-  color.rgb = tonemapAces(color.rgb);
-  color.rgb = min(vec3(1.0), max(vec3(0.0), color.rgb));
-  color.rgb = toGamma(color.rgb);
+  #if defined(TONEMAP)
+    color.rgb = TONEMAP(color.rgb);
+    color.rgb = saturate(color.rgb);
+  #endif
+
+  color = encode(color, uOutputEncoding);
 
   // LDR effects
   #ifdef USE_LUT
@@ -184,8 +175,6 @@ void main() {
   #endif
 
   gl_FragColor = color;
-
-  gl_FragColor = encode(color, uOutputEncoding);
   gl_FragColor.a *= uOpacity;
 
   ${SHADERS.output.assignment}

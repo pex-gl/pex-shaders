@@ -10,11 +10,6 @@ export default /* glsl */ `
   varying vec2 vTexCoord0LeftDown;
   varying vec2 vTexCoord0RightDown;
 
-  // TODO: chunk
-  // HDR [0, Infinity) -> LDR [0, 1)
-  vec3 reinhard(vec3 x) {
-    return x / (1.0 + x);
-  }
   vec3 readTextureLDR(sampler2D tex, vec2 uv) {
     return reinhard(texture2D(tex, uv).xyz);
   }

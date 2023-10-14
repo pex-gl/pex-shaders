@@ -1,3 +1,5 @@
+import * as glslToneMap from "glsl-tone-map";
+
 import SHADERS from "../chunks/index.js";
 
 export default /* glsl */ `
@@ -11,14 +13,31 @@ precision highp float;
 
 ${SHADERS.output.frag}
 
+uniform float uExposure;
+uniform int uOutputEncoding;
+
 uniform vec4 uBaseColor;
 
 varying vec4 vColor;
 
+// Includes
+${SHADERS.rgbm}
+${SHADERS.gamma}
+${SHADERS.encodeDecode}
+${Object.values(glslToneMap).join("\n")}
+
 #define HOOK_FRAG_DECLARATIONS_END
 
 void main() {
-  gl_FragData[0] = uBaseColor * vColor;
+  vec4 color = uBaseColor * vColor;
+
+  color.rgb *= uExposure;
+
+  #if defined(TONEMAP)
+    color.rgb = TONEMAP(color.rgb);
+  #endif
+
+  gl_FragData[0] = encode(color, uOutputEncoding);
 
   #ifdef USE_DRAW_BUFFERS
     gl_FragData[1] = vec4(0.0);

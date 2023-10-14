@@ -43,3 +43,9 @@ export {
  * @static
  */
 export * as parser from "./parser.js";
+
+/**
+ * Re-export tone mapping functions
+ * @type {object}
+ */
+export * as toneMap from "glsl-tone-map";

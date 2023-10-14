@@ -34,5 +34,8 @@
   },
   "snowdev": {
     "files": "{*.js,shaders/**/*.js}"
+  },
+  "dependencies": {
+    "glsl-tone-map": "^2.0.1"
   }
 }

@@ -78,8 +78,8 @@ export function patchES300(src, stage = "vertex") {
           ? trimmedLine.replace(
               /;/,
               `;\nlayout (location = 0) out vec4 outColor;
-layout (location = 1) out vec4 outEmissiveColor;
-layout (location = 2) out vec4 outNormal;`,
+layout (location = 1) out vec4 outNormal;
+layout (location = 2) out vec4 outEmissive;`
             )
           : line;
       })
@@ -92,11 +92,10 @@ layout (location = 2) out vec4 outNormal;`,
       .replace(/texture2DGradEXT/g, "textureGrad")
       .replace(/texture2DProjGradEXT/g, "textureProjGrad")
       .replace(/textureCubeGradEXT/g, "textureGrad")
-      // .replace("precision mediump float", "precision highp float")
       .replace(/gl_FragData\[0\]/g, "outColor")
       .replace(/gl_FragColor/g, "outColor")
-      .replace(/gl_FragData\[1\]/g, "outEmissiveColor")
-      .replace(/gl_FragData\[2\]/g, "outNormal");
+      .replace(/gl_FragData\[1\]/g, "outNormal")
+      .replace(/gl_FragData\[2\]/g, "outEmissive");
   }
 
   return `${GLSL3}\n${src}`;

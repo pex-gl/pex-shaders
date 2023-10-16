@@ -40,8 +40,12 @@ void main() {
   gl_FragData[0] = encode(color, uOutputEncoding);
 
   #ifdef USE_DRAW_BUFFERS
-    gl_FragData[1] = vec4(0.0);
-    gl_FragData[2] = vec4(0.0);
+    #if LOCATION_NORMAL >= 0
+      gl_FragData[LOCATION_NORMAL] = vec4(0.0);
+    #endif
+    #if LOCATION_EMISSIVE >= 0
+      gl_FragData[LOCATION_EMISSIVE] = vec4(0.0);
+    #endif
   #endif
 
   ${SHADERS.output.assignment}

@@ -311,11 +311,11 @@ void main() {
   gl_FragData[0] = encode(vec4(color, 1.0), uOutputEncoding);
 
   #ifdef USE_DRAW_BUFFERS
-    #ifdef OUTPUT_NORMALS
-      gl_FragData[1] = vec4(data.normalView * 0.5 + 0.5, 1.0);
+    #if LOCATION_NORMAL >= 0
+      gl_FragData[LOCATION_NORMAL] = vec4(data.normalView * 0.5 + 0.5, 1.0);
     #endif
-    #ifdef OUTPUT_EMISSIVE
-      gl_FragData[2] = encode(vec4(data.emissiveColor, 1.0), uOutputEncoding);
+    #if LOCATION_EMISSIVE >= 0
+      gl_FragData[LOCATION_EMISSIVE] = encode(vec4(data.emissiveColor, 1.0), uOutputEncoding);
     #endif
   #endif
   #ifdef USE_BLEND

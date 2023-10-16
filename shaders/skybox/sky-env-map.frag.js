@@ -1,6 +1,12 @@
 import SHADERS from "../chunks/index.js";
 
 export default /* glsl */ `
+#if (__VERSION__ < 300)
+  #ifdef USE_DRAW_BUFFERS
+    #extension GL_EXT_draw_buffers : enable
+  #endif
+#endif
+
 precision highp float;
 
 ${SHADERS.output.frag}
@@ -44,6 +50,15 @@ void main() {
   color.a = 1.0;
 
   gl_FragData[0] = encode(color, uOutputEncoding);
+
+  #ifdef USE_DRAW_BUFFERS
+    #if LOCATION_NORMAL >= 0
+      gl_FragData[LOCATION_NORMAL] = vec4(0.0);
+    #endif
+    #if LOCATION_EMISSIVE >= 0
+      gl_FragData[LOCATION_EMISSIVE] = vec4(0.0);
+    #endif
+  #endif
 
   ${SHADERS.output.assignment}
 }

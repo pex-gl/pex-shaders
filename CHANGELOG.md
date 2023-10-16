@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.16](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.15...v1.0.0-alpha.16) (2023-10-16)
+
+
+### Features
+
+* use define for draw buffers location ([5d66dbd](https://github.com/pex-gl/pex-shaders/commit/5d66dbd23bb3184ee9dbc630ceece5e2b6f0e860))
+
+
+
 # [1.0.0-alpha.15](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.14...v1.0.0-alpha.15) (2023-10-14)
 
 

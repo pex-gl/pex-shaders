@@ -11,6 +11,8 @@ uniform sampler2D uTexture;
 uniform sampler2D uDepthTexture;
 uniform vec4 uViewport;
 uniform vec2 uViewportSize;
+uniform vec2 uTexelSize;
+uniform float uTime;
 
 // uniform int uTextureEncoding;
 
@@ -32,6 +34,10 @@ ${SHADERS.encodeDecode}
 ${SHADERS.depthRead}
 ${Object.values(glslToneMap).join("\n")}
 
+#if defined(USE_AA) || defined(USE_FILM_GRAIN)
+  ${SHADERS.luma}
+#endif
+
 #ifdef USE_FOG
   uniform float uFogStart;
   uniform vec3 uSunPosition;
@@ -41,7 +47,6 @@ ${Object.values(glslToneMap).join("\n")}
 #endif
 
 #ifdef USE_AA
-  ${SHADERS.luma}
   ${SHADERS.fxaa}
 #endif
 
@@ -53,6 +58,20 @@ ${Object.values(glslToneMap).join("\n")}
 #ifdef USE_BLOOM
   uniform sampler2D uBloomTexture;
   uniform float uBloomIntensity;
+#endif
+
+#ifdef USE_FILM_GRAIN
+  uniform float uFilmGrainSize;
+  uniform float uFilmGrainIntensity;
+  uniform float uFilmGrainColorIntensity;
+  uniform float uFilmGrainLuminanceIntensity;
+  uniform float uFilmGrainSpeed;
+
+  ${SHADERS.noise.common}
+  ${SHADERS.noise.simplex}
+  ${SHADERS.noise.perlin}
+  ${SHADERS.math.random}
+  ${SHADERS.filmGrain}
 #endif
 
 #ifdef USE_LUT
@@ -147,6 +166,19 @@ void main() {
 
   #ifdef USE_BLOOM
     color.rgb += texture2D(uBloomTexture, uv).rgb * uBloomIntensity;
+  #endif
+
+  #ifdef USE_FILM_GRAIN
+    color.rgb = filmGrain(
+      color.rgb,
+      uv,
+      uViewportSize,
+      uFilmGrainSize,
+      uFilmGrainIntensity,
+      uFilmGrainColorIntensity,
+      uFilmGrainLuminanceIntensity,
+      floor(uTime * uFilmGrainSpeed * 60.0)
+    );
   #endif
 
   // Tonemapping and gamma conversion

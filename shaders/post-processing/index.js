@@ -6,7 +6,7 @@ import postProcessingVert from "./post-processing.vert.js";
 import saoFrag from "./sao.frag.js";
 import gtaoFrag from "./gtao.frag.js";
 import thresholdFrag from "./threshold.frag.js";
-import upSample from "./up-sample.frag.js";
+import upSampleFrag from "./up-sample.frag.js";
 
 export default {
   bilateralBlur: { frag: bilateralBlurFrag },
@@ -16,5 +16,5 @@ export default {
   sao: { frag: saoFrag },
   gtao: { frag: gtaoFrag },
   threshold: { frag: thresholdFrag },
-  upSample: { frag: upSample },
+  upSample: { frag: upSampleFrag },
 };

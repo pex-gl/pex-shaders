@@ -1,5 +1,6 @@
 import output from "./output.glsl.js";
 import math from "./math.glsl.js";
+import noise from "./noise.glsl.js";
 import encodeDecode from "./encode-decode.glsl.js";
 import rgbm from "./rgbm.glsl.js";
 import gamma from "./gamma.glsl.js";
@@ -35,6 +36,7 @@ import depthPack from "./depth-pack.glsl.js";
 import sky from "./sky.glsl.js";
 import fog from "./fog.glsl.js";
 import fxaa from "./fxaa.glsl.js";
+import filmGrain from "./film-grain.glsl.js";
 import lut from "./lut.glsl.js";
 import colorCorrection from "./color-correction.glsl.js";
 import vignette from "./vignette.glsl.js";
@@ -43,6 +45,7 @@ import tonemapUncharted2 from "./tonemap-uncharted2.glsl.js";
 export default {
   output,
   math,
+  noise,
 
   encodeDecode,
   rgbm,
@@ -85,6 +88,7 @@ export default {
   sky,
   fog,
   fxaa,
+  filmGrain,
   lut,
   colorCorrection,
   vignette,

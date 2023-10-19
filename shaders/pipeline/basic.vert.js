@@ -26,7 +26,9 @@ attribute vec4 aColor;
 attribute vec4 aVertexColor;
 #endif
 
+#if defined(USE_VERTEX_COLORS) || defined(USE_INSTANCED_COLOR)
 varying vec4 vColor;
+#endif
 
 uniform mat4 uProjectionMatrix;
 uniform mat4 uViewMatrix;
@@ -39,8 +41,6 @@ ${SHADERS.math.quatToMat4}
 #define HOOK_VERT_DECLARATIONS_END
 
 void main() {
-  vColor = vec4(1.0);
-
   vec4 position = vec4(aPosition, 1.0);
 
   #define HOOK_VERT_BEFORE_TRANSFORM

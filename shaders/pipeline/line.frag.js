@@ -18,7 +18,9 @@ uniform int uOutputEncoding;
 
 uniform vec4 uBaseColor;
 
+#ifdef USE_VERTEX_COLORS
 varying vec4 vColor;
+#endif
 
 // Includes
 ${SHADERS.rgbm}
@@ -29,7 +31,11 @@ ${Object.values(glslToneMap).join("\n")}
 #define HOOK_FRAG_DECLARATIONS_END
 
 void main() {
-  vec4 color = uBaseColor * vColor;
+  #ifdef USE_VERTEX_COLORS
+    vec4 color = vColor * uBaseColor;
+  #else
+    vec4 color = uBaseColor;
+  #endif
 
   color.rgb *= uExposure;
 

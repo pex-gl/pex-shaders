@@ -6,8 +6,13 @@ ${SHADERS.output.vert}
 attribute vec3 aPosition;
 attribute vec3 aPointA;
 attribute vec3 aPointB;
+
+#ifdef USE_VERTEX_COLORS
 attribute vec4 aColorA;
 attribute vec4 aColorB;
+
+varying vec4 vColor;
+#endif
 
 #ifdef USE_INSTANCED_LINE_WIDTH
 attribute vec2 aLineWidth;
@@ -20,12 +25,16 @@ uniform mat4 uModelMatrix;
 uniform float uLineWidth;
 uniform vec2 uResolution;
 
-varying vec4 vColor;
-
 #define HOOK_VERT_DECLARATIONS_END
 
 void main() {
-  vColor = mix(aColorA, aColorB, aPosition.z);
+  #ifdef USE_VERTEX_COLORS
+    vColor = mix(aColorA, aColorB, aPosition.z);
+
+    vec2 lineWidthScale = vec2(aColorA.a, aColorB.a);
+  #else
+    vec2 lineWidthScale = vec2(1.0);
+  #endif
 
   if (length(aPointA) == 0.0 || length(aPointB) == 0.0) {
     gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
@@ -49,8 +58,8 @@ void main() {
     #endif
 
     // TODO: it is still resolution dependent
-    vec2 pt0 = screen0 + (aColorA.a * width) / -positionViewA.z;
-    vec2 pt1 = screen1 + (aColorB.a * width) / -positionViewB.z;
+    vec2 pt0 = screen0 + (lineWidthScale.x * width) / -positionViewA.z;
+    vec2 pt1 = screen1 + (lineWidthScale.y * width) / -positionViewB.z;
     vec2 pt = mix(pt0, pt1, aPosition.z);
     vec4 clip = mix(clip0, clip1, aPosition.z);
 

@@ -168,6 +168,17 @@ void main() {
     color.rgb += texture2D(uBloomTexture, uv).rgb * uBloomIntensity;
   #endif
 
+  // Tonemapping and gamma conversion
+  color.rgb *= uExposure;
+
+  #if defined(TONEMAP)
+    color.rgb = TONEMAP(color.rgb);
+    color.rgb = saturate(color.rgb);
+  #endif
+
+  color = encode(color, uOutputEncoding);
+
+  // LDR effects
   #ifdef USE_FILM_GRAIN
     color.rgb = filmGrain(
       color.rgb,
@@ -181,17 +192,6 @@ void main() {
     );
   #endif
 
-  // Tonemapping and gamma conversion
-  color.rgb *= uExposure;
-
-  #if defined(TONEMAP)
-    color.rgb = TONEMAP(color.rgb);
-    color.rgb = saturate(color.rgb);
-  #endif
-
-  color = encode(color, uOutputEncoding);
-
-  // LDR effects
   #ifdef USE_LUT
     color.rgb = lut(vec4(color.rgb, 1.0), uLUTTexture, uLUTTextureSize).rgb;
   #endif

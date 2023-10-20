@@ -31,8 +31,8 @@ void main () {
 
   color.rgb *= uExposure;
 
-  #if defined(TONEMAP)
-    color.rgb = TONEMAP(color.rgb);
+  #if defined(TONE_MAP)
+    color.rgb = TONE_MAP(color.rgb);
   #endif
 
   gl_FragData[0] = encode(color, uOutputEncoding);

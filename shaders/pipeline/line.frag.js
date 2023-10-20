@@ -31,6 +31,7 @@ ${Object.values(glslToneMap).join("\n")}
 #define HOOK_FRAG_DECLARATIONS_END
 
 void main() {
+  // decode(uBaseColor, 3).rgb; ?
   #ifdef USE_VERTEX_COLORS
     vec4 color = vColor * uBaseColor;
   #else
@@ -39,8 +40,8 @@ void main() {
 
   color.rgb *= uExposure;
 
-  #if defined(TONEMAP)
-    color.rgb = TONEMAP(color.rgb);
+  #if defined(TONE_MAP)
+    color.rgb = TONE_MAP(color.rgb);
   #endif
 
   gl_FragData[0] = encode(color, uOutputEncoding);

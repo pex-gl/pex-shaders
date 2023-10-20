@@ -171,8 +171,8 @@ void main() {
   // Tonemapping and gamma conversion
   color.rgb *= uExposure;
 
-  #if defined(TONEMAP)
-    color.rgb = TONEMAP(color.rgb);
+  #if defined(TONE_MAP)
+    color.rgb = TONE_MAP(color.rgb);
     color.rgb = saturate(color.rgb);
   #endif
 

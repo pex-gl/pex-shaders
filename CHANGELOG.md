@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.17](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.16...v1.0.0-alpha.17) (2023-10-20)
+
+
+### Bug Fixes
+
+* move film grain after tonemap ([9fe702c](https://github.com/pex-gl/pex-shaders/commit/9fe702c7441a77ac4bdbdfd94136a771753af1a5))
+* only declare vColor if attribute is set in basic ([0daa130](https://github.com/pex-gl/pex-shaders/commit/0daa13052c48af551eb648921d2ea591745b1bd0))
+
+
+### Features
+
+* add film grain ([9a51845](https://github.com/pex-gl/pex-shaders/commit/9a518453ac97b22ba4fbc657a55dbbb7fa2668fe))
+* add positionView divide for relative line width (wip) ([b59fd25](https://github.com/pex-gl/pex-shaders/commit/b59fd25a912974ad4aa0718daa6202e4d9f5266e))
+* add support for vertex colors in line ([61f0073](https://github.com/pex-gl/pex-shaders/commit/61f0073585689935e593a083e75f62abc1a70c1f))
+
+
+
 # [1.0.0-alpha.16](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.15...v1.0.0-alpha.16) (2023-10-16)
 
 

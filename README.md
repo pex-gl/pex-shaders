@@ -73,6 +73,14 @@ const program = {
 
 <dl>
 <dt><a href="#default">default</a></dt>
+<dd><p>Film Grain
+Reference Implementations:</p>
+<ul>
+<li><a href="https://devlog-martinsh.blogspot.com/2013/05/image-imperfections-and-film-grain-post.html">https://devlog-martinsh.blogspot.com/2013/05/image-imperfections-and-film-grain-post.html</a></li>
+<li><a href="https://www.shadertoy.com/view/4sSXDW">https://www.shadertoy.com/view/4sSXDW</a></li>
+</ul>
+</dd>
+<dt><a href="#default">default</a></dt>
 <dd><p>Down Sample
 Reference Implementation: <a href="https://github.com/keijiro/KinoBloom">https://github.com/keijiro/KinoBloom</a></p>
 </dd>
@@ -91,6 +99,16 @@ Updates: Marcin Ignac (2017-05-08) and Damien Seguin (2023-10)</p>
 <dt><a href="#default">default</a></dt>
 <dd><p>Up Sample
 Reference Implementation: <a href="https://github.com/keijiro/KinoBloom">https://github.com/keijiro/KinoBloom</a></p>
+</dd>
+</dl>
+
+## Constants
+
+<dl>
+<dt><a href="#common">common</a></dt>
+<dd><p>Reference Implementation: <a href="https://github.com/stegu/webgl-noise">https://github.com/stegu/webgl-noise</a>
+Copyright (C) 2011 by Ashima Arts (Simplex noise)
+Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)</p>
 </dd>
 </dl>
 
@@ -258,6 +276,17 @@ Get a formatted error pointing at the issue line
 
 ## default
 
+Film Grain
+Reference Implementations:
+
+- https://devlog-martinsh.blogspot.com/2013/05/image-imperfections-and-film-grain-post.html
+- https://www.shadertoy.com/view/4sSXDW
+
+**Kind**: global variable
+<a name="default"></a>
+
+## default
+
 Down Sample
 Reference Implementation: https://github.com/keijiro/KinoBloom
 
@@ -290,6 +319,15 @@ Up Sample
 Reference Implementation: https://github.com/keijiro/KinoBloom
 
 **Kind**: global variable
+<a name="common"></a>
+
+## common
+
+Reference Implementation: https://github.com/stegu/webgl-noise
+Copyright (C) 2011 by Ashima Arts (Simplex noise)
+Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)
+
+**Kind**: global constant
 
 <!-- api-end -->
 

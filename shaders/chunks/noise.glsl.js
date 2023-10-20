@@ -553,7 +553,7 @@ float pnoise(vec4 P, vec4 rep)
   float n_xyzw = mix(n_yzw.x, n_yzw.y, fade_xyzw.x);
   return 2.2 * n_xyzw;
 }
-`
+`;
 
 const simplex = /* glsl */ `
 // 2D
@@ -760,6 +760,6 @@ float snoise(vec4 v)
                + dot(m1*m1, vec2( dot( p3, x3 ), dot( p4, x4 ) ) ) ) ;
 
 }
-`
+`;
 
 export default { common, perlin, simplex };

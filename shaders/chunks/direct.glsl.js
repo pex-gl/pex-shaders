@@ -53,7 +53,7 @@ void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
   float Vis = VisibilityOcclusion(data.linearRoughness, NdotL, NdotV);
 
   //TODO: switch to linear colors
-  vec3 lightColor = decode(light.color, 3).rgb;
+  vec3 lightColor = decode(light.color, SRGB).rgb;
 
   vec3 Fd = DiffuseLambert() * data.diffuseColor;
   vec3 Fr = F * Vis * D;

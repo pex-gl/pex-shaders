@@ -26,7 +26,7 @@ export default /* glsl */ `
 
     #if defined(USE_INSTANCED_COLOR)
       #if !defined(DEPTH_PASS_ONLY) && !defined(DEPTH_PRE_PASS_ONLY)
-        data.emissiveColor *= decode(vColor, 3).rgb;
+        data.emissiveColor *= decode(vColor, SRGB).rgb;
       #endif
     #endif
   }
@@ -35,7 +35,7 @@ export default /* glsl */ `
     data.emissiveColor = uEmissiveIntensity * decode(uEmissiveColor, SRGB).rgb;
     #if defined(USE_INSTANCED_COLOR)
       #if !defined(DEPTH_PASS_ONLY) && !defined(DEPTH_PRE_PASS_ONLY)
-        data.emissiveColor *= decode(vColor, 3).rgb;
+        data.emissiveColor *= decode(vColor, SRGB).rgb;
       #endif
     #endif
   }

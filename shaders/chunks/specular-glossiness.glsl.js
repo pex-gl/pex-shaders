@@ -20,11 +20,11 @@ export default /* glsl */ `
         vec2 texCoord = getTextureCoordinates(data, DIFFUSE_TEXTURE_TEX_COORD);
       #endif
       vec4 texelColor = texture2D(uDiffuseTexture, texCoord);
-      return vec4(decode(uDiffuse, 3).rgb, uDiffuse.a) * vec4(decode(texelColor, 3).rgb, texelColor.a);
+      return vec4(decode(uDiffuse, SRGB).rgb, uDiffuse.a) * vec4(decode(texelColor, SRGB).rgb, texelColor.a);
     }
   #else
     vec4 getDiffuse(in PBRData data) {
-      return vec4(decode(uDiffuse, 3).rgb, uDiffuse.a);
+      return vec4(decode(uDiffuse, SRGB).rgb, uDiffuse.a);
     }
   #endif
 
@@ -44,7 +44,7 @@ export default /* glsl */ `
       #endif
       vec4 specGloss = texture2D(uSpecularGlossinessTexture, texCoord);
       //TODO: should i move uSpecular to linear?
-      return vec4(uSpecular, uGlossiness) * vec4(decode(vec4(specGloss.rgb, 1.0), 3).rgb, specGloss.a);
+      return vec4(uSpecular, uGlossiness) * vec4(decode(vec4(specGloss.rgb, 1.0), SRGB).rgb, specGloss.a);
     }
   #else
     vec4 getSpecularGlossiness(in PBRData data) {

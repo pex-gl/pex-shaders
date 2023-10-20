@@ -19,7 +19,7 @@ export default /* glsl */ `
       vec4 texelColor = texture2D(uSheenColorTexture, texCoord);
 
       #if !defined(DEPTH_PASS_ONLY) && !defined(DEPTH_PRE_PASS_ONLY)
-      data.sheenColor = decode(uSheenColor, 3).rgb * decode(texelColor, 3).rgb;
+      data.sheenColor = decode(uSheenColor, SRGB).rgb * decode(texelColor, SRGB).rgb;
       #endif
 
       #ifdef USE_SHEEN_ROUGHNESS_FROM_MAIN_TEXTURE
@@ -29,7 +29,7 @@ export default /* glsl */ `
   #else
     void getSheenColor(inout PBRData data) {
       #if !defined(DEPTH_PASS_ONLY) && !defined(DEPTH_PRE_PASS_ONLY)
-      data.sheenColor = decode(uSheenColor, 3).rgb;
+      data.sheenColor = decode(uSheenColor, SRGB).rgb;
       #endif
     }
   #endif

@@ -27,7 +27,7 @@ ${Object.values(glslToneMap).join("\n")}
 #define HOOK_FRAG_DECLARATIONS_END
 
 void main () {
-  vec4 color = vec4(vColor.rgb, 1.0);
+  vec4 color = decode(vColor, SRGB);
 
   color.rgb *= uExposure;
 

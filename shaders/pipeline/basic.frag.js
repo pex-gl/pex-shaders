@@ -31,10 +31,10 @@ ${Object.values(glslToneMap).join("\n")}
 #define HOOK_FRAG_DECLARATIONS_END
 
 void main() {
+  vec4 color = decode(uBaseColor, SRGB);
+
   #if defined(USE_VERTEX_COLORS) || defined(USE_INSTANCED_COLOR)
-    vec4 color = vColor * uBaseColor;
-  #else
-    vec4 color = uBaseColor;
+    color *= decode(vColor, SRGB);
   #endif
 
   color.rgb *= uExposure;

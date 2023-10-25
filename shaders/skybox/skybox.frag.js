@@ -14,12 +14,14 @@ precision highp float;
 ${SHADERS.output.frag}
 
 // Variables
+uniform int uOutputEncoding;
+
 // assuming texture in Linear Space
 // most likely HDR or Texture2D with sRGB Ext
 uniform sampler2D uEnvMap;
 uniform int uEnvMapEncoding;
 uniform float uEnvMapSize;
-uniform int uOutputEncoding;
+uniform float uEnvMapExposure;
 uniform float uBackgroundBlur;
 
 varying vec3 wcNormal;
@@ -48,6 +50,8 @@ void main() {
   } else {
     color = vec4(getIrradiance(N, uEnvMap, uEnvMapSize, uEnvMapEncoding), 1.0);
   }
+
+  color.rgb *= uEnvMapExposure;
 
   color.rgb *= uExposure;
 

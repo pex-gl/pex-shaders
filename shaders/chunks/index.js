@@ -33,14 +33,12 @@ import depthRead from "./depth-read.glsl.js";
 import depthPosition from "./depth-position.glsl.js";
 import depthUnpack from "./depth-unpack.glsl.js";
 import depthPack from "./depth-pack.glsl.js";
-import sky from "./sky.glsl.js";
 import fog from "./fog.glsl.js";
 import fxaa from "./fxaa.glsl.js";
 import filmGrain from "./film-grain.glsl.js";
 import lut from "./lut.glsl.js";
 import colorCorrection from "./color-correction.glsl.js";
 import vignette from "./vignette.glsl.js";
-import tonemapUncharted2 from "./tonemap-uncharted2.glsl.js";
 
 export default {
   output,
@@ -85,12 +83,10 @@ export default {
   depthUnpack,
   depthPack,
 
-  sky,
   fog,
   fxaa,
   filmGrain,
   lut,
   colorCorrection,
   vignette,
-  tonemapUncharted2,
 };

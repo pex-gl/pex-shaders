@@ -15,7 +15,6 @@ import helperFrag from "./helper.frag.js";
 import helperVert from "./helper.vert.js";
 import errorFrag from "./error.frag.js";
 import errorVert from "./error.vert.js";
-import fullscreenVert from "./fullscreen.vert.js";
 
 export default {
   blit: { vert: blitVert, frag: blitFrag },
@@ -27,5 +26,4 @@ export default {
   overlay: { vert: overlayVert, frag: overlayFrag },
   helper: { vert: helperVert, frag: helperFrag },
   error: { vert: errorVert, frag: errorFrag },
-  fullscreen: { vert: fullscreenVert },
 };

@@ -1,7 +1,7 @@
 export default /* glsl */ `
 #ifdef USE_NORMAL_TEXTURE
 uniform sampler2D uNormalTexture;
-uniform float uNormalScale;
+uniform float uNormalTextureScale;
 
 #ifdef USE_NORMAL_TEXTURE_MATRIX
   uniform mat3 uNormalTextureMatrix;
@@ -15,7 +15,7 @@ void getNormal(inout PBRData data) {
   #endif
 
   vec3 normalMap = texture2D(uNormalTexture, texCoord).rgb * 2.0 - 1.0;
-  normalMap.y *= uNormalScale;
+  normalMap.y *= uNormalTextureScale;
   normalMap = normalize(normalMap);
 
   vec3 N = normalize(data.normalView);

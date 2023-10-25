@@ -6,7 +6,6 @@ export default /* glsl */ `
 
   #ifdef USE_DIFFUSE_TEXTURE
     uniform sampler2D uDiffuseTexture;
-    uniform float uDiffuseTextureEncoding;
 
     #ifdef USE_DIFFUSE_TEXTURE_MATRIX
       uniform mat3 uDiffuseTextureMatrix;

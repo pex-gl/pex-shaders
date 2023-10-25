@@ -100,6 +100,18 @@ Updates: Marcin Ignac (2017-05-08) and Damien Seguin (2023-10)</p>
 <dd><p>Up Sample
 Reference Implementation: <a href="https://github.com/keijiro/KinoBloom">https://github.com/keijiro/KinoBloom</a></p>
 </dd>
+<dt><a href="#default">default</a></dt>
+<dd><p>Sky
+Based on &quot;A Practical Analytic Model for Daylight&quot; aka The Preetham Model, the de facto standard analytic skydome model
+Paper: <a href="https://www.researchgate.net/publication/220720443_A_Practical_Analytic_Model_for_Daylight">https://www.researchgate.net/publication/220720443_A_Practical_Analytic_Model_for_Daylight</a>
+Reference Implementation:</p>
+<ul>
+<li>First implemented by Simon Wallner <a href="http://www.simonwallner.at/projects/atmospheric-scattering">http://www.simonwallner.at/projects/atmospheric-scattering</a></li>
+<li>Improved by Martin Upitis <a href="http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR">http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR</a></li>
+<li>Three.js integration by zz85 <a href="http://twitter.com/blurspline">http://twitter.com/blurspline</a></li>
+</ul>
+<p>Updates: Marcin Ignac <a href="http://twitter.com/marcinignac">http://twitter.com/marcinignac</a> (2015-09) and Damien Seguin (2023-10)</p>
+</dd>
 </dl>
 
 ## Constants
@@ -317,6 +329,22 @@ Updates: Marcin Ignac (2017-05-08) and Damien Seguin (2023-10)
 
 Up Sample
 Reference Implementation: https://github.com/keijiro/KinoBloom
+
+**Kind**: global variable
+<a name="default"></a>
+
+## default
+
+Sky
+Based on "A Practical Analytic Model for Daylight" aka The Preetham Model, the de facto standard analytic skydome model
+Paper: https://www.researchgate.net/publication/220720443_A_Practical_Analytic_Model_for_Daylight
+Reference Implementation:
+
+- First implemented by Simon Wallner http://www.simonwallner.at/projects/atmospheric-scattering
+- Improved by Martin Upitis http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR
+- Three.js integration by zz85 http://twitter.com/blurspline
+
+Updates: Marcin Ignac http://twitter.com/marcinignac (2015-09) and Damien Seguin (2023-10)
 
 **Kind**: global variable
 <a name="common"></a>

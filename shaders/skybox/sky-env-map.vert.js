@@ -1,4 +1,3 @@
-
 import SHADERS from "../chunks/index.js";
 
 export default /* glsl */ `

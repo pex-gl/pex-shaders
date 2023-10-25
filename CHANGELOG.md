@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.19](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.18...v1.0.0-alpha.19) (2023-10-25)
+
+
+### Bug Fixes
+
+* decode colors as sRGB in line, basic and helper ([455378a](https://github.com/pex-gl/pex-shaders/commit/455378aed2fd3d338c779003746649af50583592))
+
+
+### Features
+
+* add skybox exposure + optimise sky env map ([cbd6a67](https://github.com/pex-gl/pex-shaders/commit/cbd6a67c3b7c2c207060d67596bf2095ef04368b))
+
+
+
 # [1.0.0-alpha.18](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.17...v1.0.0-alpha.18) (2023-10-20)
 
 

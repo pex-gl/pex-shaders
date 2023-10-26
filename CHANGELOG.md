@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.20](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.19...v1.0.0-alpha.20) (2023-10-26)
+
+
+### Bug Fixes
+
+* only define sheen chunk fragment if not unlit ([e702953](https://github.com/pex-gl/pex-shaders/commit/e7029531b1a1c6109e3fe0303d3e90eb6e144533))
+
+
+### Features
+
+* **main:** fix sheen roughness becoming black + approximate sheen albedo scaling ([64be03e](https://github.com/pex-gl/pex-shaders/commit/64be03e45aa7f0f9c9bd0325370a5ae7d4661e7e))
+* make line width resolution independent with heuristic 1000 divide + make perspective scaling optional ([8898aaf](https://github.com/pex-gl/pex-shaders/commit/8898aaf8918e94c58d063df50fc01f48e970f945))
+
+
+
 # [1.0.0-alpha.19](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.18...v1.0.0-alpha.19) (2023-10-25)
 
 

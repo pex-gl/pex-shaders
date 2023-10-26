@@ -57,9 +57,19 @@ void main() {
       width *= aLineWidth;
     #endif
 
-    // TODO: it is still resolution dependent
-    vec2 pt0 = screen0 + (lineWidthScale.x * width) / -positionViewA.z;
-    vec2 pt1 = screen1 + (lineWidthScale.y * width) / -positionViewB.z;
+    width *= uResolution.y * 0.001;
+
+    vec2 pt0 = lineWidthScale.x * width;
+    vec2 pt1 = lineWidthScale.y * width;
+
+    #ifdef USE_PERSPECTIVE_SCALING
+      pt0 /= -positionViewA.z;
+      pt1 /= -positionViewB.z;
+    #endif
+
+    pt0 += screen0;
+    pt1 += screen1;
+
     vec2 pt = mix(pt0, pt1, aPosition.z);
     vec4 clip = mix(clip0, clip1, aPosition.z);
 

@@ -103,7 +103,6 @@ ${SHADERS.gamma}
 ${SHADERS.encodeDecode}
 ${SHADERS.textureCoordinates}
 ${SHADERS.baseColor}
-${SHADERS.sheenColor}
 ${SHADERS.alpha}
 ${SHADERS.ambientOcclusion}
 ${Object.values(glslToneMap).join("\n")}
@@ -118,6 +117,7 @@ ${Object.values(glslToneMap).join("\n")}
   ${SHADERS.shadowing}
   ${SHADERS.brdf}
   ${SHADERS.clearCoat}
+  ${SHADERS.sheenColor}
   ${SHADERS.indirect}
   ${SHADERS.direct}
   ${SHADERS.lightAmbient}

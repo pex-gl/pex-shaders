@@ -86,6 +86,7 @@ struct PBRData {
   vec3 indirectSpecular; // contribution from IBL light probe and Area Light
   vec3 sheenColor;
   float sheenRoughness;
+  float sheenLinearRoughness;
   vec3 sheen;
   float sheenAlbedoScaling;
   float ao;
@@ -239,6 +240,10 @@ void main() {
     #ifdef USE_SHEEN
       getSheenColor(data);
       getSheenRoughness(data);
+      getSheenAlbedoScaling(data);
+
+      data.sheenRoughness = max(data.sheenRoughness, MIN_ROUGHNESS);
+      data.sheenLinearRoughness = data.sheenRoughness * data.sheenRoughness;
     #endif
 
     getAmbientOcclusion(data);

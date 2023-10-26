@@ -58,47 +58,18 @@ export default /* glsl */ `
     }
   #endif
 
-  float Sheen_l(float x, float alphaG) {
-    float oneMinusAlphaSq = (1.0 - alphaG) * (1.0 - alphaG);
-    float a = mix(21.5473, 25.3245, oneMinusAlphaSq);
-    float b = mix(3.82987, 3.32435, oneMinusAlphaSq);
-    float c = mix(0.19823, 0.16801, oneMinusAlphaSq);
-    float d = mix(-1.97760, -1.27393, oneMinusAlphaSq);
-    float e = mix(-4.32054, -4.85967, oneMinusAlphaSq);
-    return a / (1.0 + b * pow(x, c)) + d * x + e;
-  }
-
-  float lambdaSheen(float cosTheta, float alphaG) {
-    return abs(cosTheta) < 0.5 ? exp(Sheen_l(cosTheta, alphaG)) : exp(2.0 * Sheen_l(0.5, alphaG) - Sheen_l(1.0 - cosTheta, alphaG));
-  }
+  float max3(vec3 v) { return max(max(v.x, v.y), v.z); }
 
   // https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_materials_sheen/README.md#albedo-scaling-technique
-  // float EvaluateSheenAlbedoScaling(inout PBRData data, float VdotN) {
-  //   // TODO: need the lookup table
-  //   // https://dassaultsystemes-technology.github.io/EnterprisePBRShadingModel/spec-2021x.md.html#appendix/energycompensation/sheenbrdf
-  //   float max3(vec3 v) { return max(max(v.x, v.y), v.z); }
-  //   return 1.0 - max3(data.sheenColor) * E(VdotN)
-  // }
+  void getSheenAlbedoScaling(inout PBRData data) {
+    // Needs LUT
+    // https://dassaultsystemes-technology.github.io/EnterprisePBRShadingModel/spec-2021x.md.html#appendix/energycompensation/sheenbrdf
+    // data.sheenAlbedoScaling = 1.0 - max3(data.sheenColor) * E(VdotN)
 
-  vec3 EvaluateSheen(inout PBRData data, float NdotH, float NdotV, float NdotL) {
-    float alphaG = data.sheenRoughness * data.sheenRoughness;
-    float invR = 1.0 / alphaG;
-
-    float cos2h = NdotH * NdotH;
-    float sin2h = 1.0 - cos2h;
-    float sheenDistribution = (2.0 + invR) * pow(sin2h, invR * 0.5) / (2.0 * PI);
-
-    float sheenVisibility = 1.0 / ((1.0 + lambdaSheen(NdotV, alphaG) + lambdaSheen(NdotL, alphaG)) * (4.0 * NdotV * NdotL));
-
-    // fsheen = sheenColor * sheenFresnel * sheenDistribution * sheenVisibility
-    // The Fresnel term may be omitted, i.e., F = 1.
-    vec3 sheen = data.sheenColor * sheenDistribution * sheenVisibility;
-    data.sheen += sheen;
-
-    // TODO:
-    // data.sheenAlbedoScaling = EvaluateSheenAlbedoScaling(data, VdotN);
-
-    return sheen;
+    // Rather than using up a precious sampler to store the LUT of our integral, we instead fit a curve to the data, which  is piecewise  separated by a sheen  roughness of 0.25.
+    // The energy reduction from sheen only varies between 0.13 and 0.18 across  roughness, so we approximate  it as a constant value  of 0.157.
+    // https://drive.google.com/file/d/1T0D1VSyR4AllqIJTQAraEIzjlb5h4FKH/view?usp=sharing
+    data.sheenAlbedoScaling = 1.0 - 0.157 * max3(data.sheenColor);
   }
 #endif
 `;

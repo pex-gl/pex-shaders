@@ -29,6 +29,33 @@ vec2 compensateStretch(vec2 uv) {
   // return vec2(u, uv.y);
 }
 
+#ifdef USE_SHEEN
+  vec3 sheenBRDF(const PBRData data, float NdotH, float NdotV, float NdotL) {
+    float sheenDistribution = D_Charlie(data.sheenLinearRoughness, NdotH);
+    float sheenVisibility = V_Charlie(data.sheenLinearRoughness, NdotV, NdotL, NdotH);
+    // float sheenVisibility = V_Neubelt(NdotV, NdotL, NdotH);
+
+    // The Fresnel term may be omitted, i.e., F = 1.
+    return data.sheenColor * sheenDistribution * sheenVisibility;
+  }
+#endif
+
+#ifdef USE_CLEAR_COAT
+  float clearCoatBRDF(const PBRData data, const vec3 h, float NoH, float LoH, out float Fcc) {
+    #if defined(USE_NORMAL_TEXTURE) || defined(USE_CLEAR_COAT_NORMAL_TEXTURE)
+      float clearCoatNoH = saturate(dot(data.clearCoatNormal, h));
+    #else
+      float clearCoatNoH = NoH;
+    #endif
+    float D = D_GGX(data.clearCoatLinearRoughness, clearCoatNoH, h, data.normalWorld);
+    float V = V_Kelemen(LoH);
+    // air-polyurethane interface has IOR = 1.5 -> F0 = 0.04
+    float F = F_Schlick(0.04, 1.0, LoH) * data.clearCoat;
+
+    Fcc = F;
+    return D * V * F;
+  }
+#endif
 
 void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
   vec3 N = data.normalWorld;
@@ -48,7 +75,6 @@ void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
   float HdotV = max(0.0, dot(H, V));
 
   vec3 F = SpecularReflection(data.f0, HdotV);
-
   float D = MicrofacetDistribution(data.linearRoughness, NdotH);
   float Vis = VisibilityOcclusion(data.linearRoughness, NdotL, NdotV);
 
@@ -57,13 +83,15 @@ void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
 
   vec3 Fd = DiffuseLambert() * data.diffuseColor;
   vec3 Fr = F * Vis * D;
-  vec3 Fs = vec3(0.0);
 
   //TODO: energy compensation
   float energyCompensation = 1.0;
 
+  vec3 color = Fd + Fr * energyCompensation;
+
   #ifdef USE_SHEEN
-    Fs = EvaluateSheen(data, NdotH, NdotV, NdotL);
+    color *= data.sheenAlbedoScaling;
+    color += sheenBRDF(data, NdotH, NdotV, NdotL);
   #endif
 
   #ifdef USE_CLEAR_COAT
@@ -71,7 +99,7 @@ void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
     float clearCoat = clearCoatBRDF(data, H, NdotH, LdotH, Fcc);
     float attenuation = 1.0 - Fcc;
 
-    vec3 color = (Fs + Fd + Fr * (energyCompensation * attenuation)) * attenuation * NdotL;
+    color *= attenuation * NdotL;
 
     // direct light still uses NdotL but clear coat needs separate dot product when using normal map
     // if only normal map is present not clear coat normal map, we will get smooth coating on top of bumpy surface
@@ -82,10 +110,8 @@ void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
       color += clearCoat * NdotL;
     #endif
   #else
-    vec3 color = (Fs + Fd + Fr * energyCompensation) * NdotL;
+    color *= NdotL;
   #endif
-
-
 
   data.directColor += (color * lightColor) * (light.color.a * light.attenuation * illuminated);
 

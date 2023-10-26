@@ -49,21 +49,24 @@ export default /* glsl */ `
   #endif
 
   #ifdef USE_SHEEN
+    // = sheen DFG
+    // // https://drive.google.com/file/d/1T0D1VSyR4AllqIJTQAraEIzjlb5h4FKH/view?usp=sharing
+    float IBLSheenBRDF(float roughness, float linearRoughness, float NdotV) {
+      float a = roughness < 0.25 ? -339.2 * linearRoughness + 161.4 * roughness - 25.9 : -8.48 * linearRoughness + 14.3 * roughness - 9.95;
+      float b = roughness < 0.25 ? 44.0 * linearRoughness - 23.7 * roughness + 3.26 : 1.97 * linearRoughness - 3.27 * roughness + 0.72;
+      float DG = exp(a * NdotV + b) + (roughness < 0.25 ? 0.0 : 0.1 * (roughness - 0.25));
+      return saturate(DG * (1.0 / PI));
+    }
+
     // https://github.com/google/filament/blob/21ea99a1d934e37d876f15bed5b025ed181bc08f/shaders/src/light_indirect.fs#L394
     void evaluateSheenIBL(inout PBRData data, float ao, inout vec3 Fd, inout vec3 Fr) {
       // Albedo scaling of the base layer before we layer sheen on top
-      // Fd *= data.sheenAlbedoScaling;
-      // Fr *= data.sheenAlbedoScaling;
+      Fd *= data.sheenAlbedoScaling;
+      Fr *= data.sheenAlbedoScaling;
 
-      vec3 reflectance = EnvBRDFApprox(data.sheenColor, data.sheenRoughness, data.NdotV);
+      vec3 reflectance = data.sheenColor * IBLSheenBRDF(data.sheenRoughness, data.sheenLinearRoughness, data.NdotV);
       reflectance *= ao;
-
-      vec3 radiance = getPrefilteredReflection(data.reflectionWorld, data.sheenRoughness);
-      // Fr += reflectance * radiance;
-
-      // // vec3 Fs = radiance + reflectance * ao;
-      // vec3 Fs = vec3(0.0);
-      // data.sheen += Fs;
+      Fr += reflectance * getPrefilteredReflection(data.reflectionWorld, data.sheenRoughness);
     }
   #endif
 
@@ -85,9 +88,9 @@ export default /* glsl */ `
     multiBounceAO(ao, data.diffuseColor, Fd);
     // multiBounceSpecularAO(specularAO, data.f0, Fr);
 
-    // #ifdef USE_SHEEN
-    //   evaluateSheenIBL(data, ao, Fd, Fr);
-    // #endif
+    #ifdef USE_SHEEN
+      evaluateSheenIBL(data, ao, Fd, Fr);
+    #endif
 
     #ifdef USE_CLEAR_COAT
       evaluateClearCoatIBL(data, ao, Fd, Fr);

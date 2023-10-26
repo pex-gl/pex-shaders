@@ -106,20 +106,5 @@ export default /* glsl */ `
   vec3 f0ClearCoatToSurface(const vec3 f0) {
     return saturate(f0 * (f0 * (0.941892 - 0.263008 * f0) + 0.346479) - 0.0285998);
   }
-
-  float clearCoatBRDF(const PBRData data, const vec3 h, float NoH, float LoH, out float Fcc) {
-    #if defined(USE_NORMAL_TEXTURE) || defined(USE_CLEAR_COAT_NORMAL_TEXTURE)
-      float clearCoatNoH = saturate(dot(data.clearCoatNormal, h));
-    #else
-      float clearCoatNoH = NoH;
-    #endif
-    float D = D_GGX(data.clearCoatLinearRoughness, clearCoatNoH, h, data.normalWorld);
-    float V = V_Kelemen(LoH);
-    // air-polyurethane interface has IOR = 1.5 -> F0 = 0.04
-    float F = F_Schlick(0.04, 1.0, LoH) * data.clearCoat;
-
-    Fcc = F;
-    return D * V * F;
-  }
 #endif
 `;

@@ -57,6 +57,7 @@ void main() {
       width *= aLineWidth;
     #endif
 
+    // Heuristic for resolution scaling to be relative to height / 1000
     width *= uResolution.y * 0.001;
 
     vec2 pt0 = lineWidthScale.x * width;

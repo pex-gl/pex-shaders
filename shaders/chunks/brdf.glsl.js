@@ -1,6 +1,4 @@
 export default /* glsl */ `
-uniform float uReflectance;
-
 // Distribution:
 // https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf
 // Walter et al. 2007, "Microfacet Models for Refraction through Rough Surfaces"

@@ -19,7 +19,7 @@ import errorVert from "./error.vert.js";
 export default {
   blit: { vert: blitVert, frag: blitFrag },
   depthPass: { vert: depthPassVert, frag: depthPassFrag },
-  depthPrePass: { depthPassVert, frag: depthPrePassFrag },
+  depthPrePass: { frag: depthPrePassFrag },
   standard: { vert: standardVert, frag: standardFrag },
   basic: { vert: basicVert, frag: basicFrag },
   line: { vert: lineVert, frag: lineFrag },

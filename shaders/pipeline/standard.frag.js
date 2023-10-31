@@ -1,6 +1,6 @@
 import * as glslToneMap from "glsl-tone-map";
 
-import SHADERS from "../chunks/index.js";
+import * as SHADERS from "../chunks/index.js";
 
 export default /* glsl */ `
 #if (__VERSION__ < 300)
@@ -99,8 +99,6 @@ ${SHADERS.math.saturate}
 ${SHADERS.math.transposeMat3}
 ${SHADERS.math.multQuat}
 ${SHADERS.math.random}
-${SHADERS.rgbm}
-${SHADERS.gamma}
 ${SHADERS.encodeDecode}
 ${SHADERS.textureCoordinates}
 ${SHADERS.baseColor}

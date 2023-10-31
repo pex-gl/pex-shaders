@@ -1,6 +1,6 @@
 import * as glslToneMap from "glsl-tone-map";
 
-import SHADERS from "../chunks/index.js";
+import * as SHADERS from "../chunks/index.js";
 
 export default /* glsl */ `
 #if (__VERSION__ < 300)
@@ -32,8 +32,6 @@ uniform float uExposure;
 ${SHADERS.math.PI}
 ${SHADERS.math.TWO_PI}
 
-${SHADERS.rgbm}
-${SHADERS.gamma}
 ${SHADERS.encodeDecode}
 ${SHADERS.envMapEquirect}
 ${SHADERS.octMap}

@@ -1,4 +1,4 @@
-import SHADERS from "../chunks/index.js";
+import * as SHADERS from "../chunks/index.js";
 
 export default /* glsl */ `
 precision highp float;

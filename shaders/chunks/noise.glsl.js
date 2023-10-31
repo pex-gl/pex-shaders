@@ -762,4 +762,4 @@ float snoise(vec4 v)
 }
 `;
 
-export default { common, perlin, simplex };
+export { common, perlin, simplex };

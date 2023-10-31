@@ -1,6 +1,6 @@
 import * as glslToneMap from "glsl-tone-map";
 
-import SHADERS from "../chunks/index.js";
+import * as SHADERS from "../chunks/index.js";
 
 export default /* glsl */ `precision highp float;
 
@@ -15,8 +15,6 @@ varying vec2 vTexCoord0;
 
 // Includes
 ${SHADERS.math.PI}
-${SHADERS.rgbm}
-${SHADERS.gamma}
 ${SHADERS.encodeDecode}
 ${Object.values(glslToneMap).join("\n")}
 

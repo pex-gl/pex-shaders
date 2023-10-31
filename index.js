@@ -1,12 +1,11 @@
 /** @module pex-shaders */
 
-export {
-  /**
-   * Various shader chunks to be inserted in main shaders
-   * @type {object}
-   */
-  default as chunks,
-} from "./shaders/chunks/index.js";
+/**
+ * Various shader chunks to be inserted in main shaders
+ * @type {object}
+ */
+export * as chunks from "./shaders/chunks/index.js";
+
 export {
   /**
    * Main shaders

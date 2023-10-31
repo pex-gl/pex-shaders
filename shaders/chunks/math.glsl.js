@@ -202,7 +202,7 @@ float rand(vec2 seed) {
 }
 `;
 
-export default {
+export {
   HALF_PI,
   PI,
   TWO_PI,

@@ -1,13 +1,9 @@
-import SHADERS from "../chunks/index.js";
+import * as SHADERS from "../chunks/index.js";
 
 export default /* glsl */ `
 precision highp float;
 
 ${SHADERS.output.frag}
-
-${SHADERS.math.PI}
-
-varying vec2 vTexCoord0;
 
 uniform sampler2D uOctMapAtlas;
 uniform float uOctMapAtlasSize;
@@ -15,10 +11,11 @@ uniform int uOctMapAtlasEncoding;
 uniform float uIrradianceOctMapSize;
 uniform int uOutputEncoding;
 
+varying vec2 vTexCoord0;
+
+${SHADERS.math.PI}
 ${SHADERS.octMapUvToDir}
 ${SHADERS.octMap}
-${SHADERS.rgbm}
-${SHADERS.gamma}
 ${SHADERS.encodeDecode}
 
 void main() {

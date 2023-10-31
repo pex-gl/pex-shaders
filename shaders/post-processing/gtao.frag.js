@@ -1,4 +1,4 @@
-import SHADERS from "../chunks/index.js";
+import * as SHADERS from "../chunks/index.js";
 
 /**
  * GTAO (Ground Truth)

@@ -1,6 +1,6 @@
 import * as glslToneMap from "glsl-tone-map";
 
-import SHADERS from "../chunks/index.js";
+import * as SHADERS from "../chunks/index.js";
 
 /**
  * Sky
@@ -37,8 +37,6 @@ varying vec2 vTexCoord0;
 
 ${SHADERS.math.PI}
 ${SHADERS.math.TWO_PI}
-${SHADERS.rgbm}
-${SHADERS.gamma}
 ${SHADERS.encodeDecode}
 ${Object.values(glslToneMap).join("\n")}
 #ifndef TONE_MAP

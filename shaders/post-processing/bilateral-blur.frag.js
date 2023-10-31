@@ -1,4 +1,4 @@
-import SHADERS from "../chunks/index.js";
+import * as SHADERS from "../chunks/index.js";
 
 export default /* glsl */ `
 precision highp float;
@@ -36,7 +36,6 @@ vec4 bilateralBlur(sampler2D image, vec2 imageResolution, sampler2D depthTexture
     vec2 off = direction * r;
     float sampleDepth = readDepth(depthTexture, uv + (off / imageResolution), uNear, uFar);
     float diff = (sampleDepth - centerDepth) * uSharpness;
-    // TODO: precompute falloff factor
     float weight = exp2(-r * r * blurFalloff - diff * diff);
     weightSum += weight;
     color += texture2D(image, uv + (off / imageResolution)) * weight;

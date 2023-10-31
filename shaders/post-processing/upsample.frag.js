@@ -1,7 +1,7 @@
-import SHADERS from "../chunks/index.js";
+import * as SHADERS from "../chunks/index.js";
 
 /**
- * Up Sample
+ * Upsample
  * Reference Implementation: https://github.com/keijiro/KinoBloom
  */
 export default /* glsl */ `

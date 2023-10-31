@@ -1,4 +1,4 @@
-import SHADERS from "../chunks/index.js";
+import * as SHADERS from "../chunks/index.js";
 
 // Based on http://gamedev.stackexchange.com/questions/60313/implementing-a-skybox-with-glsl-version-330
 export default /* glsl */ `

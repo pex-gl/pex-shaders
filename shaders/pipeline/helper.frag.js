@@ -1,6 +1,6 @@
 import * as glslToneMap from "glsl-tone-map";
 
-import SHADERS from "../chunks/index.js";
+import * as SHADERS from "../chunks/index.js";
 
 export default /* glsl */ `
 #if (__VERSION__ < 300)
@@ -19,8 +19,6 @@ uniform int uOutputEncoding;
 varying vec4 vColor;
 
 // Includes
-${SHADERS.rgbm}
-${SHADERS.gamma}
 ${SHADERS.encodeDecode}
 ${Object.values(glslToneMap).join("\n")}
 

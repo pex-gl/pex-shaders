@@ -62,4 +62,4 @@ const assignment = /* glsl */ `
 #endif
 `;
 
-export default { vert, frag, assignment };
+export { vert, frag, assignment };

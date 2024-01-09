@@ -1,6 +1,8 @@
-import SHADERS from "../chunks/index.js";
+import * as SHADERS from "../chunks/index.js";
 
 export default /* glsl */ `
+${SHADERS.output.vert}
+
 // Variables
 attribute vec3 aPosition;
 
@@ -46,8 +48,8 @@ attribute vec4 aWeight;
 uniform mat4 uJointMat[NUM_JOINTS];
 #endif
 
-#ifdef USE_DISPLACEMENT_MAP
-uniform sampler2D uDisplacementMap;
+#ifdef USE_DISPLACEMENT_TEXTURE
+uniform sampler2D uDisplacementTexture;
 uniform float uDisplacement;
 #endif
 
@@ -71,6 +73,8 @@ varying vec3 vPositionView;
 ${SHADERS.math.transposeMat4}
 ${SHADERS.math.quatToMat4}
 
+#define HOOK_VERT_DECLARATIONS_END
+
 void main() {
   vec4 position = vec4(aPosition, 1.0);
   vec3 normal = vec3(0.0, 0.0, 0.0);
@@ -91,8 +95,10 @@ void main() {
     vTexCoord1 = aTexCoord1;
   #endif
 
-  #ifdef USE_DISPLACEMENT_MAP
-    float h = texture2D(uDisplacementMap, aTexCoord0).r;
+  #define HOOK_VERT_BEFORE_TRANSFORM
+
+  #ifdef USE_DISPLACEMENT_TEXTURE
+    float h = texture2D(uDisplacementTexture, aTexCoord0).r;
     position.xyz += uDisplacement * h * normal * uDisplacementShadowStretch;
   #endif
 
@@ -139,5 +145,7 @@ void main() {
 
   vPositionView = positionView.xyz;
   vNormalView = normalize(uNormalMatrix * normal);
+
+  #define HOOK_VERT_END
 }
 `;

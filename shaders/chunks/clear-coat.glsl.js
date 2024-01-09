@@ -3,21 +3,26 @@ export default /* glsl */ `
   uniform float uClearCoat;
   uniform float uClearCoatRoughness;
 
-  #ifdef USE_CLEAR_COAT_MAP
-    uniform sampler2D uClearCoatMap;
+  #ifdef USE_CLEAR_COAT_TEXTURE
+    uniform sampler2D uClearCoatTexture;
 
-    #ifdef USE_CLEAR_COAT_MAP_TEX_COORD_TRANSFORM
-      uniform mat3 uClearCoatMapTexCoordTransform;
+    #ifdef USE_CLEAR_COAT_TEXTURE_MATRIX
+      uniform mat3 uClearCoatTextureMatrix;
     #endif
 
     void getClearCoat(inout PBRData data) {
-      #ifdef USE_CLEAR_COAT_MAP_TEX_COORD_TRANSFORM
-        vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_MAP_TEX_COORD_INDEX, uClearCoatMapTexCoordTransform);
+      #ifdef USE_CLEAR_COAT_TEXTURE_MATRIX
+        vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_TEXTURE_TEX_COORD, uClearCoatTextureMatrix);
       #else
-        vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_MAP_TEX_COORD_INDEX);
+        vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_TEXTURE_TEX_COORD);
       #endif
+      vec4 texelColor = texture2D(uClearCoatTexture, texCoord);
 
-      data.clearCoat = uClearCoat * texture2D(uClearCoatMap, texCoord).r;
+      data.clearCoat = uClearCoat * texelColor.r;
+
+      #ifdef USE_CLEAR_COAT_ROUGHNESS_FROM_MAIN_TEXTURE
+      data.clearCoatRoughness = uClearCoatRoughness * texelColor.g;
+      #endif
     }
   #else
     void getClearCoat(inout PBRData data) {
@@ -25,45 +30,47 @@ export default /* glsl */ `
     }
   #endif
 
-  #ifdef USE_CLEAR_COAT_ROUGHNESS_MAP
-    uniform sampler2D uClearCoatRoughnessMap;
+  #ifdef USE_CLEAR_COAT_ROUGHNESS_TEXTURE
+    uniform sampler2D uClearCoatRoughnessTexture;
 
-    #ifdef USE_CLEAR_COAT_ROUGHNESS_MAP_TEX_COORD_TRANSFORM
-      uniform mat3 uClearCoatRoughnessMapTexCoordTransform;
+    #ifdef USE_CLEAR_COAT_ROUGHNESS_TEXTURE_MATRIX
+      uniform mat3 uClearCoatRoughnessTextureMatrix;
     #endif
 
     void getClearCoatRoughness(inout PBRData data) {
-      #ifdef USE_CLEAR_COAT_ROUGHNESS_MAP_TEX_COORD_TRANSFORM
-        vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_ROUGHNESS_MAP_TEX_COORD_INDEX, uClearCoatRoughnessMapTexCoordTransform);
+      #ifdef USE_CLEAR_COAT_ROUGHNESS_TEXTURE_MATRIX
+        vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_ROUGHNESS_TEXTURE_TEX_COORD, uClearCoatRoughnessTextureMatrix);
       #else
-        vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_ROUGHNESS_MAP_TEX_COORD_INDEX);
+        vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_ROUGHNESS_TEXTURE_TEX_COORD);
       #endif
 
-      data.clearCoatRoughness = uClearCoatRoughness * texture2D(uClearCoatRoughnessMap, texCoord).g;
+      data.clearCoatRoughness = uClearCoatRoughness * texture2D(uClearCoatRoughnessTexture, texCoord).g;
     }
   #else
     void getClearCoatRoughness(inout PBRData data) {
+      #if !defined(USE_CLEAR_COAT_ROUGHNESS_FROM_MAIN_TEXTURE)
       data.clearCoatRoughness = uClearCoatRoughness;
+      #endif
     }
   #endif
 
-  #ifdef USE_CLEAR_COAT_NORMAL_MAP
-    uniform sampler2D uClearCoatNormalMap;
-    uniform float uClearCoatNormalMapScale;
+  #ifdef USE_CLEAR_COAT_NORMAL_TEXTURE
+    uniform sampler2D uClearCoatNormalTexture;
+    uniform float uClearCoatNormalTextureScale;
 
-    #ifdef USE_CLEAR_COAT_NORMAL_MAP_TEX_COORD_TRANSFORM
-      uniform mat3 uClearCoatNormalMapTexCoordTransform;
+    #ifdef USE_CLEAR_COAT_NORMAL_TEXTURE_MATRIX
+      uniform mat3 uClearCoatNormalTextureMatrix;
     #endif
 
     void getClearCoatNormal(inout PBRData data) {
-      #ifdef USE_CLEAR_COAT_NORMAL_MAP_TEX_COORD_TRANSFORM
-        vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_NORMAL_MAP_TEX_COORD_INDEX, uClearCoatNormalMapTexCoordTransform);
+      #ifdef USE_CLEAR_COAT_NORMAL_TEXTURE_MATRIX
+        vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_NORMAL_TEXTURE_TEX_COORD, uClearCoatNormalTextureMatrix);
       #else
-        vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_NORMAL_MAP_TEX_COORD_INDEX);
+        vec2 texCoord = getTextureCoordinates(data, CLEAR_COAT_NORMAL_TEXTURE_TEX_COORD);
       #endif
 
-      vec3 normalMap = texture2D(uClearCoatNormalMap, texCoord).rgb * 2.0 - 1.0;
-      normalMap.y *= uClearCoatNormalMapScale;
+      vec3 normalMap = texture2D(uClearCoatNormalTexture, texCoord).rgb * 2.0 - 1.0;
+      normalMap.y *= uClearCoatNormalTextureScale;
       normalMap = normalize(normalMap);
 
       vec3 N = normalize(data.normalView);
@@ -98,21 +105,6 @@ export default /* glsl */ `
   // clear coat and material interface
   vec3 f0ClearCoatToSurface(const vec3 f0) {
     return saturate(f0 * (f0 * (0.941892 - 0.263008 * f0) + 0.346479) - 0.0285998);
-  }
-
-  float clearCoatBRDF(const PBRData data, const vec3 h, float NoH, float LoH, out float Fcc) {
-    #if defined(USE_NORMAL_MAP) || defined(USE_CLEAR_COAT_NORMAL_MAP)
-      float clearCoatNoH = saturate(dot(data.clearCoatNormal, h));
-    #else
-      float clearCoatNoH = NoH;
-    #endif
-    float D = D_GGX(data.clearCoatLinearRoughness, clearCoatNoH, h, data.normalWorld);
-    float V = V_Kelemen(LoH);
-    // air-polyurethane interface has IOR = 1.5 -> F0 = 0.04
-    float F = F_Schlick(0.04, 1.0, LoH) * data.clearCoat;
-
-    Fcc = F;
-    return D * V * F;
   }
 #endif
 `;

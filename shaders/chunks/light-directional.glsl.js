@@ -10,6 +10,7 @@ struct DirectionalLight {
   float near;
   float far;
   float bias;
+  vec2 radiusUV;
   vec2 shadowMapSize;
 };
 
@@ -23,15 +24,29 @@ void EvaluateDirectionalLight(inout PBRData data, DirectionalLight light, sample
   vec3 lightDeviceCoordsPositionNormalized = lightDeviceCoordsPosition.xyz / lightDeviceCoordsPosition.w;
   vec2 lightUV = lightDeviceCoordsPositionNormalized.xy * 0.5 + 0.5;
 
-  float illuminated = bool(light.castShadows) ? getShadow(shadowMap, light.shadowMapSize, lightUV, lightDistView - light.bias, light.near, light.far) : 1.0;
+  float illuminated = bool(light.castShadows)
+    ? getShadow(shadowMap,
+        light.shadowMapSize,
+        lightUV,
+        lightDistView - light.bias,
+        light.near,
+        light.far,
+        lightDeviceCoordsPositionNormalized.z,
+        light.radiusUV
+      )
+    : 1.0;
 
+  #ifndef USE_TRANSMISSION
   if (illuminated > 0.0) {
+  #endif
     Light l;
     l.l = -light.direction;
     l.color = light.color;
     l.attenuation = 1.0;
     getSurfaceShading(data, l, illuminated);
+  #ifndef USE_TRANSMISSION
   }
+  #endif
 }
 #endif
 `;

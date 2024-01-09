@@ -1,15 +1,16 @@
 export default /* glsl */ `
-uniform float       uFogDensity;
-
-uniform vec3        uSunColor;
-uniform float       uSunDispertion;
-uniform float       uSunIntensity;
-uniform vec3        uInscatteringCoeffs;
-uniform vec3        uFogColor;
-
 // Fog adapted from from Iñigo Quilez article on fog
 // http://www.iquilezles.org/www/articles/fog/fog.htm
-vec4 fog(vec3 rgb, float dist, vec3 rayDir, vec3 sunDir) {
+
+uniform float uFogDensity;
+
+uniform vec3 uSunColor;
+uniform float uSunDispertion;
+uniform float uSunIntensity;
+uniform vec3 uInscatteringCoeffs;
+uniform vec3 uFogColor;
+
+vec3 fog(vec3 rgb, float dist, vec3 rayDir, vec3 sunDir) {
   vec3 sunColor = toLinear(uSunColor).rgb;
   vec3 fogColor = toLinear(uFogColor).rgb;
 
@@ -25,6 +26,6 @@ vec4 fog(vec3 rgb, float dist, vec3 rayDir, vec3 sunDir) {
         exp(density*(uInscatteringCoeffs.z+minSc))),
       vec3(0), vec3(1));
 
-  return vec4(mix(rgb, sunFogColor, insColor), 1.0);
+  return mix(rgb, sunFogColor, insColor);
 }
 `;

@@ -1,18 +1,17 @@
+import * as SHADERS from "../chunks/index.js";
+
 export default /* glsl */ `
 precision highp float;
 
-varying vec2 vTexCoord;
+${SHADERS.output.frag}
 
-uniform float near;
-uniform float far;
-uniform float fov;
-
-uniform sampler2D image;
-uniform sampler2D emissiveTex;
-uniform vec2 imageSize;
+uniform sampler2D uTexture;
+uniform sampler2D uEmissiveTexture;
 
 uniform float uExposure;
-uniform float uBloomThreshold;
+uniform float uThreshold;
+
+varying vec2 vTexCoord0;
 
 float perceivedBrightness(vec3 c) {
   return (c.r + c.g + c.b) / 3.0;
@@ -20,19 +19,21 @@ float perceivedBrightness(vec3 c) {
 }
 
 void main() {
-  vec2 vUV = vec2(gl_FragCoord.x / imageSize.x, gl_FragCoord.y / imageSize.y);
-  vec4 color = texture2D(image, vUV);
+  vec4 color = texture2D(uTexture, vTexCoord0);
   color.rgb *= uExposure;
+
   float brightness = perceivedBrightness(color.rgb);
-  float smoothRange = 0.1;
-  float t1 = uBloomThreshold * (1.0 - smoothRange);
-  float t2 = uBloomThreshold * (1.0 + smoothRange);
+  // float smoothRange = 0.1;
+  float t1 = uThreshold * 0.9;
+
   if (brightness > t1) {
-    gl_FragColor = color * smoothstep(t1, t2, brightness);
+    gl_FragColor = color * smoothstep(t1, uThreshold * 1.1, brightness);
   } else {
     gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
   }
 
-  gl_FragColor += texture2D(emissiveTex, vUV);
+  gl_FragColor += texture2D(uEmissiveTexture, vTexCoord0);
+
+  ${SHADERS.output.assignment}
 }
 `;

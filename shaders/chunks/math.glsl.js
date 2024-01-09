@@ -1,3 +1,6 @@
+const HALF_PI = /* glsl */ `
+const float HALF_PI = 1.57079632679;
+`;
 const PI = /* glsl */ `
 const float PI = 3.14159265359;
 `;
@@ -18,6 +21,20 @@ const saturate = /* glsl */ `
 #define saturate(x) clamp(x, 0.0, 1.0)
 `;
 
+const round = /* glsl */ `
+#if (__VERSION__ < 300)
+float round(float f) {
+  return f < 0.5 ? floor(f) : ceil(f);
+}
+
+vec2 round(vec2 v) {
+  v.x = round(v.x);
+  v.y = round(v.y);
+  return v;
+}
+#endif
+`;
+
 const quatToMat4 = /* glsl */ `
 mat4 quatToMat4(vec4 q) {
   float xs = q.x + q.x;
@@ -32,14 +49,39 @@ mat4 quatToMat4(vec4 q) {
   float yy = q.y * ys;
   float yz = q.y * zs;
   float zz = q.z * zs;
+
   return transpose(
-      mat4(
-          1.0 - (yy + zz), xy - wz, xz + wy, 0.0,
-          xy + wz, 1.0 - (xx + zz), yz - wx, 0.0,
-          xz - wy, yz + wx, 1.0 - (xx + yy), 0.0,
-          0.0, 0.0, 0.0, 1.0
-      )
+    mat4(
+      1.0 - (yy + zz), xy - wz, xz + wy, 0.0,
+      xy + wz, 1.0 - (xx + zz), yz - wx, 0.0,
+      xz - wy, yz + wx, 1.0 - (xx + yy), 0.0,
+      0.0, 0.0, 0.0, 1.0
+    )
   );
+}
+`;
+
+const multQuat = /* glsl */ `
+vec3 multQuat(vec3 a, vec4 q){
+  float x = a.x;
+  float y = a.y;
+  float z = a.z;
+
+  float qx = q.x;
+  float qy = q.y;
+  float qz = q.z;
+  float qw = q.w;
+
+  float ix =  qw * x + qy * z - qz * y;
+  float iy =  qw * y + qz * x - qx * z;
+  float iz =  qw * z + qx * y - qy * x;
+  float iw = -qx * x - qy * y - qz * z;
+
+  a.x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
+  a.y = iy * qw + iw * -qy + iz * -qx - ix * -qz;
+  a.z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
+
+  return a;
 }
 `;
 
@@ -58,9 +100,11 @@ mat4 quatToMat4(vec4 q) {
 const transposeMat3 = /* glsl */ `
 #if (__VERSION__ < 300)
 mat3 transpose(mat3 m) {
-  return mat3(m[0][0], m[1][0], m[2][0],
-              m[0][1], m[1][1], m[2][1],
-              m[0][2], m[1][2], m[2][2]);
+  return mat3(
+    m[0][0], m[1][0], m[2][0],
+    m[0][1], m[1][1], m[2][1],
+    m[0][2], m[1][2], m[2][2]
+  );
 }
 #endif
 `;
@@ -152,12 +196,22 @@ mat4 inverse(mat4 m) {
 #endif
 `;
 
-export default {
+const random = /* glsl */ `
+float rand(vec2 seed) {
+  return fract(sin(dot(seed ,vec2(12.9898,78.233))) * 43758.5453); // * 1231534.9);
+}
+`;
+
+export {
+  HALF_PI,
   PI,
   TWO_PI,
   saturate,
-  transposeMat4,
+  round,
   quatToMat4,
+  multQuat,
   transposeMat3,
+  transposeMat4,
   inverseMat4,
+  random,
 };

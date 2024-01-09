@@ -1,21 +1,21 @@
 export default /* glsl */ `
-#ifdef USE_NORMAL_MAP
-uniform sampler2D uNormalMap;
-uniform float uNormalScale;
+#ifdef USE_NORMAL_TEXTURE
+uniform sampler2D uNormalTexture;
+uniform float uNormalTextureScale;
 
-#ifdef USE_NORMAL_MAP_TEX_COORD_TRANSFORM
-  uniform mat3 uNormalMapTexCoordTransform;
+#ifdef USE_NORMAL_TEXTURE_MATRIX
+  uniform mat3 uNormalTextureMatrix;
 #endif
 
 void getNormal(inout PBRData data) {
-  #ifdef USE_NORMAL_MAP_TEX_COORD_TRANSFORM
-    vec2 texCoord = getTextureCoordinates(data, NORMAL_MAP_TEX_COORD_INDEX, uNormalMapTexCoordTransform);
+  #ifdef USE_NORMAL_TEXTURE_MATRIX
+    vec2 texCoord = getTextureCoordinates(data, NORMAL_TEXTURE_TEX_COORD, uNormalTextureMatrix);
   #else
-    vec2 texCoord = getTextureCoordinates(data, NORMAL_MAP_TEX_COORD_INDEX);
+    vec2 texCoord = getTextureCoordinates(data, NORMAL_TEXTURE_TEX_COORD);
   #endif
 
-  vec3 normalMap = texture2D(uNormalMap, texCoord).rgb * 2.0 - 1.0;
-  normalMap.y *= uNormalScale;
+  vec3 normalMap = texture2D(uNormalTexture, texCoord).rgb * 2.0 - 1.0;
+  normalMap.y *= uNormalTextureScale;
   normalMap = normalize(normalMap);
 
   vec3 N = normalize(data.normalView);
@@ -33,10 +33,10 @@ void getNormal(inout PBRData data) {
     normalMap.y *= -1.0;
     normalView = perturb(normalMap, N, V, texCoord);
   #endif
-  data.normalView = normalView;  
+  data.normalView = normalView;
   data.normalWorld = normalize(vec3(data.inverseViewMatrix * vec4(normalView, 0.0)));
 }
-// #elif defined(USE_DISPLACEMENT_MAP)
+// #elif defined(USE_DISPLACEMENT_TEXTURE)
 //   uniform sampler2D uDisplacementMap;
 //   uniform float uDisplacement;
 //   uniform float uDisplacementNormalScale;

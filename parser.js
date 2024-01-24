@@ -83,7 +83,7 @@ layout (location = 2) out vec4 outEmissive;`,
             )
           : line;
       })
-      .filter(Boolean)
+      .map((line) => line || "")
       .join("\n")
       .replace(/varying/g, "in")
       .replace(/texture2DLodEXT/g, "textureLod")

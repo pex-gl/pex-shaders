@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.21](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.20...v1.0.0-alpha.21) (2024-02-06)
+
+
+### Bug Fixes
+
+* prevent empty lines from being deleted in patchES300 fragment ([6e2cd8f](https://github.com/pex-gl/pex-shaders/commit/6e2cd8fe97fbda9331e0e8f1b2e6ef6275468f45))
+
+
+
 # [1.0.0-alpha.20](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.19...v1.0.0-alpha.20) (2023-10-26)
 
 

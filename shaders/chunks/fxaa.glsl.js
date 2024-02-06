@@ -1,3 +1,17 @@
+/**
+ * FXAA
+ *
+ * Paper:
+ * - https://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf
+ *
+ * Reference Implementations:
+ * - v3.11: https://github.com/FyroxEngine/Fyrox/blob/master/src/renderer/shaders/fxaa_fs.glsl
+ * - v2: https://github.com/mattdesl/glsl-fxaa
+ *
+ * Updates: Damien Seguin (2023-10)
+ * @alias module:chunks.fxaa
+ * @type {string}
+ */
 export default /* glsl */ `
 // TODO: precompute luma in color attachment
 // TODO: don't apply where there is strong motion blur or depth of field.
@@ -22,12 +36,6 @@ export default /* glsl */ `
   }
 
   #ifdef USE_FXAA_3
-    // NVIDIA FXAA 3.11
-    // https://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf
-    // https://github.com/FyroxEngine/Fyrox/blob/master/src/renderer/shaders/fxaa_fs.glsl
-    //
-    // Adapted by Damien Seguin
-
     // Low
     // #define FXAA_EDGE_THRESHOLD_MIN 0.0833 // 1 / 12
     // #define FXAA_EDGE_THRESHOLD_MAX 0.250 // 1 / 4
@@ -271,8 +279,6 @@ export default /* glsl */ `
     }
   #endif
   #ifdef USE_FXAA_2
-    // v2
-    // https://github.com/mattdesl/glsl-fxaa
     uniform float uFXAASpanMax;
 
     #define FXAA_REDUCE_MIN (1.0 / 128.0)

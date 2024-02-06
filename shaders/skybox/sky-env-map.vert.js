@@ -1,5 +1,9 @@
 import * as SHADERS from "../chunks/index.js";
 
+/**
+ * @alias module:skybox.skyEnvMap.vert
+ * @type {string}
+ */
 export default /* glsl */ `
 ${SHADERS.output.vert}
 

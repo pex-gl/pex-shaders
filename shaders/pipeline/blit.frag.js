@@ -2,6 +2,10 @@ import * as glslToneMap from "glsl-tone-map";
 
 import * as SHADERS from "../chunks/index.js";
 
+/**
+ * @alias module:pipeline.blit.frag
+ * @type {string}
+ */
 export default /* glsl */ `precision highp float;
 
 ${SHADERS.output.frag}

@@ -1,5 +1,9 @@
 import * as SHADERS from "../chunks/index.js";
 
+/**
+ * @alias module:pipeline.error.frag
+ * @type {string}
+ */
 export default /* glsl */ `
 #if (__VERSION__ < 300)
   #ifdef USE_DRAW_BUFFERS

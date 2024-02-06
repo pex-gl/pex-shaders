@@ -2,7 +2,10 @@ import * as SHADERS from "../chunks/index.js";
 
 /**
  * Downsample
+ *
  * Reference Implementation: https://github.com/keijiro/KinoBloom
+ * @alias module:postProcessing.downsample.frag
+ * @type {string}
  */
 export default /* glsl */ `
 precision highp float;

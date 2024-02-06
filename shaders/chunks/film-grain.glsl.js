@@ -1,8 +1,12 @@
 /**
  * Film Grain
+ *
  * Reference Implementations:
  * - https://devlog-martinsh.blogspot.com/2013/05/image-imperfections-and-film-grain-post.html
  * - https://www.shadertoy.com/view/4sSXDW
+ *
+ * @alias module:chunks.filmGrain
+ * @type {string}
  */
 export default /* glsl */ `
 const vec3 FILM_GRAIN_TIME_OFFSET = vec3(0.07, 0.11, 0.13);

@@ -1,7 +1,11 @@
 /**
  * Reference Implementation: https://github.com/stegu/webgl-noise
+ *
  * Copyright (C) 2011 by Ashima Arts (Simplex noise)
  * Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)
+ *
+ * @alias module:chunks.noise
+ * @type {object}
  */
 const common = /* glsl */ `
 float mod289(float x) {

@@ -2,6 +2,10 @@ import * as glslToneMap from "glsl-tone-map";
 
 import * as SHADERS from "../chunks/index.js";
 
+/**
+ * @alias module:pipeline.basic.frag
+ * @type {string}
+ */
 export default /* glsl */ `
 #if (__VERSION__ < 300)
   #ifdef USE_DRAW_BUFFERS

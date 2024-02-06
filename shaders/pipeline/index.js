@@ -1,3 +1,5 @@
+/** @module pipeline */
+
 import blitVert from "./blit.vert.js";
 import blitFrag from "./blit.frag.js";
 import depthPassVert from "./depth-pass.vert.js";
@@ -16,14 +18,47 @@ import helperVert from "./helper.vert.js";
 import errorFrag from "./error.frag.js";
 import errorVert from "./error.vert.js";
 
-export default {
-  blit: { vert: blitVert, frag: blitFrag },
-  depthPass: { vert: depthPassVert, frag: depthPassFrag },
-  depthPrePass: { frag: depthPrePassFrag },
-  standard: { vert: standardVert, frag: standardFrag },
-  basic: { vert: basicVert, frag: basicFrag },
-  line: { vert: lineVert, frag: lineFrag },
-  overlay: { vert: overlayVert, frag: overlayFrag },
-  helper: { vert: helperVert, frag: helperFrag },
-  error: { vert: errorVert, frag: errorFrag },
-};
+/**
+ * @member {object}
+ * @static
+ */ export const blit = { vert: blitVert, frag: blitFrag };
+/**
+ * @member {object}
+ * @static
+ */
+export const depthPass = { vert: depthPassVert, frag: depthPassFrag };
+/**
+ * @member {object}
+ * @static
+ */
+export const depthPrePass = { frag: depthPrePassFrag };
+/**
+ * @member {object}
+ * @static
+ */
+export const standard = { vert: standardVert, frag: standardFrag };
+/**
+ * @member {object}
+ * @static
+ */
+export const basic = { vert: basicVert, frag: basicFrag };
+/**
+ * @member {object}
+ * @static
+ */
+export const line = { vert: lineVert, frag: lineFrag };
+/**
+ * @member {object}
+ * @static
+ */
+export const overlay = { vert: overlayVert, frag: overlayFrag };
+/**
+ * @member {object}
+ * @static
+ */
+export const helper = { vert: helperVert, frag: helperFrag };
+/**
+ * @member {object}
+ * @static
+ */
+export const error = { vert: errorVert, frag: errorFrag };

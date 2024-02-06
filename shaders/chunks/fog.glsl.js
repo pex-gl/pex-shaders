@@ -1,7 +1,11 @@
+/**
+ * Fog
+ *
+ * Adapted from from Iñigo Quilez article: https://iquilezles.org/articles/fog/
+ * @alias module:chunks.fog
+ * @type {string}
+ */
 export default /* glsl */ `
-// Fog adapted from from Iñigo Quilez article on fog
-// http://www.iquilezles.org/www/articles/fog/fog.htm
-
 uniform float uFogDensity;
 
 uniform vec3 uSunColor;

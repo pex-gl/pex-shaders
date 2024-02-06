@@ -1,5 +1,9 @@
 import * as SHADERS from "../chunks/index.js";
 
+/**
+ * @alias module:pipeline.overlay.vert
+ * @type {string}
+ */
 export default /* glsl */ `
 ${SHADERS.output.vert}
 

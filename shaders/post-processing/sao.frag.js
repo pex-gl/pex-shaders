@@ -2,10 +2,15 @@ import * as SHADERS from "../chunks/index.js";
 
 /**
  * SAO (Scalable Ambient Obscurance)
+ *
  * Paper: https://research.nvidia.com/sites/default/files/pubs/2012-06_Scalable-Ambient-Obscurance/McGuire12SAO.pdf
- * https://casual-effects.com/research/McGuire2012SAO/index.html
+ * (https://casual-effects.com/research/McGuire2012SAO/index.html)
+ *
  * Reference Implementation: https://gist.github.com/transitive-bullshit/6770311
+ *
  * Updates: Marcin Ignac (2017-05-08) and Damien Seguin (2023-10)
+ * @alias module:postProcessing.sao.frag
+ * @type {string}
  */
 export default /* glsl */ `
 precision highp float;

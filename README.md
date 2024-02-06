@@ -67,61 +67,16 @@ const program = {
 <dd></dd>
 <dt><a href="#module_parser">parser</a></dt>
 <dd></dd>
-</dl>
-
-## Members
-
-<dl>
-<dt><a href="#default">default</a></dt>
-<dd><p>Film Grain
-Reference Implementations:</p>
-<ul>
-<li><a href="https://devlog-martinsh.blogspot.com/2013/05/image-imperfections-and-film-grain-post.html">https://devlog-martinsh.blogspot.com/2013/05/image-imperfections-and-film-grain-post.html</a></li>
-<li><a href="https://www.shadertoy.com/view/4sSXDW">https://www.shadertoy.com/view/4sSXDW</a></li>
-</ul>
-</dd>
-<dt><a href="#default">default</a></dt>
-<dd><p>Down Sample
-Reference Implementation: <a href="https://github.com/keijiro/KinoBloom">https://github.com/keijiro/KinoBloom</a></p>
-</dd>
-<dt><a href="#default">default</a></dt>
-<dd><p>GTAO (Ground Truth)
-Paper: <a href="https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf">https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf</a>
-Reference Implementation: <a href="https://github.com/GameTechDev/XeGTAO/blob/master/Source/Rendering/Shaders/XeGTAO.hlsli">https://github.com/GameTechDev/XeGTAO/blob/master/Source/Rendering/Shaders/XeGTAO.hlsli</a></p>
-</dd>
-<dt><a href="#default">default</a></dt>
-<dd><p>SAO (Scalable Ambient Obscurance)
-Paper: <a href="https://research.nvidia.com/sites/default/files/pubs/2012-06_Scalable-Ambient-Obscurance/McGuire12SAO.pdf">https://research.nvidia.com/sites/default/files/pubs/2012-06_Scalable-Ambient-Obscurance/McGuire12SAO.pdf</a>
-<a href="https://casual-effects.com/research/McGuire2012SAO/index.html">https://casual-effects.com/research/McGuire2012SAO/index.html</a>
-Reference Implementation: <a href="https://gist.github.com/transitive-bullshit/6770311">https://gist.github.com/transitive-bullshit/6770311</a>
-Updates: Marcin Ignac (2017-05-08) and Damien Seguin (2023-10)</p>
-</dd>
-<dt><a href="#default">default</a></dt>
-<dd><p>Up Sample
-Reference Implementation: <a href="https://github.com/keijiro/KinoBloom">https://github.com/keijiro/KinoBloom</a></p>
-</dd>
-<dt><a href="#default">default</a></dt>
-<dd><p>Sky
-Based on &quot;A Practical Analytic Model for Daylight&quot; aka The Preetham Model, the de facto standard analytic skydome model
-Paper: <a href="https://www.researchgate.net/publication/220720443_A_Practical_Analytic_Model_for_Daylight">https://www.researchgate.net/publication/220720443_A_Practical_Analytic_Model_for_Daylight</a>
-Reference Implementation:</p>
-<ul>
-<li>First implemented by Simon Wallner <a href="http://www.simonwallner.at/projects/atmospheric-scattering">http://www.simonwallner.at/projects/atmospheric-scattering</a></li>
-<li>Improved by Martin Upitis <a href="http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR">http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR</a></li>
-<li>Three.js integration by zz85 <a href="http://twitter.com/blurspline">http://twitter.com/blurspline</a></li>
-</ul>
-<p>Updates: Marcin Ignac <a href="http://twitter.com/marcinignac">http://twitter.com/marcinignac</a> (2015-09) and Damien Seguin (2023-10)</p>
-</dd>
-</dl>
-
-## Constants
-
-<dl>
-<dt><a href="#common">common</a></dt>
-<dd><p>Reference Implementation: <a href="https://github.com/stegu/webgl-noise">https://github.com/stegu/webgl-noise</a>
-Copyright (C) 2011 by Ashima Arts (Simplex noise)
-Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)</p>
-</dd>
+<dt><a href="#module_chunks">chunks</a></dt>
+<dd></dd>
+<dt><a href="#module_pipeline">pipeline</a></dt>
+<dd></dd>
+<dt><a href="#module_postProcessing">postProcessing</a></dt>
+<dd></dd>
+<dt><a href="#module_reflectionProbe">reflectionProbe</a></dt>
+<dd></dd>
+<dt><a href="#module_skybox">skybox</a></dt>
+<dd></dd>
 </dl>
 
 <a name="module_pex-shaders"></a>
@@ -129,63 +84,64 @@ Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)</p>
 ## pex-shaders
 
 - [pex-shaders](#module_pex-shaders)
-  - [module.exports](#exp_module_pex-shaders--module.exports) : <code>object</code> ⏏
-    - [.chunks](#module_pex-shaders--module.exports.chunks) : <code>object</code>
-    - [.pipeline](#module_pex-shaders--module.exports.pipeline) : <code>object</code>
-    - [.postProcessing](#module_pex-shaders--module.exports.postProcessing) : <code>object</code>
-    - [.reflectionProbe](#module_pex-shaders--module.exports.reflectionProbe) : <code>object</code>
-    - [.skybox](#module_pex-shaders--module.exports.skybox) : <code>object</code>
-    - [.parser](#module_pex-shaders--module.exports.parser) : <code>parser</code>
+  - [.chunks](#module_pex-shaders.chunks) : [<code>chunks</code>](#module_chunks)
+  - [.pipeline](#module_pex-shaders.pipeline) : [<code>pipeline</code>](#module_pipeline)
+  - [.postProcessing](#module_pex-shaders.postProcessing) : [<code>postProcessing</code>](#module_postProcessing)
+  - [.reflectionProbe](#module_pex-shaders.reflectionProbe) : [<code>reflectionProbe</code>](#module_reflectionProbe)
+  - [.skybox](#module_pex-shaders.skybox) : [<code>skybox</code>](#module_skybox)
+  - [.parser](#module_pex-shaders.parser) : [<code>parser</code>](#module_parser)
+  - [.toneMap](#module_pex-shaders.toneMap) : <code>object</code>
 
-<a name="exp_module_pex-shaders--module.exports"></a>
+<a name="module_pex-shaders.chunks"></a>
 
-### module.exports : <code>object</code> ⏏
-
-Re-export tone mapping functions
-
-**Kind**: Exported member
-<a name="module_pex-shaders--module.exports.chunks"></a>
-
-#### module.exports.chunks : <code>object</code>
+### pex-shaders.chunks : [<code>chunks</code>](#module_chunks)
 
 Various shader chunks to be inserted in main shaders
 
-**Kind**: static property of [<code>module.exports</code>](#exp_module_pex-shaders--module.exports)
-<a name="module_pex-shaders--module.exports.pipeline"></a>
+**Kind**: static property of [<code>pex-shaders</code>](#module_pex-shaders)
+<a name="module_pex-shaders.pipeline"></a>
 
-#### module.exports.pipeline : <code>object</code>
+### pex-shaders.pipeline : [<code>pipeline</code>](#module_pipeline)
 
 Main shaders
 
-**Kind**: static property of [<code>module.exports</code>](#exp_module_pex-shaders--module.exports)
-<a name="module_pex-shaders--module.exports.postProcessing"></a>
+**Kind**: static property of [<code>pex-shaders</code>](#module_pex-shaders)
+<a name="module_pex-shaders.postProcessing"></a>
 
-#### module.exports.postProcessing : <code>object</code>
+### pex-shaders.postProcessing : [<code>postProcessing</code>](#module_postProcessing)
 
 Post-processing shaders that operate on fullscreen
 
-**Kind**: static property of [<code>module.exports</code>](#exp_module_pex-shaders--module.exports)
-<a name="module_pex-shaders--module.exports.reflectionProbe"></a>
+**Kind**: static property of [<code>pex-shaders</code>](#module_pex-shaders)
+<a name="module_pex-shaders.reflectionProbe"></a>
 
-#### module.exports.reflectionProbe : <code>object</code>
+### pex-shaders.reflectionProbe : [<code>reflectionProbe</code>](#module_reflectionProbe)
 
 Reflection probes specific shaders
 
-**Kind**: static property of [<code>module.exports</code>](#exp_module_pex-shaders--module.exports)
-<a name="module_pex-shaders--module.exports.skybox"></a>
+**Kind**: static property of [<code>pex-shaders</code>](#module_pex-shaders)
+<a name="module_pex-shaders.skybox"></a>
 
-#### module.exports.skybox : <code>object</code>
+### pex-shaders.skybox : [<code>skybox</code>](#module_skybox)
 
 Skybox specific shaders
 
-**Kind**: static property of [<code>module.exports</code>](#exp_module_pex-shaders--module.exports)
-<a name="module_pex-shaders--module.exports.parser"></a>
+**Kind**: static property of [<code>pex-shaders</code>](#module_pex-shaders)
+<a name="module_pex-shaders.parser"></a>
 
-#### module.exports.parser : <code>parser</code>
+### pex-shaders.parser : [<code>parser</code>](#module_parser)
 
 Shader string manipulation helpers
 
-**Kind**: static property of [<code>module.exports</code>](#exp_module_pex-shaders--module.exports)
+**Kind**: static property of [<code>pex-shaders</code>](#module_pex-shaders)
+<a name="module_pex-shaders.toneMap"></a>
+
+### pex-shaders.toneMap : <code>object</code>
+
+Re-export tone mapping functions
+
+**Kind**: static property of [<code>pex-shaders</code>](#module_pex-shaders)
+**See**: [https://github.com/dmnsgn/glsl-tone-map](https://github.com/dmnsgn/glsl-tone-map)
 <a name="module_parser"></a>
 
 ## parser
@@ -284,60 +240,741 @@ Get a formatted error pointing at the issue line
 | error   | <code>Error</code>  |
 | options | <code>Object</code> |
 
-<a name="default"></a>
+<a name="module_chunks"></a>
 
-## default
+## chunks
+
+- [chunks](#module_chunks)
+  - [.colorCorrection](#module_chunks.colorCorrection) : <code>string</code>
+  - [.filmGrain](#module_chunks.filmGrain) : <code>string</code>
+  - [.fog](#module_chunks.fog) : <code>string</code>
+  - [.fxaa](#module_chunks.fxaa) : <code>string</code>
+  - [.output](#module_chunks.output) : <code>object</code>
+  - [.math](#module_chunks.math) : <code>object</code>
+  - [.encodeDecode](#module_chunks.encodeDecode) : <code>string</code>
+  - [.luma](#module_chunks.luma) : <code>string</code>
+  - [.lightAmbient](#module_chunks.lightAmbient) : <code>string</code>
+  - [.lightDirectional](#module_chunks.lightDirectional) : <code>string</code>
+  - [.lightPoint](#module_chunks.lightPoint) : <code>string</code>
+  - [.lightSpot](#module_chunks.lightSpot) : <code>string</code>
+  - [.lightArea](#module_chunks.lightArea) : <code>string</code>
+  - [.shadowing](#module_chunks.shadowing) : <code>string</code>
+  - [.brdf](#module_chunks.brdf) : <code>string</code>
+  - [.direct](#module_chunks.direct) : <code>string</code>
+  - [.indirect](#module_chunks.indirect) : <code>string</code>
+  - [.envMapEquirect](#module_chunks.envMapEquirect) : <code>string</code>
+  - [.octMap](#module_chunks.octMap) : <code>string</code>
+  - [.octMapUvToDir](#module_chunks.octMapUvToDir) : <code>string</code>
+  - [.irradiance](#module_chunks.irradiance) : <code>string</code>
+  - [.textureCoordinates](#module_chunks.textureCoordinates) : <code>string</code>
+  - [.baseColor](#module_chunks.baseColor) : <code>string</code>
+  - [.emissiveColor](#module_chunks.emissiveColor) : <code>string</code>
+  - [.normal](#module_chunks.normal) : <code>string</code>
+  - [.normalPerturb](#module_chunks.normalPerturb) : <code>string</code>
+  - [.metallicRoughness](#module_chunks.metallicRoughness) : <code>string</code>
+  - [.specularGlossiness](#module_chunks.specularGlossiness) : <code>string</code>
+  - [.clearCoat](#module_chunks.clearCoat) : <code>string</code>
+  - [.sheenColor](#module_chunks.sheenColor) : <code>string</code>
+  - [.alpha](#module_chunks.alpha) : <code>string</code>
+  - [.ambientOcclusion](#module_chunks.ambientOcclusion) : <code>string</code>
+  - [.depthRead](#module_chunks.depthRead) : <code>string</code>
+  - [.depthPosition](#module_chunks.depthPosition) : <code>string</code>
+  - [.depthUnpack](#module_chunks.depthUnpack) : <code>string</code>
+  - [.depthPack](#module_chunks.depthPack) : <code>string</code>
+  - [.lut](#module_chunks.lut) : <code>string</code>
+  - [.vignette](#module_chunks.vignette) : <code>string</code>
+  - [.noise](#module_chunks.noise) : <code>object</code>
+
+<a name="module_chunks.colorCorrection"></a>
+
+### chunks.colorCorrection : <code>string</code>
+
+Color Correction
+
+https://github.com/CesiumGS/cesium/blob/master/Source/Shaders/Builtin/Functions
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.filmGrain"></a>
+
+### chunks.filmGrain : <code>string</code>
 
 Film Grain
+
 Reference Implementations:
 
 - https://devlog-martinsh.blogspot.com/2013/05/image-imperfections-and-film-grain-post.html
 - https://www.shadertoy.com/view/4sSXDW
 
-**Kind**: global variable
-<a name="default"></a>
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.fog"></a>
 
-## default
+### chunks.fog : <code>string</code>
 
-Down Sample
+Fog
+
+Adapted from from Iñigo Quilez article: https://iquilezles.org/articles/fog/
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.fxaa"></a>
+
+### chunks.fxaa : <code>string</code>
+
+FXAA
+
+Paper:
+
+- https://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf
+
+Reference Implementations:
+
+- v3.11: https://github.com/FyroxEngine/Fyrox/blob/master/src/renderer/shaders/fxaa_fs.glsl
+- v2: https://github.com/mattdesl/glsl-fxaa
+
+Updates: Damien Seguin (2023-10)
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.output"></a>
+
+### chunks.output : <code>object</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.math"></a>
+
+### chunks.math : <code>object</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.encodeDecode"></a>
+
+### chunks.encodeDecode : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.luma"></a>
+
+### chunks.luma : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.lightAmbient"></a>
+
+### chunks.lightAmbient : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.lightDirectional"></a>
+
+### chunks.lightDirectional : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.lightPoint"></a>
+
+### chunks.lightPoint : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.lightSpot"></a>
+
+### chunks.lightSpot : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.lightArea"></a>
+
+### chunks.lightArea : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.shadowing"></a>
+
+### chunks.shadowing : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.brdf"></a>
+
+### chunks.brdf : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.direct"></a>
+
+### chunks.direct : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.indirect"></a>
+
+### chunks.indirect : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.envMapEquirect"></a>
+
+### chunks.envMapEquirect : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.octMap"></a>
+
+### chunks.octMap : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.octMapUvToDir"></a>
+
+### chunks.octMapUvToDir : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.irradiance"></a>
+
+### chunks.irradiance : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.textureCoordinates"></a>
+
+### chunks.textureCoordinates : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.baseColor"></a>
+
+### chunks.baseColor : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.emissiveColor"></a>
+
+### chunks.emissiveColor : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.normal"></a>
+
+### chunks.normal : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.normalPerturb"></a>
+
+### chunks.normalPerturb : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.metallicRoughness"></a>
+
+### chunks.metallicRoughness : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.specularGlossiness"></a>
+
+### chunks.specularGlossiness : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.clearCoat"></a>
+
+### chunks.clearCoat : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.sheenColor"></a>
+
+### chunks.sheenColor : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.alpha"></a>
+
+### chunks.alpha : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.ambientOcclusion"></a>
+
+### chunks.ambientOcclusion : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.depthRead"></a>
+
+### chunks.depthRead : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.depthPosition"></a>
+
+### chunks.depthPosition : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.depthUnpack"></a>
+
+### chunks.depthUnpack : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.depthPack"></a>
+
+### chunks.depthPack : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.lut"></a>
+
+### chunks.lut : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.vignette"></a>
+
+### chunks.vignette : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.noise"></a>
+
+### chunks.noise : <code>object</code>
+
+Reference Implementation: https://github.com/stegu/webgl-noise
+
+Copyright (C) 2011 by Ashima Arts (Simplex noise)
+Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)
+
+**Kind**: static constant of [<code>chunks</code>](#module_chunks)
+<a name="module_pipeline"></a>
+
+## pipeline
+
+- [pipeline](#module_pipeline)
+  - [.blit](#module_pipeline.blit) : <code>object</code>
+    - [.frag](#module_pipeline.blit.frag) : <code>string</code>
+    - [.vert](#module_pipeline.blit.vert) : <code>string</code>
+  - [.depthPass](#module_pipeline.depthPass) : <code>object</code>
+    - [.frag](#module_pipeline.depthPass.frag) : <code>string</code>
+    - [.vert](#module_pipeline.depthPass.vert) : <code>string</code>
+  - [.depthPrePass](#module_pipeline.depthPrePass) : <code>object</code>
+    - [.frag](#module_pipeline.depthPrePass.frag) : <code>string</code>
+  - [.standard](#module_pipeline.standard) : <code>object</code>
+    - [.frag](#module_pipeline.standard.frag) : <code>string</code>
+    - [.vert](#module_pipeline.standard.vert) : <code>string</code>
+  - [.basic](#module_pipeline.basic) : <code>object</code>
+    - [.frag](#module_pipeline.basic.frag) : <code>string</code>
+    - [.vert](#module_pipeline.basic.vert) : <code>string</code>
+  - [.line](#module_pipeline.line) : <code>object</code>
+    - [.frag](#module_pipeline.line.frag) : <code>string</code>
+    - [.vert](#module_pipeline.line.vert) : <code>string</code>
+  - [.overlay](#module_pipeline.overlay) : <code>object</code>
+    - [.frag](#module_pipeline.overlay.frag) : <code>string</code>
+    - [.vert](#module_pipeline.overlay.vert) : <code>string</code>
+  - [.helper](#module_pipeline.helper) : <code>object</code>
+    - [.frag](#module_pipeline.helper.frag) : <code>string</code>
+    - [.vert](#module_pipeline.helper.vert) : <code>string</code>
+  - [.error](#module_pipeline.error) : <code>object</code>
+    - [.frag](#module_pipeline.error.frag) : <code>string</code>
+    - [.vert](#module_pipeline.error.vert) : <code>string</code>
+
+<a name="module_pipeline.blit"></a>
+
+### pipeline.blit : <code>object</code>
+
+**Kind**: static constant of [<code>pipeline</code>](#module_pipeline)
+
+- [.blit](#module_pipeline.blit) : <code>object</code>
+  - [.frag](#module_pipeline.blit.frag) : <code>string</code>
+  - [.vert](#module_pipeline.blit.vert) : <code>string</code>
+
+<a name="module_pipeline.blit.frag"></a>
+
+#### blit.frag : <code>string</code>
+
+**Kind**: static property of [<code>blit</code>](#module_pipeline.blit)
+<a name="module_pipeline.blit.vert"></a>
+
+#### blit.vert : <code>string</code>
+
+**Kind**: static property of [<code>blit</code>](#module_pipeline.blit)
+<a name="module_pipeline.depthPass"></a>
+
+### pipeline.depthPass : <code>object</code>
+
+**Kind**: static constant of [<code>pipeline</code>](#module_pipeline)
+
+- [.depthPass](#module_pipeline.depthPass) : <code>object</code>
+  - [.frag](#module_pipeline.depthPass.frag) : <code>string</code>
+  - [.vert](#module_pipeline.depthPass.vert) : <code>string</code>
+
+<a name="module_pipeline.depthPass.frag"></a>
+
+#### depthPass.frag : <code>string</code>
+
+**Kind**: static property of [<code>depthPass</code>](#module_pipeline.depthPass)
+<a name="module_pipeline.depthPass.vert"></a>
+
+#### depthPass.vert : <code>string</code>
+
+**Kind**: static property of [<code>depthPass</code>](#module_pipeline.depthPass)
+<a name="module_pipeline.depthPrePass"></a>
+
+### pipeline.depthPrePass : <code>object</code>
+
+**Kind**: static constant of [<code>pipeline</code>](#module_pipeline)
+<a name="module_pipeline.depthPrePass.frag"></a>
+
+#### depthPrePass.frag : <code>string</code>
+
+**Kind**: static property of [<code>depthPrePass</code>](#module_pipeline.depthPrePass)
+<a name="module_pipeline.standard"></a>
+
+### pipeline.standard : <code>object</code>
+
+**Kind**: static constant of [<code>pipeline</code>](#module_pipeline)
+
+- [.standard](#module_pipeline.standard) : <code>object</code>
+  - [.frag](#module_pipeline.standard.frag) : <code>string</code>
+  - [.vert](#module_pipeline.standard.vert) : <code>string</code>
+
+<a name="module_pipeline.standard.frag"></a>
+
+#### standard.frag : <code>string</code>
+
+**Kind**: static property of [<code>standard</code>](#module_pipeline.standard)
+<a name="module_pipeline.standard.vert"></a>
+
+#### standard.vert : <code>string</code>
+
+**Kind**: static property of [<code>standard</code>](#module_pipeline.standard)
+<a name="module_pipeline.basic"></a>
+
+### pipeline.basic : <code>object</code>
+
+**Kind**: static constant of [<code>pipeline</code>](#module_pipeline)
+
+- [.basic](#module_pipeline.basic) : <code>object</code>
+  - [.frag](#module_pipeline.basic.frag) : <code>string</code>
+  - [.vert](#module_pipeline.basic.vert) : <code>string</code>
+
+<a name="module_pipeline.basic.frag"></a>
+
+#### basic.frag : <code>string</code>
+
+**Kind**: static property of [<code>basic</code>](#module_pipeline.basic)
+<a name="module_pipeline.basic.vert"></a>
+
+#### basic.vert : <code>string</code>
+
+**Kind**: static property of [<code>basic</code>](#module_pipeline.basic)
+<a name="module_pipeline.line"></a>
+
+### pipeline.line : <code>object</code>
+
+**Kind**: static constant of [<code>pipeline</code>](#module_pipeline)
+
+- [.line](#module_pipeline.line) : <code>object</code>
+  - [.frag](#module_pipeline.line.frag) : <code>string</code>
+  - [.vert](#module_pipeline.line.vert) : <code>string</code>
+
+<a name="module_pipeline.line.frag"></a>
+
+#### line.frag : <code>string</code>
+
+**Kind**: static property of [<code>line</code>](#module_pipeline.line)
+<a name="module_pipeline.line.vert"></a>
+
+#### line.vert : <code>string</code>
+
+**Kind**: static property of [<code>line</code>](#module_pipeline.line)
+<a name="module_pipeline.overlay"></a>
+
+### pipeline.overlay : <code>object</code>
+
+**Kind**: static constant of [<code>pipeline</code>](#module_pipeline)
+
+- [.overlay](#module_pipeline.overlay) : <code>object</code>
+  - [.frag](#module_pipeline.overlay.frag) : <code>string</code>
+  - [.vert](#module_pipeline.overlay.vert) : <code>string</code>
+
+<a name="module_pipeline.overlay.frag"></a>
+
+#### overlay.frag : <code>string</code>
+
+**Kind**: static property of [<code>overlay</code>](#module_pipeline.overlay)
+<a name="module_pipeline.overlay.vert"></a>
+
+#### overlay.vert : <code>string</code>
+
+**Kind**: static property of [<code>overlay</code>](#module_pipeline.overlay)
+<a name="module_pipeline.helper"></a>
+
+### pipeline.helper : <code>object</code>
+
+**Kind**: static constant of [<code>pipeline</code>](#module_pipeline)
+
+- [.helper](#module_pipeline.helper) : <code>object</code>
+  - [.frag](#module_pipeline.helper.frag) : <code>string</code>
+  - [.vert](#module_pipeline.helper.vert) : <code>string</code>
+
+<a name="module_pipeline.helper.frag"></a>
+
+#### helper.frag : <code>string</code>
+
+**Kind**: static property of [<code>helper</code>](#module_pipeline.helper)
+<a name="module_pipeline.helper.vert"></a>
+
+#### helper.vert : <code>string</code>
+
+**Kind**: static property of [<code>helper</code>](#module_pipeline.helper)
+<a name="module_pipeline.error"></a>
+
+### pipeline.error : <code>object</code>
+
+**Kind**: static constant of [<code>pipeline</code>](#module_pipeline)
+
+- [.error](#module_pipeline.error) : <code>object</code>
+  - [.frag](#module_pipeline.error.frag) : <code>string</code>
+  - [.vert](#module_pipeline.error.vert) : <code>string</code>
+
+<a name="module_pipeline.error.frag"></a>
+
+#### error.frag : <code>string</code>
+
+**Kind**: static property of [<code>error</code>](#module_pipeline.error)
+<a name="module_pipeline.error.vert"></a>
+
+#### error.vert : <code>string</code>
+
+**Kind**: static property of [<code>error</code>](#module_pipeline.error)
+<a name="module_postProcessing"></a>
+
+## postProcessing
+
+- [postProcessing](#module_postProcessing)
+  - [.bilateralBlur](#module_postProcessing.bilateralBlur) : <code>object</code>
+    - [.frag](#module_postProcessing.bilateralBlur.frag) : <code>string</code>
+  - [.dof](#module_postProcessing.dof) : <code>object</code>
+    - [.frag](#module_postProcessing.dof.frag) : <code>string</code>
+  - [.downsample](#module_postProcessing.downsample) : <code>object</code>
+    - [.frag](#module_postProcessing.downsample.frag) : <code>string</code>
+  - [.postProcessing](#module_postProcessing.postProcessing) : <code>object</code>
+    - [.frag](#module_postProcessing.postProcessing.frag) : <code>string</code>
+    - [.vert](#module_postProcessing.postProcessing.vert) : <code>string</code>
+  - [.sao](#module_postProcessing.sao) : <code>object</code>
+    - [.frag](#module_postProcessing.sao.frag) : <code>string</code>
+  - [.gtao](#module_postProcessing.gtao) : <code>object</code>
+    - [.frag](#module_postProcessing.gtao.frag) : <code>string</code>
+  - [.threshold](#module_postProcessing.threshold) : <code>object</code>
+    - [.frag](#module_postProcessing.threshold.frag) : <code>string</code>
+  - [.upsample](#module_postProcessing.upsample) : <code>object</code>
+    - [.frag](#module_postProcessing.upsample.frag) : <code>string</code>
+
+<a name="module_postProcessing.bilateralBlur"></a>
+
+### postProcessing.bilateralBlur : <code>object</code>
+
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
+<a name="module_postProcessing.bilateralBlur.frag"></a>
+
+#### bilateralBlur.frag : <code>string</code>
+
+**Kind**: static property of [<code>bilateralBlur</code>](#module_postProcessing.bilateralBlur)
+<a name="module_postProcessing.dof"></a>
+
+### postProcessing.dof : <code>object</code>
+
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
+<a name="module_postProcessing.dof.frag"></a>
+
+#### dof.frag : <code>string</code>
+
+**Kind**: static property of [<code>dof</code>](#module_postProcessing.dof)
+<a name="module_postProcessing.downsample"></a>
+
+### postProcessing.downsample : <code>object</code>
+
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
+<a name="module_postProcessing.downsample.frag"></a>
+
+#### downsample.frag : <code>string</code>
+
+Downsample
+
 Reference Implementation: https://github.com/keijiro/KinoBloom
 
-**Kind**: global variable
-<a name="default"></a>
+**Kind**: static property of [<code>downsample</code>](#module_postProcessing.downsample)
+<a name="module_postProcessing.postProcessing"></a>
 
-## default
+### postProcessing.postProcessing : <code>object</code>
 
-GTAO (Ground Truth)
-Paper: https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf
-Reference Implementation: https://github.com/GameTechDev/XeGTAO/blob/master/Source/Rendering/Shaders/XeGTAO.hlsli
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
 
-**Kind**: global variable
-<a name="default"></a>
+- [.postProcessing](#module_postProcessing.postProcessing) : <code>object</code>
+  - [.frag](#module_postProcessing.postProcessing.frag) : <code>string</code>
+  - [.vert](#module_postProcessing.postProcessing.vert) : <code>string</code>
 
-## default
+<a name="module_postProcessing.postProcessing.frag"></a>
+
+#### postProcessing.frag : <code>string</code>
+
+**Kind**: static property of [<code>postProcessing</code>](#module_postProcessing.postProcessing)
+<a name="module_postProcessing.postProcessing.vert"></a>
+
+#### postProcessing.vert : <code>string</code>
+
+**Kind**: static property of [<code>postProcessing</code>](#module_postProcessing.postProcessing)
+<a name="module_postProcessing.sao"></a>
+
+### postProcessing.sao : <code>object</code>
+
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
+<a name="module_postProcessing.sao.frag"></a>
+
+#### sao.frag : <code>string</code>
 
 SAO (Scalable Ambient Obscurance)
+
 Paper: https://research.nvidia.com/sites/default/files/pubs/2012-06_Scalable-Ambient-Obscurance/McGuire12SAO.pdf
-https://casual-effects.com/research/McGuire2012SAO/index.html
+(https://casual-effects.com/research/McGuire2012SAO/index.html)
+
 Reference Implementation: https://gist.github.com/transitive-bullshit/6770311
+
 Updates: Marcin Ignac (2017-05-08) and Damien Seguin (2023-10)
 
-**Kind**: global variable
-<a name="default"></a>
+**Kind**: static property of [<code>sao</code>](#module_postProcessing.sao)
+<a name="module_postProcessing.gtao"></a>
 
-## default
+### postProcessing.gtao : <code>object</code>
 
-Up Sample
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
+<a name="module_postProcessing.gtao.frag"></a>
+
+#### gtao.frag : <code>string</code>
+
+GTAO (Ground Truth)
+
+Paper: https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf
+
+Reference Implementation: https://github.com/GameTechDev/XeGTAO/blob/master/Source/Rendering/Shaders/XeGTAO.hlsli
+
+Updates: Damien Seguin (2023-10)
+
+**Kind**: static property of [<code>gtao</code>](#module_postProcessing.gtao)
+<a name="module_postProcessing.threshold"></a>
+
+### postProcessing.threshold : <code>object</code>
+
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
+<a name="module_postProcessing.threshold.frag"></a>
+
+#### threshold.frag : <code>string</code>
+
+**Kind**: static property of [<code>threshold</code>](#module_postProcessing.threshold)
+<a name="module_postProcessing.upsample"></a>
+
+### postProcessing.upsample : <code>object</code>
+
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
+<a name="module_postProcessing.upsample.frag"></a>
+
+#### upsample.frag : <code>string</code>
+
+Upsample
+
 Reference Implementation: https://github.com/keijiro/KinoBloom
 
-**Kind**: global variable
-<a name="default"></a>
+**Kind**: static property of [<code>upsample</code>](#module_postProcessing.upsample)
+<a name="module_reflectionProbe"></a>
 
-## default
+## reflectionProbe
+
+- [reflectionProbe](#module_reflectionProbe)
+  - [.blitToOctMapAtlas](#module_reflectionProbe.blitToOctMapAtlas) : <code>object</code>
+    - [.frag](#module_reflectionProbe.blitToOctMapAtlas.frag) : <code>string</code>
+  - [.convolveOctMapAtlasToOctMap](#module_reflectionProbe.convolveOctMapAtlasToOctMap) : <code>object</code>
+    - [.frag](#module_reflectionProbe.convolveOctMapAtlasToOctMap.frag) : <code>string</code>
+  - [.cubemapToOctMap](#module_reflectionProbe.cubemapToOctMap) : <code>object</code>
+    - [.frag](#module_reflectionProbe.cubemapToOctMap.frag) : <code>string</code>
+  - [.downsampleFromOctMapAtlas](#module_reflectionProbe.downsampleFromOctMapAtlas) : <code>object</code>
+    - [.frag](#module_reflectionProbe.downsampleFromOctMapAtlas.frag) : <code>string</code>
+  - [.prefilterFromOctMapAtlas](#module_reflectionProbe.prefilterFromOctMapAtlas) : <code>object</code>
+    - [.frag](#module_reflectionProbe.prefilterFromOctMapAtlas.frag) : <code>string</code>
+
+<a name="module_reflectionProbe.blitToOctMapAtlas"></a>
+
+### reflectionProbe.blitToOctMapAtlas : <code>object</code>
+
+**Kind**: static constant of [<code>reflectionProbe</code>](#module_reflectionProbe)
+<a name="module_reflectionProbe.blitToOctMapAtlas.frag"></a>
+
+#### blitToOctMapAtlas.frag : <code>string</code>
+
+**Kind**: static property of [<code>blitToOctMapAtlas</code>](#module_reflectionProbe.blitToOctMapAtlas)
+<a name="module_reflectionProbe.convolveOctMapAtlasToOctMap"></a>
+
+### reflectionProbe.convolveOctMapAtlasToOctMap : <code>object</code>
+
+**Kind**: static constant of [<code>reflectionProbe</code>](#module_reflectionProbe)
+<a name="module_reflectionProbe.convolveOctMapAtlasToOctMap.frag"></a>
+
+#### convolveOctMapAtlasToOctMap.frag : <code>string</code>
+
+**Kind**: static property of [<code>convolveOctMapAtlasToOctMap</code>](#module_reflectionProbe.convolveOctMapAtlasToOctMap)
+<a name="module_reflectionProbe.cubemapToOctMap"></a>
+
+### reflectionProbe.cubemapToOctMap : <code>object</code>
+
+**Kind**: static constant of [<code>reflectionProbe</code>](#module_reflectionProbe)
+<a name="module_reflectionProbe.cubemapToOctMap.frag"></a>
+
+#### cubemapToOctMap.frag : <code>string</code>
+
+**Kind**: static property of [<code>cubemapToOctMap</code>](#module_reflectionProbe.cubemapToOctMap)
+<a name="module_reflectionProbe.downsampleFromOctMapAtlas"></a>
+
+### reflectionProbe.downsampleFromOctMapAtlas : <code>object</code>
+
+**Kind**: static constant of [<code>reflectionProbe</code>](#module_reflectionProbe)
+<a name="module_reflectionProbe.downsampleFromOctMapAtlas.frag"></a>
+
+#### downsampleFromOctMapAtlas.frag : <code>string</code>
+
+**Kind**: static property of [<code>downsampleFromOctMapAtlas</code>](#module_reflectionProbe.downsampleFromOctMapAtlas)
+<a name="module_reflectionProbe.prefilterFromOctMapAtlas"></a>
+
+### reflectionProbe.prefilterFromOctMapAtlas : <code>object</code>
+
+**Kind**: static constant of [<code>reflectionProbe</code>](#module_reflectionProbe)
+<a name="module_reflectionProbe.prefilterFromOctMapAtlas.frag"></a>
+
+#### prefilterFromOctMapAtlas.frag : <code>string</code>
+
+**Kind**: static property of [<code>prefilterFromOctMapAtlas</code>](#module_reflectionProbe.prefilterFromOctMapAtlas)
+<a name="module_skybox"></a>
+
+## skybox
+
+- [skybox](#module_skybox)
+  - [.skybox](#module_skybox.skybox) : <code>object</code>
+    - [.frag](#module_skybox.skybox.frag) : <code>string</code>
+    - [.vert](#module_skybox.skybox.vert) : <code>string</code>
+  - [.skyEnvMap](#module_skybox.skyEnvMap) : <code>object</code>
+    - [.frag](#module_skybox.skyEnvMap.frag) : <code>string</code>
+    - [.vert](#module_skybox.skyEnvMap.vert) : <code>string</code>
+
+<a name="module_skybox.skybox"></a>
+
+### skybox.skybox : <code>object</code>
+
+**Kind**: static constant of [<code>skybox</code>](#module_skybox)
+
+- [.skybox](#module_skybox.skybox) : <code>object</code>
+  - [.frag](#module_skybox.skybox.frag) : <code>string</code>
+  - [.vert](#module_skybox.skybox.vert) : <code>string</code>
+
+<a name="module_skybox.skybox.frag"></a>
+
+#### skybox.frag : <code>string</code>
+
+**Kind**: static property of [<code>skybox</code>](#module_skybox.skybox)
+<a name="module_skybox.skybox.vert"></a>
+
+#### skybox.vert : <code>string</code>
+
+Skybox
+
+Based on http://gamedev.stackexchange.com/questions/60313/implementing-a-skybox-with-glsl-version-330
+
+**Kind**: static property of [<code>skybox</code>](#module_skybox.skybox)
+<a name="module_skybox.skyEnvMap"></a>
+
+### skybox.skyEnvMap : <code>object</code>
+
+**Kind**: static constant of [<code>skybox</code>](#module_skybox)
+
+- [.skyEnvMap](#module_skybox.skyEnvMap) : <code>object</code>
+  - [.frag](#module_skybox.skyEnvMap.frag) : <code>string</code>
+  - [.vert](#module_skybox.skyEnvMap.vert) : <code>string</code>
+
+<a name="module_skybox.skyEnvMap.frag"></a>
+
+#### skyEnvMap.frag : <code>string</code>
 
 Sky
+
 Based on "A Practical Analytic Model for Daylight" aka The Preetham Model, the de facto standard analytic skydome model
+
 Paper: https://www.researchgate.net/publication/220720443_A_Practical_Analytic_Model_for_Daylight
+
 Reference Implementation:
 
 - First implemented by Simon Wallner http://www.simonwallner.at/projects/atmospheric-scattering
@@ -346,16 +983,12 @@ Reference Implementation:
 
 Updates: Marcin Ignac http://twitter.com/marcinignac (2015-09) and Damien Seguin (2023-10)
 
-**Kind**: global variable
-<a name="common"></a>
+**Kind**: static property of [<code>skyEnvMap</code>](#module_skybox.skyEnvMap)
+<a name="module_skybox.skyEnvMap.vert"></a>
 
-## common
+#### skyEnvMap.vert : <code>string</code>
 
-Reference Implementation: https://github.com/stegu/webgl-noise
-Copyright (C) 2011 by Ashima Arts (Simplex noise)
-Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)
-
-**Kind**: global constant
+**Kind**: static property of [<code>skyEnvMap</code>](#module_skybox.skyEnvMap)
 
 <!-- api-end -->
 

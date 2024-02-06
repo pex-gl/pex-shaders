@@ -2,8 +2,14 @@ import * as SHADERS from "../chunks/index.js";
 
 /**
  * GTAO (Ground Truth)
+ *
  * Paper: https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf
+ *
  * Reference Implementation: https://github.com/GameTechDev/XeGTAO/blob/master/Source/Rendering/Shaders/XeGTAO.hlsli
+ *
+ * Updates: Damien Seguin (2023-10)
+ * @alias module:postProcessing.gtao.frag
+ * @type {string}
  */
 export default /* glsl */ `
 precision highp float;

@@ -245,10 +245,6 @@ Get a formatted error pointing at the issue line
 ## chunks
 
 - [chunks](#module_chunks)
-  - [.colorCorrection](#module_chunks.colorCorrection) : <code>string</code>
-  - [.filmGrain](#module_chunks.filmGrain) : <code>string</code>
-  - [.fog](#module_chunks.fog) : <code>string</code>
-  - [.fxaa](#module_chunks.fxaa) : <code>string</code>
   - [.output](#module_chunks.output) : <code>object</code>
   - [.math](#module_chunks.math) : <code>object</code>
   - [.encodeDecode](#module_chunks.encodeDecode) : <code>string</code>
@@ -283,56 +279,12 @@ Get a formatted error pointing at the issue line
   - [.depthPack](#module_chunks.depthPack) : <code>string</code>
   - [.lut](#module_chunks.lut) : <code>string</code>
   - [.vignette](#module_chunks.vignette) : <code>string</code>
+  - [.colorCorrection](#module_chunks.colorCorrection) : <code>string</code>
+  - [.filmGrain](#module_chunks.filmGrain) : <code>string</code>
+  - [.fog](#module_chunks.fog) : <code>string</code>
+  - [.fxaa](#module_chunks.fxaa) : <code>string</code>
   - [.noise](#module_chunks.noise) : <code>object</code>
 
-<a name="module_chunks.colorCorrection"></a>
-
-### chunks.colorCorrection : <code>string</code>
-
-Color Correction
-
-https://github.com/CesiumGS/cesium/blob/master/Source/Shaders/Builtin/Functions
-
-**Kind**: static property of [<code>chunks</code>](#module_chunks)
-<a name="module_chunks.filmGrain"></a>
-
-### chunks.filmGrain : <code>string</code>
-
-Film Grain
-
-Reference Implementations:
-
-- https://devlog-martinsh.blogspot.com/2013/05/image-imperfections-and-film-grain-post.html
-- https://www.shadertoy.com/view/4sSXDW
-
-**Kind**: static property of [<code>chunks</code>](#module_chunks)
-<a name="module_chunks.fog"></a>
-
-### chunks.fog : <code>string</code>
-
-Fog
-
-Adapted from from Iñigo Quilez article: https://iquilezles.org/articles/fog/
-
-**Kind**: static property of [<code>chunks</code>](#module_chunks)
-<a name="module_chunks.fxaa"></a>
-
-### chunks.fxaa : <code>string</code>
-
-FXAA
-
-Paper:
-
-- https://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf
-
-Reference Implementations:
-
-- v3.11: https://github.com/FyroxEngine/Fyrox/blob/master/src/renderer/shaders/fxaa_fs.glsl
-- v2: https://github.com/mattdesl/glsl-fxaa
-
-Updates: Damien Seguin (2023-10)
-
-**Kind**: static property of [<code>chunks</code>](#module_chunks)
 <a name="module_chunks.output"></a>
 
 ### chunks.output : <code>object</code>
@@ -501,6 +453,54 @@ Updates: Damien Seguin (2023-10)
 <a name="module_chunks.vignette"></a>
 
 ### chunks.vignette : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.colorCorrection"></a>
+
+### chunks.colorCorrection : <code>string</code>
+
+Color Correction
+
+https://github.com/CesiumGS/cesium/blob/master/Source/Shaders/Builtin/Functions
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.filmGrain"></a>
+
+### chunks.filmGrain : <code>string</code>
+
+Film Grain
+
+Reference Implementations:
+
+- https://devlog-martinsh.blogspot.com/2013/05/image-imperfections-and-film-grain-post.html
+- https://www.shadertoy.com/view/4sSXDW
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.fog"></a>
+
+### chunks.fog : <code>string</code>
+
+Fog
+
+Adapted from from Iñigo Quilez article: https://iquilezles.org/articles/fog/
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.fxaa"></a>
+
+### chunks.fxaa : <code>string</code>
+
+FXAA
+
+Paper:
+
+- https://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf
+
+Reference Implementations:
+
+- v3.11: https://github.com/FyroxEngine/Fyrox/blob/master/src/renderer/shaders/fxaa_fs.glsl
+- v2: https://github.com/mattdesl/glsl-fxaa
+
+Updates: Damien Seguin (2023-10)
 
 **Kind**: static property of [<code>chunks</code>](#module_chunks)
 <a name="module_chunks.noise"></a>
@@ -757,6 +757,13 @@ Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)
 
 #### dof.frag : <code>string</code>
 
+DoF (Depth of Field)
+
+Based on:
+
+- "Bokeh depth of field in a single pass", Dennis Gustafsson: https://blog.voxagon.se/2018/05/04/bokeh-depth-of-field-in-single-pass.html
+- "GLSL depth of field with bokeh v2.4", Martins Upitis: https://devlog-martinsh.blogspot.com/2011/12/glsl-depth-of-field-with-bokeh-v24.html
+
 **Kind**: static property of [<code>dof</code>](#module_postProcessing.dof)
 <a name="module_postProcessing.downsample"></a>
 
@@ -978,7 +985,7 @@ Paper: https://www.researchgate.net/publication/220720443_A_Practical_Analytic_M
 Reference Implementation:
 
 - First implemented by Simon Wallner http://www.simonwallner.at/projects/atmospheric-scattering
-- Improved by Martin Upitis http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR
+- Improved by Martins Upitis http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR
 - Three.js integration by zz85 http://twitter.com/blurspline
 
 Updates: Marcin Ignac http://twitter.com/marcinignac (2015-09) and Damien Seguin (2023-10)

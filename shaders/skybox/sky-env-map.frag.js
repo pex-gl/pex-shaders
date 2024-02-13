@@ -11,7 +11,7 @@ import * as SHADERS from "../chunks/index.js";
  *
  * Reference Implementation:
  * - First implemented by Simon Wallner http://www.simonwallner.at/projects/atmospheric-scattering
- * - Improved by Martin Upitis http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR
+ * - Improved by Martins Upitis http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR
  * - Three.js integration by zz85 http://twitter.com/blurspline
  *
  * Updates: Marcin Ignac http://twitter.com/marcinignac (2015-09) and Damien Seguin (2023-10)

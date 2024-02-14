@@ -22,6 +22,14 @@ export {
   /** @member {string} */
   default as luma,
 } from "./luma.glsl.js";
+export {
+  /** @member {string} */
+  default as luminance,
+} from "./luminance.glsl.js";
+export {
+  /** @member {string} */
+  default as average,
+} from "./average.glsl.js";
 
 export {
   /** @member {string} */

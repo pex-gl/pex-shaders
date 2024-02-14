@@ -249,6 +249,8 @@ Get a formatted error pointing at the issue line
   - [.math](#module_chunks.math) : <code>object</code>
   - [.encodeDecode](#module_chunks.encodeDecode) : <code>string</code>
   - [.luma](#module_chunks.luma) : <code>string</code>
+  - [.luminance](#module_chunks.luminance) : <code>string</code>
+  - [.average](#module_chunks.average) : <code>string</code>
   - [.lightAmbient](#module_chunks.lightAmbient) : <code>string</code>
   - [.lightDirectional](#module_chunks.lightDirectional) : <code>string</code>
   - [.lightPoint](#module_chunks.lightPoint) : <code>string</code>
@@ -303,6 +305,16 @@ Get a formatted error pointing at the issue line
 <a name="module_chunks.luma"></a>
 
 ### chunks.luma : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.luminance"></a>
+
+### chunks.luminance : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.average"></a>
+
+### chunks.average : <code>string</code>
 
 **Kind**: static property of [<code>chunks</code>](#module_chunks)
 <a name="module_chunks.lightAmbient"></a>

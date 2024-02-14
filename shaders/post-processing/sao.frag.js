@@ -17,13 +17,13 @@ precision highp float;
 
 // Required defines:
 // Number of direct samples to take at each pixel:
-// #define NUM_SAMPLES 11
+// NUM_SAMPLES 11
 // Number of turns around the circle that the spiral pattern makes (should be
 // prime number to prevent taps from lining up):
-// #define NUM_SPIRAL_TURNS 7
+// NUM_SPIRAL_TURNS 7
 
 // Optional defines:
-// #define USE_NOISE_TEXTURE
+// USE_NOISE_TEXTURE
 
 ${SHADERS.output.frag}
 

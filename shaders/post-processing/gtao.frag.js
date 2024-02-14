@@ -16,13 +16,13 @@ precision highp float;
 
 // Required defines:
 // Number of hemisphere slices:
-// #define NUM_SLICES 11
+// NUM_SLICES 11
 // Number of sample per slice:
-// #define NUM_SAMPLES 7
+// NUM_SAMPLES 7
 
 // Optional defines:
-// #define USE_NOISE_TEXTURE
-// #define USE_COLOR_BOUNCE
+// USE_NOISE_TEXTURE
+// USE_COLOR_BOUNCE
 
 ${SHADERS.output.frag}
 

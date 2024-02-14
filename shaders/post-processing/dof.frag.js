@@ -13,14 +13,14 @@ export default /* glsl */ `
 precision highp float;
 
 // Required defines:
-// #define USE_DOF_GUSTAFSSON or USE_DOF_UPITIS
-// #define NUM_SAMPLES 6
+// USE_DOF_GUSTAFSSON or USE_DOF_UPITIS
+// NUM_SAMPLES 6
 
 // Optional defines:
-// #define USE_PHYSICAL
-// #define USE_FOCUS_ON_SCREEN_POINT
-// #define USE_DEBUG
-// #define USE_SHAPE_PENTAGON
+// USE_PHYSICAL
+// USE_FOCUS_ON_SCREEN_POINT
+// USE_DEBUG
+// USE_SHAPE_PENTAGON
 
 ${SHADERS.output.frag}
 

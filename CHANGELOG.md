@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.22](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.21...v1.0.0-alpha.22) (2024-02-14)
+
+
+### Features
+
+* always use ssao as post effect only ([67747a8](https://github.com/pex-gl/pex-shaders/commit/67747a8be503dab729725473773a3532b39ef495))
+* upgrade bloom threshold ([de7175b](https://github.com/pex-gl/pex-shaders/commit/de7175bc081ad95fea97381dc1db1ce05a79017a))
+* upgrade dof ([5fa66fe](https://github.com/pex-gl/pex-shaders/commit/5fa66fe26f9e9a4726e1645c864b7510162f1bb9))
+* write normals to Z+ as default for all pipeline shaders ([5b73f77](https://github.com/pex-gl/pex-shaders/commit/5b73f77a462927de96395f5caccbae249ef6d1b0))
+
+
+
 # [1.0.0-alpha.21](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.20...v1.0.0-alpha.21) (2024-02-06)
 
 

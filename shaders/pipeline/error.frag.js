@@ -22,7 +22,7 @@ void main () {
 
   #ifdef USE_DRAW_BUFFERS
     #if LOCATION_NORMAL >= 0
-      gl_FragData[LOCATION_NORMAL] = vec4(0.0);
+      gl_FragData[LOCATION_NORMAL] = vec4(0.0, 0.0, 1.0, 1.0);
     #endif
     #if LOCATION_EMISSIVE >= 0
       gl_FragData[LOCATION_EMISSIVE] = vec4(0.0);

@@ -19,10 +19,6 @@ void multiBounceAO(float visibility, const vec3 albedo, inout vec3 color) {
   color *= gtaoMultiBounce(visibility, albedo);
 }
 
-#ifdef USE_SSAO_TEXTURE
-  uniform sampler2D uSSAOTexture;
-#endif
-
 #ifdef USE_OCCLUSION_TEXTURE
   uniform sampler2D uOcclusionTexture;
 
@@ -39,16 +35,6 @@ void getAmbientOcclusion(inout PBRData data) {
       vec2 texCoord = getTextureCoordinates(data, OCCLUSION_TEXTURE_TEX_COORD);
     #endif
     data.ao *= texture2D(uOcclusionTexture, texCoord).r;
-  #endif
-
-  #if defined(USE_SSAO) && defined(USE_SSAO_TEXTURE)
-    vec2 aoTexCoord = gl_FragCoord.xy / uViewportSize;
-    vec4 aoData = texture2D(uSSAOTexture, aoTexCoord);
-    #ifdef USE_SSAO_COLORS
-      // data.ao *= aoData.a;
-    #else
-      data.ao *= aoData.r;
-    #endif
   #endif
 }
 `;

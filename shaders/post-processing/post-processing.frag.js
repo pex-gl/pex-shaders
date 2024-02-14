@@ -52,7 +52,7 @@ ${Object.values(glslToneMap).join("\n")}
   ${SHADERS.fxaa}
 #endif
 
-#ifdef USE_SSAO_POST
+#ifdef USE_SSAO
   uniform sampler2D uSSAOTexture;
   uniform float uSSAOMix;
 #endif
@@ -154,7 +154,7 @@ void main() {
     color.rgb = fog(color.rgb, rayLength - uFogStart, rayDir, sunDir);
   #endif
 
-  #ifdef USE_SSAO_POST
+  #ifdef USE_SSAO
     vec4 aoData = texture2D(uSSAOTexture, uv);
 
     #ifdef USE_SSAO_COLORS

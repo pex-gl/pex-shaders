@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.23](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.22...v1.0.0-alpha.23) (2024-03-05)
+
+
+### Bug Fixes
+
+* ensure disk area light doesn't produce negative values ([77bea51](https://github.com/pex-gl/pex-shaders/commit/77bea51cd745faede22a408ac568cd68eff49fcd)), closes [#13](https://github.com/pex-gl/pex-shaders/issues/13)
+
+
+
 # [1.0.0-alpha.22](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.21...v1.0.0-alpha.22) (2024-02-14)
 
 

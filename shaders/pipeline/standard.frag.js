@@ -248,7 +248,9 @@ void main() {
       data.sheenLinearRoughness = data.sheenRoughness * data.sheenRoughness;
     #endif
 
-    getAmbientOcclusion(data);
+    #ifdef USE_OCCLUSION_TEXTURE
+      getAmbientOcclusion(data);
+    #endif
 
     //TODO: No kd? so not really energy conserving
     //we could use disney brdf for irradiance map to compensate for that like in Frostbite

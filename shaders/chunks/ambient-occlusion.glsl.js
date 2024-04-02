@@ -19,22 +19,36 @@ void multiBounceAO(float visibility, const vec3 albedo, inout vec3 color) {
   color *= gtaoMultiBounce(visibility, albedo);
 }
 
+vec4 ssao(sampler2D colorTexture, sampler2D aoTexture, vec2 vUV, float intensity) {
+  vec4 color = texture2D(colorTexture, vUV);
+  vec4 aoData = texture2D(aoTexture, vUV);
+
+  #ifdef USE_SSAO_COLORS
+    vec3 rgb = mix(color.rgb, color.rgb * gtaoMultiBounce(aoData.a, color.rgb), intensity);
+    color.rgb = vec3(rgb + aoData.rgb * color.rgb * 2.0);
+    // color.rgb = vec3(color.rgb * (0.25 + 0.75 * aoData.a) + aoData.rgb * color.rgb * 2.0);
+  #else
+    color.rgb *= mix(vec3(1.0), vec3(aoData.r), intensity);
+  #endif
+
+  return color;
+}
+
 #ifdef USE_OCCLUSION_TEXTURE
   uniform sampler2D uOcclusionTexture;
 
   #ifdef USE_OCCLUSION_TEXTURE_MATRIX
     uniform mat3 uOcclusionTextureMatrix;
   #endif
-#endif
 
-void getAmbientOcclusion(inout PBRData data) {
-  #ifdef USE_OCCLUSION_TEXTURE
+  void getAmbientOcclusion(inout PBRData data) {
     #ifdef USE_OCCLUSION_TEXTURE_MATRIX
       vec2 texCoord = getTextureCoordinates(data, OCCLUSION_TEXTURE_TEX_COORD, uOcclusionTextureMatrix);
     #else
       vec2 texCoord = getTextureCoordinates(data, OCCLUSION_TEXTURE_TEX_COORD);
     #endif
     data.ao *= texture2D(uOcclusionTexture, texCoord).r;
-  #endif
-}
+  }
+#endif
+
 `;

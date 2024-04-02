@@ -149,9 +149,11 @@ export {
   default as depthPack,
 } from "./depth-pack.glsl.js";
 
-export { default as fog } from "./fog.glsl.js";
-export { default as fxaa } from "./fxaa.glsl.js";
-export { default as filmGrain } from "./film-grain.glsl.js";
+export { /** @member {string} */ default as fog } from "./fog.glsl.js";
+export { /** @member {string} */ default as fxaa } from "./fxaa.glsl.js";
+export {
+  /** @member {string} */ default as filmGrain,
+} from "./film-grain.glsl.js";
 export {
   /** @member {string} */
   default as lut,

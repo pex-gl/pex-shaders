@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.24](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.23...v1.0.0-alpha.24) (2024-04-02)
+
+
+### Features
+
+* add ssao mix ([ffd3043](https://github.com/pex-gl/pex-shaders/commit/ffd3043df9d27bf5130dbb81e7374ba0a24826ea))
+
+
+
 # [1.0.0-alpha.23](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.22...v1.0.0-alpha.23) (2024-03-05)
 
 

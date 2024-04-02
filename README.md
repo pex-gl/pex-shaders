@@ -279,6 +279,9 @@ Get a formatted error pointing at the issue line
   - [.depthPosition](#module_chunks.depthPosition) : <code>string</code>
   - [.depthUnpack](#module_chunks.depthUnpack) : <code>string</code>
   - [.depthPack](#module_chunks.depthPack) : <code>string</code>
+  - [.fog](#module_chunks.fog) : <code>string</code>
+  - [.fxaa](#module_chunks.fxaa) : <code>string</code>
+  - [.filmGrain](#module_chunks.filmGrain) : <code>string</code>
   - [.lut](#module_chunks.lut) : <code>string</code>
   - [.vignette](#module_chunks.vignette) : <code>string</code>
   - [.colorCorrection](#module_chunks.colorCorrection) : <code>string</code>
@@ -455,6 +458,21 @@ Get a formatted error pointing at the issue line
 <a name="module_chunks.depthPack"></a>
 
 ### chunks.depthPack : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.fog"></a>
+
+### chunks.fog : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.fxaa"></a>
+
+### chunks.fxaa : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.filmGrain"></a>
+
+### chunks.filmGrain : <code>string</code>
 
 **Kind**: static property of [<code>chunks</code>](#module_chunks)
 <a name="module_chunks.lut"></a>
@@ -745,6 +763,8 @@ Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)
     - [.frag](#module_postProcessing.sao.frag) : <code>string</code>
   - [.gtao](#module_postProcessing.gtao) : <code>object</code>
     - [.frag](#module_postProcessing.gtao.frag) : <code>string</code>
+  - [.ssaoMix](#module_postProcessing.ssaoMix) : <code>object</code>
+    - [.frag](#module_postProcessing.ssaoMix.frag) : <code>string</code>
   - [.threshold](#module_postProcessing.threshold) : <code>object</code>
     - [.frag](#module_postProcessing.threshold.frag) : <code>string</code>
   - [.upsample](#module_postProcessing.upsample) : <code>object</code>
@@ -848,6 +868,18 @@ Reference Implementation: https://github.com/GameTechDev/XeGTAO/blob/master/Sour
 Updates: Damien Seguin (2023-10)
 
 **Kind**: static property of [<code>gtao</code>](#module_postProcessing.gtao)
+<a name="module_postProcessing.ssaoMix"></a>
+
+### postProcessing.ssaoMix : <code>object</code>
+
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
+<a name="module_postProcessing.ssaoMix.frag"></a>
+
+#### ssaoMix.frag : <code>string</code>
+
+SSAO mix
+
+**Kind**: static property of [<code>ssaoMix</code>](#module_postProcessing.ssaoMix)
 <a name="module_postProcessing.threshold"></a>
 
 ### postProcessing.threshold : <code>object</code>

@@ -147,7 +147,7 @@ void main() {
   #endif
 
   #ifdef USE_SSAO
-    color = ssao(uTexture, uSSAOTexture, uv, uSSAOMix);
+    color = ssao(color, texture2D(uSSAOTexture, uv), uSSAOMix);
   #endif
 
   #ifdef USE_BLOOM

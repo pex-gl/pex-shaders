@@ -19,10 +19,7 @@ void multiBounceAO(float visibility, const vec3 albedo, inout vec3 color) {
   color *= gtaoMultiBounce(visibility, albedo);
 }
 
-vec4 ssao(sampler2D colorTexture, sampler2D aoTexture, vec2 vUV, float intensity) {
-  vec4 color = texture2D(colorTexture, vUV);
-  vec4 aoData = texture2D(aoTexture, vUV);
-
+vec4 ssao(vec4 color, vec4 aoData, float intensity) {
   #ifdef USE_SSAO_COLORS
     vec3 rgb = mix(color.rgb, color.rgb * gtaoMultiBounce(aoData.a, color.rgb), intensity);
     color.rgb = vec3(rgb + aoData.rgb * color.rgb * 2.0);

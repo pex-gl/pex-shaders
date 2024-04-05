@@ -22,7 +22,7 @@ ${SHADERS.ambientOcclusion}
 void main () {
   vec2 vUV = gl_FragCoord.xy / uViewportSize;
 
-  gl_FragColor = ssao(uTexture, uSSAOTexture, vUV, uSSAOMix);
+  gl_FragColor = ssao(texture2D(uTexture, vUV), texture2D(uSSAOTexture, vUV), uSSAOMix);
 
   ${SHADERS.output.assignment}
 }

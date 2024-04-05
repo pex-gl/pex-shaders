@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.25](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.24...v1.0.0-alpha.25) (2024-04-05)
+
+
+### Bug Fixes
+
+* prevent ssao overwriting aa and fog ([19ccf06](https://github.com/pex-gl/pex-shaders/commit/19ccf062d4705268e539111642cf4a4e86c01c96))
+
+
+
 # [1.0.0-alpha.24](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.23...v1.0.0-alpha.24) (2024-04-02)
 
 

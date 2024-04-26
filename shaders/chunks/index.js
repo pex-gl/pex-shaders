@@ -125,6 +125,10 @@ export {
 } from "./sheen-color.glsl.js";
 export {
   /** @member {string} */
+  default as transmission,
+} from "./transmission.glsl.js";
+export {
+  /** @member {string} */
   default as alpha,
 } from "./alpha.glsl.js";
 export {

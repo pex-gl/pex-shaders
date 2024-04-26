@@ -53,11 +53,6 @@ varying highp vec3 vPositionView;
   varying vec4 vColor;
 #endif
 
-#ifdef USE_TRANSMISSION
-  uniform sampler2D uCaptureTexture;
-  uniform float uRefraction;
-#endif
-
 struct PBRData {
   mat4 inverseViewMatrix;
   vec2 texCoord0;
@@ -93,6 +88,7 @@ struct PBRData {
   float sheenLinearRoughness;
   vec3 sheen;
   float sheenAlbedoScaling;
+  // float transmission;
   float ao;
 };
 
@@ -121,6 +117,7 @@ ${Object.values(glslToneMap).join("\n")}
   ${SHADERS.brdf}
   ${SHADERS.clearCoat}
   ${SHADERS.sheenColor}
+  ${SHADERS.transmission}
   ${SHADERS.indirect}
   ${SHADERS.direct}
   ${SHADERS.lightAmbient}

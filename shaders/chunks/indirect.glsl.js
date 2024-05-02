@@ -70,6 +70,63 @@ export default /* glsl */ `
     }
   #endif
 
+  #ifdef USE_TRANSMISSION
+    // https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/6bc1df9c334288fb0d91d2febfddf97ac5dfd045/source/Renderer/shaders/ibl.glsl#L78
+    vec3 getTransmissionSample(vec2 fragCoord, float roughness, float ior) {
+      // float framebufferLod = log2(float(u_TransmissionFramebufferSize.x)) * applyIorToRoughness(roughness, ior);
+      // return textureLod(uCaptureTexture, fragCoord.xy, framebufferLod).rgb;
+      float framebufferLod = log2(float(uViewportSize.x)) * applyIorToRoughness(roughness, ior);
+      return textureBicubic(uCaptureTexture, fragCoord.xy, framebufferLod).rgb;
+    }
+
+    vec3 getIBLVolumeRefraction(inout PBRData data, vec3 Fr) {
+      #ifdef USE_DISPERSION
+        // Dispersion will spread out the ior values for each r,g,b channel
+        float halfSpread = (data.ior - 1.0) * 0.025 * data.dispersion;
+        vec3 iors = vec3(data.ior - halfSpread, data.ior, data.ior + halfSpread);
+
+        vec3 transmittedLight;
+        float transmissionRayLength;
+
+        for (int i = 0; i < 3; i++) {
+          vec3 transmissionRay = getVolumeTransmissionRay(data.normalWorld, data.viewWorld, data.thickness, iors[i], uModelMatrix);
+          // TODO: taking length of blue ray, ideally we would take the length of the green ray. For now overwriting seems ok
+          transmissionRayLength = length(transmissionRay);
+          vec3 refractedRayExit = data.positionWorld + transmissionRay;
+
+          // Project refracted vector on the framebuffer, while mapping to normalized device coordinates.
+          vec4 ndcPos = uProjectionMatrix * uViewMatrix * vec4(refractedRayExit, 1.0);
+          vec2 refractionCoords = ndcPos.xy / ndcPos.w;
+          refractionCoords += 1.0;
+          refractionCoords /= 2.0;
+
+          // Sample framebuffer to get pixel the refracted ray hits for this color channel.
+          transmittedLight[i] = getTransmissionSample(refractionCoords, data.linearRoughness, iors[i])[i];
+        }
+      #else
+        vec3 transmissionRay = getVolumeTransmissionRay(data.normalWorld, data.viewWorld, data.thickness, data.ior, uModelMatrix);
+        float transmissionRayLength = length(transmissionRay);
+        vec3 refractedRayExit = data.positionWorld + transmissionRay;
+
+        // Project refracted vector on the framebuffer, while mapping to normalized device coordinates.
+        vec4 ndcPos = uProjectionMatrix * uViewMatrix * vec4(refractedRayExit, 1.0);
+        vec2 refractionCoords = ndcPos.xy / ndcPos.w;
+        refractionCoords += 1.0;
+        refractionCoords /= 2.0;
+
+        // Sample framebuffer to get pixel the refracted ray hits.
+        vec3 transmittedLight = getTransmissionSample(refractionCoords, data.linearRoughness, data.ior);
+      #endif
+
+      vec3 attenuatedColor = applyVolumeAttenuation(transmittedLight.rgb, transmissionRayLength, data.attenuationColor, data.attenuationDistance);
+
+      // TODO: double check that's correct
+      vec3 specularColor = Fr;
+
+      return (1.0 - specularColor) * attenuatedColor * data.diffuseColor;
+    }
+  #endif
+
   void EvaluateLightProbe(inout PBRData data, float ao) {
     // TODO: energyCompensation
     float energyCompensation = 1.0;
@@ -94,6 +151,13 @@ export default /* glsl */ `
 
     #ifdef USE_CLEAR_COAT
       evaluateClearCoatIBL(data, ao, Fd, Fr);
+    #endif
+
+    #ifdef USE_TRANSMISSION
+      vec3 Ft = getIBLVolumeRefraction(data, Fr);
+      Ft *= data.transmission;
+      Fd *= (1.0 - data.transmission);
+      data.transmitted += Ft;
     #endif
 
     data.indirectDiffuse += Fd;

@@ -74,6 +74,7 @@ struct PBRData {
   float metallic; // metallic value at the surface
   float linearRoughness; // roughness mapped to a more linear change in the roughness (proposed by [2])
   vec3 f0; // Reflectance at normal incidence, specular color
+  vec3 f90; // Specular response at grazing incidence
   float clearCoat;
   float clearCoatRoughness;
   float clearCoatLinearRoughness;
@@ -88,7 +89,13 @@ struct PBRData {
   float sheenLinearRoughness;
   vec3 sheen;
   float sheenAlbedoScaling;
-  // float transmission;
+  vec3 transmitted;
+  float transmission;
+  float thickness;
+  vec3 attenuationColor;
+  float attenuationDistance;
+  float dispersion;
+  float ior;
   float ao;
 };
 
@@ -115,6 +122,7 @@ ${Object.values(glslToneMap).join("\n")}
   ${SHADERS.irradiance}
   ${SHADERS.shadowing}
   ${SHADERS.brdf}
+  ${SHADERS.specular}
   ${SHADERS.clearCoat}
   ${SHADERS.sheenColor}
   ${SHADERS.transmission}
@@ -215,9 +223,9 @@ void main() {
     #define HOOK_FRAG_BEFORE_LIGHTING
 
     #ifdef USE_METALLIC_ROUGHNESS_WORKFLOW
-      // Compute F0 for both dielectric and metallic materials
-      data.f0 = 0.16 * uReflectance * uReflectance * (1.0 - data.metallic) + data.baseColor.rgb * data.metallic;
       data.diffuseColor = data.baseColor * (1.0 - data.metallic);
+      getIor(data);
+      getSpecular(data);
     #endif
 
     data.linearRoughness = data.roughness * data.roughness;
@@ -243,6 +251,17 @@ void main() {
 
       data.sheenRoughness = max(data.sheenRoughness, MIN_ROUGHNESS);
       data.sheenLinearRoughness = data.sheenRoughness * data.sheenRoughness;
+    #endif
+
+    #ifdef USE_TRANSMISSION
+      data.transmitted = vec3(0.0);
+      data.attenuationColor = uAttenuationColor;
+      data.attenuationDistance = uAttenuationDistance;
+      #ifdef USE_DISPERSION
+        data.dispersion = uDispersion;
+      #endif
+      getTransmission(data);
+      getThickness(data);
     #endif
 
     #ifdef USE_OCCLUSION_TEXTURE
@@ -286,7 +305,7 @@ void main() {
       }
     #endif
 
-    #ifdef USE_TRANSMISSION
+    #ifdef USE_REFRACTION
     data.indirectDiffuse  *= 0.0;//not sure how to compute it yet
     data.indirectSpecular *= 1.0;//not sure how to compute it yet
     // vec2 uv = gl_FragCoord.xy / uViewportSize.xy;
@@ -296,7 +315,7 @@ void main() {
 
     #define HOOK_FRAG_AFTER_LIGHTING
 
-    color = data.emissiveColor + data.indirectDiffuse + data.indirectSpecular + data.directColor;
+    color = data.emissiveColor + data.indirectDiffuse + data.indirectSpecular + data.directColor + data.transmitted;
   #endif // USE_UNLIT_WORKFLOW
 
   color.rgb *= uExposure;
@@ -315,7 +334,7 @@ void main() {
       gl_FragData[LOCATION_EMISSIVE] = encode(vec4(data.emissiveColor, 1.0), uOutputEncoding);
     #endif
   #endif
-  #ifdef USE_BLEND
+  #if defined(USE_BLEND) || defined(USE_TRANSMISSION)
     gl_FragData[0].a = data.opacity;
   #endif
 

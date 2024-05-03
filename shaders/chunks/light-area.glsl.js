@@ -703,6 +703,10 @@ void EvaluateAreaLight(inout PBRData data, AreaLight light, sampler2D shadowMap,
     spec = max(spec, vec3(0.0));
     diff = max(diff, vec3(0.0));
 
+    #ifdef USE_TRANSMISSION
+      diff *= (1.0 - data.transmission);
+    #endif
+
     vec3 lightColor = decode(light.color, SRGB).rgb;
     data.directColor += illuminated * ao * lightColor * data.baseColor * diff;
     data.indirectSpecular += illuminated * ao * lightColor * spec;

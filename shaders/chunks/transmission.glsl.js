@@ -1,8 +1,5 @@
 export default /* glsl */ `
-#ifdef USE_REFRACTION
-  uniform float uRefraction;
-#endif
-#if defined(USE_REFRACTION) || defined(USE_TRANSMISSION)
+#ifdef USE_TRANSMISSION
   uniform sampler2D uCaptureTexture;
 #endif
 
@@ -96,7 +93,7 @@ export default /* glsl */ `
   }
 #endif
 
-#if defined(USE_REFRACTION) || defined(USE_TRANSMISSION)
+#ifdef USE_TRANSMISSION
   // "Mipped Bicubic Texture Filtering" (https://www.shadertoy.com/view/4df3Dn)
   const float ONE_OVER_SIX = 1.0 / 6.0;
   float textureBicubicW0(float a) {

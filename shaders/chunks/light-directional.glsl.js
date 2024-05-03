@@ -36,17 +36,13 @@ void EvaluateDirectionalLight(inout PBRData data, DirectionalLight light, sample
       )
     : 1.0;
 
-  #ifndef USE_REFRACTION
   if (illuminated > 0.0) {
-  #endif
     Light l;
     l.l = -light.direction;
     l.color = light.color;
     l.attenuation = 1.0;
     getSurfaceShading(data, l, illuminated);
-  #ifndef USE_REFRACTION
   }
-  #endif
 }
 #endif
 `;

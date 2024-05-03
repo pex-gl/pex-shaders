@@ -305,14 +305,6 @@ void main() {
       }
     #endif
 
-    #ifdef USE_REFRACTION
-    data.indirectDiffuse  *= 0.0;//not sure how to compute it yet
-    data.indirectSpecular *= 1.0;//not sure how to compute it yet
-    // vec2 uv = gl_FragCoord.xy / uViewportSize.xy;
-    // texture2DLodEXT(uCaptureTexture, uv, level).x;
-    // data.indirectSpecular *=
-    #endif
-
     #define HOOK_FRAG_AFTER_LIGHTING
 
     color = data.emissiveColor + data.indirectDiffuse + data.indirectSpecular + data.directColor + data.transmitted;

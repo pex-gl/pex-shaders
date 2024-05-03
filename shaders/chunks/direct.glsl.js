@@ -66,9 +66,7 @@ void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
   float NdotV = saturate(abs(dot(N, V)) + FLT_EPS);
   float NdotL = saturate(dot(N, L));
 
-  #ifndef USE_TRANSMISSION
-  if (NdotL <= 0.0) return;
-  #endif
+  if (NdotL <= 0.0 || NdotV <= 0.0) return;
 
   float NdotH = saturate(dot(N, H));
   float LdotH = saturate(dot(L, H));
@@ -86,6 +84,10 @@ void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
 
   //TODO: energy compensation
   float energyCompensation = 1.0;
+
+  #ifdef USE_TRANSMISSION
+    Fd *= (1.0 - data.transmission);
+  #endif
 
   vec3 color = Fd + Fr * energyCompensation;
 
@@ -114,52 +116,5 @@ void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
   #endif
 
   data.directColor += (color * lightColor) * (light.color.a * light.attenuation * illuminated);
-
-  #ifdef USE_TRANSMISSION
-  // data.directDiffuse = texture2D(uCaptureTexture, gl_FragCoord.xy / uViewportSize.xy).rgb;
-
-  float uIOR = 1.0;
-  vec3 IoR_Values = mix(vec3(1.0), vec3(1.14, 1.12, 1.10), uIOR);
-
-  vec3 incident = normalize(data.eyeDirWorld);
-
-  float f = F_Schlick(0.04, 1.0, abs(dot(data.viewWorld, data.normalWorld)));
-
-  vec3 refractColor = vec3(0.0);
-  // #ifdef USE_REFLECTION_PROBES
-  // refractColor.x = texture2D(uEnvMap, envMapEquirect(refract(incident, normalWorld, IoR_Values.x))).x;
-  // refractColor.y = texture2D(uEnvMap, envMapEquirect(refract(incident, normalWorld, IoR_Values.y))).y;
-  // refractColor.z = texture2D(uEnvMap, envMapEquirect(refract(incident, normalWorld, IoR_Values.z))).z;
-  // #endif
-  float refractAmount = uRefraction;
-
-  vec3 reflectColor = vec3(0.0);
-
-  #ifdef USE_REFLECTION_PROBES
-  // reflectColor = texture2D(uReflectionMap, envMapOctahedral(reflect(-data.viewWorld, data.normalWorld), 0.0, 0.0)).rgb;
-  #endif
-
-  // vec3 IoR_Values = mix(vec3(1.0), vec3(1.14, 1.12, 1.10), uIOR);
-  float level = clamp(data.roughness + (1.0 - data.opacity), 0.0, 1.0) * 5.0; //Opacity Hack
-  vec2 uv = gl_FragCoord.xy / uViewportSize.xy;
-  vec2 refractionAspect = vec2(1.0 * uViewportSize.y/uViewportSize.x, 1.0);
-  refractColor.x = textureBicubic(uCaptureTexture, compensateStretch(uv + refractAmount * refract(incident, data.normalWorld, 1.0 / IoR_Values.x).xy), level).x;
-  refractColor.y = textureBicubic(uCaptureTexture, compensateStretch(uv + refractAmount * refract(incident, data.normalWorld, 1.0 / IoR_Values.y).xy), level).y;
-  refractColor.z = textureBicubic(uCaptureTexture, compensateStretch(uv + refractAmount * refract(incident, data.normalWorld, 1.0 / IoR_Values.z).xy), level).z;
-  // refractColor.x = texture2D(uCaptureTexture, compensateStretch(uv + refractionAspect * refractAmount * refract(incident, data.normalWorld, 1.0 / IoR_Values.x).xy)).x;
-  // refractColor.y = texture2D(uCaptureTexture, compensateStretch(uv + refractionAspect * refractAmount * refract(incident, data.normalWorld, 1.0 / IoR_Values.y).xy)).y;
-  // refractColor.z = texture2D(uCaptureTexture, compensateStretch(uv + refractionAspect * refractAmount * refract(incident, data.normalWorld, 1.0 / IoR_Values.z).xy)).z;
-
-  data.directColor *= 0.3;
-  data.directColor += data.diffuseColor * mix(refractColor, reflectColor, f);
-  // data.directColor = vec3(uViewportSize.xy, 0.0);
-  // data.directColor += refractColor;
-  // data.directColor = vec3(f);
-  // data.directColor = reflectColor;
-  // data.directColor = 0.2 + texture2D(uCaptureTexture, uv).rgb;
-  // data.directColor = vec3(uv, 1.0);
-  // data.directColor = vec3(1.0, 0.0, 1.0);
-  // data.directColor = texture2D(uCaptureTexture, uv).xyz;
-  #endif
 }
 `;

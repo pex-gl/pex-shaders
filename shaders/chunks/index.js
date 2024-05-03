@@ -113,6 +113,10 @@ export {
 } from "./metallic-roughness.glsl.js";
 export {
   /** @member {string} */
+  default as specular,
+} from "./specular.glsl.js";
+export {
+  /** @member {string} */
   default as specularGlossiness,
 } from "./specular-glossiness.glsl.js";
 export {

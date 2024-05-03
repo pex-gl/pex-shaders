@@ -11,6 +11,15 @@ float D_GGX(float linearRoughness, float NoH, const vec3 h, const vec3 normalWor
   return saturateMediump(d);
 }
 
+// // The following equation(s) model the distribution of microfacet normals across the area being drawn (aka D())
+// // Implementation from "Average Irregularity Representation of a Roughened Surface for Ray Reflection" by T. S. Trowbridge, and K. P. Reitz
+// // Follows the distribution function recommended in the SIGGRAPH 2013 course notes from EPIC Games [1], Equation 3.
+// float D_GGX(float NdotH, float alphaRoughness) {
+//   float alphaRoughnessSq = alphaRoughness * alphaRoughness;
+//   float f = (NdotH * NdotH) * (alphaRoughnessSq - 1.0) + 1.0;
+//   return alphaRoughnessSq / (PI * f * f);
+// }
+
 // Estevez and Kulla 2017, "Production Friendly Microfacet Sheen BRDF"
 // https://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017_pbs_imageworks_sheen.pdf
 // https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_sheen/README.md#sheen-distribution
@@ -58,6 +67,11 @@ float V_Neubelt(float NdotV, float NdotL, float NdotH) {
 // Used by: clearCoat e.g. in indirect.glsl.js
 float F_Schlick(float f0, float f90, float VoH) {
   return f0 + (f90 - f0) * pow(1.0 - VoH, 5.0);
+}
+
+// Used by: transmission in indirect.glsl.js
+vec3 F_Schlick(vec3 f0, vec3 f90, float VdotH) {
+  return f0 + (f90 - f0) * pow(clamp(1.0 - VdotH, 0.0, 1.0), 5.0);
 }
 
 // Diffuse:

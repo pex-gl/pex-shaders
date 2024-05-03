@@ -73,8 +73,6 @@ export default /* glsl */ `
   #ifdef USE_TRANSMISSION
     // https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/6bc1df9c334288fb0d91d2febfddf97ac5dfd045/source/Renderer/shaders/ibl.glsl#L78
     vec3 getTransmissionSample(vec2 fragCoord, float roughness, float ior) {
-      // float framebufferLod = log2(float(u_TransmissionFramebufferSize.x)) * applyIorToRoughness(roughness, ior);
-      // return textureLod(uCaptureTexture, fragCoord.xy, framebufferLod).rgb;
       float framebufferLod = log2(float(uViewportSize.x)) * applyIorToRoughness(roughness, ior);
       return textureBicubic(uCaptureTexture, fragCoord.xy, framebufferLod).rgb;
     }

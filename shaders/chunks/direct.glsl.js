@@ -57,38 +57,6 @@ vec2 compensateStretch(vec2 uv) {
   }
 #endif
 
-// #ifdef USE_TRANSMISSION
-//   // TODO: check what's already computed (normalized normal, ndotv etc)
-//   vec3 getPunctualRadianceTransmission(
-//     vec3 normal,
-//     vec3 view,
-//     vec3 pointToLight,
-//     float alphaRoughness,
-//     vec3 f0,
-//     vec3 f90,
-//     vec3 baseColor,
-//     float ior
-//   ) {
-//       float transmissionRougness = applyIorToRoughness(alphaRoughness, ior);
-
-//       vec3 n = normalize(normal); // Outward direction of surface point
-//       vec3 v = normalize(view); // Direction from surface point to view
-//       vec3 l = normalize(pointToLight);
-//       vec3 l_mirror = normalize(l + 2.0*n*dot(-l, n));     // Mirror light reflection vector on surface
-//       vec3 h = normalize(l_mirror + v); // Halfway vector between transmission light vector and v
-
-//       // float D = D_GGX(clamp(dot(n, h), 0.0, 1.0), transmissionRougness);
-//       // vec3 F = F_Schlick(f0, f90, clamp(dot(v, h), 0.0, 1.0));
-//       // float Vis = V_GGX(clamp(dot(n, l_mirror), 0.0, 1.0), clamp(dot(n, v), 0.0, 1.0), transmissionRougness);
-//       float D = D_GGX(clamp(dot(n, h), 0.0, 1.0), transmissionRougness);
-//       vec3 F = F_Schlick(f0, f90, clamp(dot(v, h), 0.0, 1.0));
-//       float Vis = VisibilityOcclusion(clamp(dot(n, l_mirror), 0.0, 1.0), clamp(dot(n, v), 0.0, 1.0), transmissionRougness);
-
-//       // Transmission BTDF
-//       return (1.0 - F) * baseColor * D * Vis;
-//   }
-// #endif
-
 void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
   vec3 N = data.normalWorld;
   vec3 V = data.viewWorld;
@@ -148,41 +116,5 @@ void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
   #endif
 
   data.directColor += (color * lightColor) * (light.color.a * light.attenuation * illuminated);
-
-  // BTDF (Bidirectional Transmittance Distribution Function)
-  // #ifdef USE_TRANSMISSION
-  //   vec3 pointToLight = light.l;
-
-  //   // If the light ray travels through the geometry, use the point it exits the geometry again.
-  //   // That will change the angle to the light source, if the material refracts the light ray.
-  //   vec3 transmissionRay = getVolumeTransmissionRay(N, V, data.thickness, data.ior, uModelMatrix);
-  //   pointToLight -= transmissionRay;
-  //   L = normalize(pointToLight);
-
-  //   // vec3 intensity = getLighIntensity(light, pointToLight);
-  //   vec3 transmittedLight =
-  //     // intensity *
-  //     light.attenuation *
-  //     getPunctualRadianceTransmission(
-  //       N,
-  //       V,
-  //       L,
-  //       data.linearRoughness,
-  //       data.f0,
-  //       data.f90,
-  //       data.diffuseColor,
-  //       data.ior
-  //     );
-
-  //   transmittedLight = applyVolumeAttenuation(
-  //     transmittedLight,
-  //     length(transmissionRay),
-  //     data.attenuationColor,
-  //     data.attenuationDistance
-  //   );
-
-  //   data.transmitted += transmittedLight;
-  //   // data.transmitted += vec3(.0, 1.0, 0.0);
-  // #endif
 }
 `;

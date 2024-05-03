@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.27](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.26...v1.0.0-alpha.27) (2024-05-03)
+
+
+### Bug Fixes
+
+* add transmission support for area lights ([9ccc45b](https://github.com/pex-gl/pex-shaders/commit/9ccc45b0215dcf54a848940a5459e79f94af2f0e))
+
+
+
 # [1.0.0-alpha.26](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.25...v1.0.0-alpha.26) (2024-05-03)
 
 

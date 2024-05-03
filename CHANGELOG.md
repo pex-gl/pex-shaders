@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.26](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.25...v1.0.0-alpha.26) (2024-05-03)
+
+
+### Features
+
+* add transmission with volume/dispersion + add ior and specular ([a43e276](https://github.com/pex-gl/pex-shaders/commit/a43e27671062163bc90254f8e2be07bf5bf7b4f1))
+* remove old transmission aka refraction only ([0491517](https://github.com/pex-gl/pex-shaders/commit/049151760bfaa1cf8334fe80d48c140c6a41b2ec))
+* remove reflectance in favor of ior ([c53dfd2](https://github.com/pex-gl/pex-shaders/commit/c53dfd28be79e0ac781abc68ef492b50c1c83082))
+* use bicubic sampling for transmission ([f051937](https://github.com/pex-gl/pex-shaders/commit/f051937f5035d2212a9a59cb85118715201188f8)), closes [#15](https://github.com/pex-gl/pex-shaders/issues/15)
+
+
+
 # [1.0.0-alpha.25](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.24...v1.0.0-alpha.25) (2024-04-05)
 
 

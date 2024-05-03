@@ -270,9 +270,11 @@ Get a formatted error pointing at the issue line
   - [.normal](#module_chunks.normal) : <code>string</code>
   - [.normalPerturb](#module_chunks.normalPerturb) : <code>string</code>
   - [.metallicRoughness](#module_chunks.metallicRoughness) : <code>string</code>
+  - [.specular](#module_chunks.specular) : <code>string</code>
   - [.specularGlossiness](#module_chunks.specularGlossiness) : <code>string</code>
   - [.clearCoat](#module_chunks.clearCoat) : <code>string</code>
   - [.sheenColor](#module_chunks.sheenColor) : <code>string</code>
+  - [.transmission](#module_chunks.transmission) : <code>string</code>
   - [.alpha](#module_chunks.alpha) : <code>string</code>
   - [.ambientOcclusion](#module_chunks.ambientOcclusion) : <code>string</code>
   - [.depthRead](#module_chunks.depthRead) : <code>string</code>
@@ -415,6 +417,11 @@ Get a formatted error pointing at the issue line
 ### chunks.metallicRoughness : <code>string</code>
 
 **Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.specular"></a>
+
+### chunks.specular : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
 <a name="module_chunks.specularGlossiness"></a>
 
 ### chunks.specularGlossiness : <code>string</code>
@@ -428,6 +435,11 @@ Get a formatted error pointing at the issue line
 <a name="module_chunks.sheenColor"></a>
 
 ### chunks.sheenColor : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.transmission"></a>
+
+### chunks.transmission : <code>string</code>
 
 **Kind**: static property of [<code>chunks</code>](#module_chunks)
 <a name="module_chunks.alpha"></a>

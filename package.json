@@ -29,11 +29,12 @@
     "release": "snowdev release"
   },
   "dependencies": {
-    "glsl-tone-map": "^2.0.1"
+    "glsl-tone-map": "^2.1.0"
   },
   "engines": {
-    "node": ">=20.0.0",
-    "npm": ">=9.6.4"
+    "node": ">=22.0.0",
+    "npm": ">=10.5.1",
+    "snowdev": "2.0.0-alpha.28"
   },
   "snowdev": {
     "files": "{*.js,shaders/**/*.js}"

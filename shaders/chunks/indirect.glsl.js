@@ -99,7 +99,7 @@ export default /* glsl */ `
           refractionCoords /= 2.0;
 
           // Sample framebuffer to get pixel the refracted ray hits for this color channel.
-          transmittedLight[i] = getTransmissionSample(refractionCoords, data.linearRoughness, iors[i])[i];
+          transmittedLight[i] = getTransmissionSample(refractionCoords, data.roughness, iors[i])[i];
         }
       #else
         vec3 transmissionRay = getVolumeTransmissionRay(data.normalWorld, data.viewWorld, data.thickness, data.ior, uModelMatrix);
@@ -113,7 +113,7 @@ export default /* glsl */ `
         refractionCoords /= 2.0;
 
         // Sample framebuffer to get pixel the refracted ray hits.
-        vec3 transmittedLight = getTransmissionSample(refractionCoords, data.linearRoughness, data.ior);
+        vec3 transmittedLight = getTransmissionSample(refractionCoords, data.roughness, data.ior);
       #endif
 
       vec3 attenuatedColor = applyVolumeAttenuation(transmittedLight.rgb, transmissionRayLength, data.attenuationColor, data.attenuationDistance);

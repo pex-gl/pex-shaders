@@ -220,8 +220,6 @@ void main() {
       alphaTest(data);
     #endif
 
-    #define HOOK_FRAG_BEFORE_LIGHTING
-
     #ifdef USE_METALLIC_ROUGHNESS_WORKFLOW
       data.diffuseColor = data.baseColor * (1.0 - data.metallic);
       getIor(data);
@@ -267,6 +265,8 @@ void main() {
     #ifdef USE_OCCLUSION_TEXTURE
       getAmbientOcclusion(data);
     #endif
+
+    #define HOOK_FRAG_BEFORE_LIGHTING
 
     //TODO: No kd? so not really energy conserving
     //we could use disney brdf for irradiance map to compensate for that like in Frostbite

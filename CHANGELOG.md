@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.28](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.27...v1.0.0-alpha.28) (2024-05-16)
+
+
+### Bug Fixes
+
+* move HOOK_FRAG_BEFORE_LIGHTING before reflection probes and after setting all PBRData ([a459bfb](https://github.com/pex-gl/pex-shaders/commit/a459bfb3ad93143eac7c4dd0de679b6c151ab69c)), closes [#17](https://github.com/pex-gl/pex-shaders/issues/17)
+* use perceptual roughness in getTransmissionSample ([218392a](https://github.com/pex-gl/pex-shaders/commit/218392a145fbd942cdc6cbba07b6b5c3ff64f47d))
+
+
+
 # [1.0.0-alpha.27](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.26...v1.0.0-alpha.27) (2024-05-03)
 
 

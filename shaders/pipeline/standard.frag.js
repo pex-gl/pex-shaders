@@ -190,9 +190,14 @@ void main() {
     data.ao = 1.0;
     data.opacity = 1.0;
 
+    // view vector in world space
+    data.viewWorld = normalize(uCameraPosition - vPositionWorld);
+    data.NdotV = clamp(abs(dot(data.normalWorld, data.viewWorld)) + FLT_EPS, 0.0, 1.0);
+
     #define HOOK_FRAG_BEFORE_TEXTURES
 
     getNormal(data);
+
     getEmissiveColor(data);
 
     #ifdef USE_METALLIC_ROUGHNESS_WORKFLOW
@@ -203,9 +208,9 @@ void main() {
       data.roughness = clamp(data.roughness, MIN_ROUGHNESS, 1.0);
       getMetallic(data);
     #endif
+
     #ifdef USE_SPECULAR_GLOSSINESS_WORKFLOW
       getBaseColorAndMetallicRoughnessFromSpecularGlossiness(data);
-      data.diffuseColor = data.baseColor * (1.0 - data.metallic);
     #endif
 
     #ifdef USE_ALPHA_TEXTURE
@@ -219,17 +224,6 @@ void main() {
     #ifdef USE_ALPHA_TEST
       alphaTest(data);
     #endif
-
-    #ifdef USE_METALLIC_ROUGHNESS_WORKFLOW
-      data.diffuseColor = data.baseColor * (1.0 - data.metallic);
-      getIor(data);
-      getSpecular(data);
-    #endif
-
-    data.linearRoughness = data.roughness * data.roughness;
-    // view vector in world space
-    data.viewWorld = normalize(uCameraPosition - vPositionWorld);
-    data.NdotV = clamp(abs(dot(data.normalWorld, data.viewWorld)) + FLT_EPS, 0.0, 1.0);
 
     #ifdef USE_CLEAR_COAT
       getClearCoat(data);
@@ -267,6 +261,14 @@ void main() {
     #endif
 
     #define HOOK_FRAG_BEFORE_LIGHTING
+
+    data.diffuseColor = data.baseColor * (1.0 - data.metallic);
+    data.linearRoughness = data.roughness * data.roughness;
+
+    #ifdef USE_METALLIC_ROUGHNESS_WORKFLOW
+      getIor(data);
+      getSpecular(data);
+    #endif
 
     //TODO: No kd? so not really energy conserving
     //we could use disney brdf for irradiance map to compensate for that like in Frostbite

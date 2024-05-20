@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.29](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.28...v1.0.0-alpha.29) (2024-05-20)
+
+
+### Bug Fixes
+
+* change order of hook execution ([d2a49c6](https://github.com/pex-gl/pex-shaders/commit/d2a49c65054624d46bfd010394277808a484d80b)), closes [#17](https://github.com/pex-gl/pex-shaders/issues/17)
+
+
+
 # [1.0.0-alpha.28](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.27...v1.0.0-alpha.28) (2024-05-16)
 
 

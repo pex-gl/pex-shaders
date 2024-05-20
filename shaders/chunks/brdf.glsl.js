@@ -71,7 +71,7 @@ float F_Schlick(float f0, float f90, float VoH) {
 
 // Used by: transmission in indirect.glsl.js
 vec3 F_Schlick(vec3 f0, vec3 f90, float VdotH) {
-  return f0 + (f90 - f0) * pow(clamp(1.0 - VdotH, 0.0, 1.0), 5.0);
+  return f0 + (f90 - f0) * pow(saturate(1.0 - VdotH), 5.0);
 }
 
 // Diffuse:

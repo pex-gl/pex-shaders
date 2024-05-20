@@ -24,11 +24,11 @@ vec3 fog(vec3 rgb, float dist, vec3 rayDir, vec3 sunDir) {
   sunAmount           = uSunIntensity * 10.0 * pow(sunAmount,10.0);
   sunAmount           = max(0.0, min(sunAmount, 1.0));
   vec3 sunFogColor    = mix(fogColor, sunColor, sunAmount);
-  vec3 insColor       = vec3(1.0) - clamp( vec3(
+  vec3 insColor       = vec3(1.0) - saturate( vec3(
         exp(density*(uInscatteringCoeffs.x+minSc)),
         exp(density*(uInscatteringCoeffs.y+minSc)),
-        exp(density*(uInscatteringCoeffs.z+minSc))),
-      vec3(0), vec3(1));
+        exp(density*(uInscatteringCoeffs.z+minSc)))
+      );
 
   return mix(rgb, sunFogColor, insColor);
 }

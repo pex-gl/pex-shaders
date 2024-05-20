@@ -57,6 +57,7 @@ const float CoC = 0.029;
 // Includes
 ${SHADERS.luma}
 ${SHADERS.depthRead}
+${SHADERS.math.saturate}
 #ifdef USE_DOF_UPITIS
   ${SHADERS.math.TWO_PI}
   ${SHADERS.math.random}
@@ -82,7 +83,7 @@ float getCoC(float depth, float focusDistance, float focusScale) {
     float plane = (depth * uFocalLength) / (depth - uFocalLength);
     float far = (focusDistance * uFocalLength) / (focusDistance - uFocalLength);
     float near = (focusDistance - uFocalLength) / (focusDistance * uFStop * focusScale * CoC); // focusScale !== 1.0 makes it non-physical
-    return clamp(abs(plane - far) * near, 0.0, 1.0);
+    return saturate(abs(plane - far) * near);
   #else
     float coc = clamp((1.0 / focusDistance - 1.0 / depth) * focusScale, -1.0, 1.0); // (1 / mm - 1 / mm) * mm = mm
     return abs(coc);
@@ -220,7 +221,7 @@ float getCoC(float depth, float focusDistance, float focusScale) {
       dist = smoothstep(-feather, feather, dist);
       inorout += dist.x;
 
-      return clamp(inorout, 0.0, 1.0);
+      return saturate(inorout);
     }
   #endif
 

@@ -42,6 +42,7 @@ varying vec2 vTexCoord0;
 
 ${SHADERS.math.PI}
 ${SHADERS.math.TWO_PI}
+${SHADERS.math.saturate}
 ${SHADERS.encodeDecode}
 ${Object.values(glslToneMap).join("\n")}
 #ifndef TONE_MAP
@@ -103,7 +104,7 @@ vec3 sky(vec3 worldNormal) {
   Lin *= mix(
     vec3(1.0),
     pow(LinFactor * Fex, vec3(1.0 / 2.0)),
-    clamp(pow(1.0 - dot(up, vSunDirection), 5.0), 0.0, 1.0)
+    saturate(pow(1.0 - dot(up, vSunDirection), 5.0))
   );
 
   // nightsky

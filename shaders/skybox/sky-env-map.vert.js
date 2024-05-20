@@ -20,6 +20,8 @@ varying float vSunE;
 varying vec3 vBetaR;
 varying vec3 vBetaM;
 
+${SHADERS.math.saturate}
+
 // const float turbidity = 10.0; // a measure of the fraction of scattering due to haze as opposed to molecules.
 // const float rayleigh = 2.0; // scattering by air molecules
 // const float mieCoefficient = 0.005; // non-molecular scattering or aerosol particle scattering
@@ -71,7 +73,7 @@ vec3 totalMie(float T) {
 
 void main() {
   vSunDirection = normalize(uSunPosition);
-  vSunfade = 1.0 - clamp(1.0 - exp((uSunPosition.y / 450000.0)), 0.0, 1.0);
+  vSunfade = 1.0 - saturate(1.0 - exp((uSunPosition.y / 450000.0)));
   vSunE = sunIntensity(dot(vSunDirection, up));
 
   float rayleighCoefficient = uParameters.y - (1.0 * (1.0 - vSunfade));

@@ -192,7 +192,7 @@ void main() {
 
     // view vector in world space
     data.viewWorld = normalize(uCameraPosition - vPositionWorld);
-    data.NdotV = clamp(abs(dot(data.normalWorld, data.viewWorld)) + FLT_EPS, 0.0, 1.0);
+    data.NdotV = saturate(abs(dot(data.normalWorld, data.viewWorld)) + FLT_EPS);
 
     #define HOOK_FRAG_BEFORE_TEXTURES
 

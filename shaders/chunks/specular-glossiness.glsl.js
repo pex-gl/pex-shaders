@@ -69,7 +69,7 @@ export default /* glsl */ `
     float b = diffuse * oneMinusSpecularStrength / (1.0 - a) + specular - 2.0 * a;
     float c = a - specular;
     float D = max(b * b - 4.0 * a * c, 0.0);
-    return clamp((-b + sqrt(D)) / (2.0 * a), 0.0, 1.0);
+    return saturate((-b + sqrt(D)) / (2.0 * a));
   }
 
   void getBaseColorAndMetallicRoughnessFromSpecularGlossiness(inout PBRData data) {

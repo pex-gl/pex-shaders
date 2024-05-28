@@ -13,10 +13,10 @@ export default /* glsl */ `
   // - https://developer.download.nvidia.com/whitepapers/2008/PCSS_Integration.pdf
   // - https://developer.download.nvidia.com/SDK/10.5/Samples/PercentageCloserSoftShadows.zip
   #ifndef PCSS_BLOCKER_SEARCH_NUM_SAMPLES
-    #define PCSS_BLOCKER_SEARCH_NUM_SAMPLES 16
+    #define PCSS_BLOCKER_SEARCH_NUM_SAMPLES 25
   #endif
   #ifndef PCSS_PCF_NUM_SAMPLES
-    #define PCSS_PCF_NUM_SAMPLES 16
+    #define PCSS_PCF_NUM_SAMPLES 64
   #endif
 
   float interleavedGradientNoise(vec2 fragCoord) {
@@ -98,16 +98,16 @@ export default /* glsl */ `
   }
 
   // Shadow Mapping: GPU-based Tips and Techniques
-  // https://www.intel.com/content/dam/develop/external/us/en/documents/isidoro-shadowmapping-182629.pdf
+  // https://gdcvault.com/play/1013442/Shadow-Mapping-Tricks-and (p41)
   // Derivatives of light-space depth with respect to texture coordinates
-  vec2 DepthGradient(vec2 uv, float z) {
-    vec3 duvdist_dx = dFdx(vec3(uv, z));
-    vec3 duvdist_dy = dFdy(vec3(uv, z));
+  vec2 DepthGradient(vec3 position) {
+    vec3 duvdist_dx = dFdx(position);
+    vec3 duvdist_dy = dFdy(position);
 
     return vec2(
       duvdist_dy.y * duvdist_dx.z - duvdist_dx.y * duvdist_dy.z,
       duvdist_dx.x * duvdist_dy.z - duvdist_dy.x * duvdist_dx.z
-    ) / (duvdist_dx.x * duvdist_dy.y) - (duvdist_dx.y * duvdist_dy.x);
+    ) / ((duvdist_dx.x * duvdist_dy.y) - (duvdist_dx.y * duvdist_dy.x));
   }
 
   float BiasedZ(float z0, vec2 dz_duv, vec2 offset) {
@@ -134,10 +134,10 @@ export default /* glsl */ `
       #endif
       highp vec2 offset = R * (r * searchWidth);
 
-      float depth = readDepthOrtho(depths, uv + offset, near, far);
-      compare = BiasedZ(compare, dz_duv, offset);
+      float depth = texture2D(depths, uv + offset).r;
+      float z = BiasedZ(compare, dz_duv, offset);
 
-      if (depth < compare) {
+      if (depth < z) {
         blockerSum += depth;
         numBlockers += 1.0;
       }
@@ -154,10 +154,10 @@ export default /* glsl */ `
         vec2 r = vogelDisk[i];
       #endif
       highp vec2 offset = R * (r * filterRadiusUV);
-      compare = BiasedZ(compare, dz_duv, offset);
 
-      // result += texture2DCompare(depths, uv + offset, compare, near, far);
-      result += texture2DShadowLerp(depths, size, uv + offset, compare, near, far);
+      float z = BiasedZ(compare, dz_duv, offset);
+
+      result += texture2DCompare(depths, uv + offset, z, near, far);
     }
     return result / float(PCSS_PCF_NUM_SAMPLES);
   }
@@ -165,7 +165,7 @@ export default /* glsl */ `
   float PCSS(sampler2D depths, vec2 size, vec2 uv, float compare, float near, float far, float ndcLightZ, vec2 radiusUV) {
     vec2 shadowMapSizeInverse = 1.0 / size;
     mat2 R = getRandomRotationMatrix(gl_FragCoord.xy);
-    vec2 dz_duv = DepthGradient(uv, ndcLightZ);
+    vec2 dz_duv = DepthGradient(vec3(uv.xy, ndcLightZ));
 
     // STEP 1: blocker search
     float avgBlockerDepth = 0.0;
@@ -285,7 +285,8 @@ export default /* glsl */ `
       #endif
       highp vec3 offset = vec3(r.x, float(i / PCSS_BLOCKER_SEARCH_NUM_SAMPLES), r.y) * searchWidth;
 
-      float depth = unpackDepth(textureCube(depths, normalize(direction + offset))) * DEPTH_PACK_FAR;
+      float depth = textureCube(depths, normalize(direction + offset)).r;
+      // float depth = unpackDepth(textureCube(depths, normalize(direction + offset))) * DEPTH_PACK_FAR;
 
       if (depth < compare) {
         blockerSum += depth;
@@ -305,8 +306,8 @@ export default /* glsl */ `
       #endif
       highp vec3 offset = vec3(r.x, float(i / PCSS_PCF_NUM_SAMPLES), r.y) * filterRadius;
 
-      // result += textureCubeCompare(depths, normalize(direction + offset), compare);
-      result += PCFCube(depths, size, normalize(direction + offset), compare);
+      result += textureCubeCompare(depths, normalize(direction + offset), compare);
+      // result += PCFCube(depths, size, normalize(direction + offset), compare);
     }
     return result / float(PCSS_PCF_NUM_SAMPLES);
   }

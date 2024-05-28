@@ -635,15 +635,16 @@ void EvaluateAreaLight(inout PBRData data, AreaLight light, sampler2D shadowMap,
   vec2 lightUV = lightDeviceCoordsPositionNormalized.xy * 0.5 + 0.5;
 
   float illuminated = bool(light.castShadows)
-    ? getShadow(shadowMap,
-      light.shadowMapSize,
-      lightUV,
-      lightDistView - light.bias,
-      light.near,
-      light.far,
-      lightDeviceCoordsPositionNormalized.z,
-      light.radiusUV
-    )
+    ? getShadow(
+        shadowMap,
+        light.shadowMapSize,
+        lightUV,
+        lightDistView - light.bias,
+        light.near,
+        light.far,
+        lightDeviceCoordsPositionNormalized.z,
+        light.radiusUV
+      )
     : 1.0;
 
   if (illuminated > 0.0) {

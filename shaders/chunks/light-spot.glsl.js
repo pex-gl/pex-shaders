@@ -29,7 +29,8 @@ void EvaluateSpotLight(inout PBRData data, SpotLight light, sampler2D shadowMap)
   vec2 lightUV = lightDeviceCoordsPositionNormalized.xy * 0.5 + 0.5;
 
   float illuminated = bool(light.castShadows)
-    ? getShadow(shadowMap,
+    ? getShadow(
+        shadowMap,
         light.shadowMapSize,
         lightUV,
         lightDistView - light.bias,

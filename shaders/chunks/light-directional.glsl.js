@@ -25,7 +25,8 @@ void EvaluateDirectionalLight(inout PBRData data, DirectionalLight light, sample
   vec2 lightUV = lightDeviceCoordsPositionNormalized.xy * 0.5 + 0.5;
 
   float illuminated = bool(light.castShadows)
-    ? getShadow(shadowMap,
+    ? getShadow(
+        shadowMap,
         light.shadowMapSize,
         lightUV,
         lightDistView - light.bias,

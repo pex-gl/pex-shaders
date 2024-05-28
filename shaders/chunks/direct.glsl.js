@@ -22,13 +22,6 @@ float getAngleAttenuation(const vec3 lightDir, const vec3 l, const vec2 scaleOff
   return attenuation * attenuation;
 }
 
-vec2 compensateStretch(vec2 uv) {
-  return uv;
-  // float u = uv.x;
-  // u = (u - 0.5) * 1.1 + 0.5;
-  // return vec2(u, uv.y);
-}
-
 #ifdef USE_SHEEN
   vec3 sheenBRDF(const PBRData data, float NdotH, float NdotV, float NdotL) {
     float sheenDistribution = D_Charlie(data.sheenLinearRoughness, NdotH);

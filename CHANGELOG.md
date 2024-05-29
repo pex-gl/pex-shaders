@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.30](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.29...v1.0.0-alpha.30) (2024-05-29)
+
+
+### Bug Fixes
+
+* correct DepthGradient for PCSS ([97ed2ae](https://github.com/pex-gl/pex-shaders/commit/97ed2ae5a48fc79a4c67d9b18536ed387238657c))
+
+
+
 # [1.0.0-alpha.29](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.28...v1.0.0-alpha.29) (2024-05-20)
 
 

@@ -3,7 +3,7 @@ export default /* glsl */ `
 // https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf
 // Walter et al. 2007, "Microfacet Models for Refraction through Rough Surfaces"
 // Used by: clearCoat
-float D_GGX(float linearRoughness, float NoH, const vec3 h, const vec3 normalWorld) {
+float D_GGX(float linearRoughness, float NoH, const vec3 h) {
   float oneMinusNoHSquared = 1.0 - NoH * NoH;
   float a = NoH * linearRoughness;
   float k = linearRoughness / (oneMinusNoHSquared + a * a);

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.31](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.30...v1.0.0-alpha.31) (2024-06-06)
+
+
+### Bug Fixes
+
+* add missing f90 parameter to EnvBRDFApprox ([c628c28](https://github.com/pex-gl/pex-shaders/commit/c628c28a06d0f4214075d664af2015f21c5019a8))
+
+
+
 # [1.0.0-alpha.30](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.29...v1.0.0-alpha.30) (2024-05-29)
 
 

@@ -59,19 +59,15 @@ float V_Charlie(float linearRoughness, float NdotV, float NdotL, float NdotH) {
   return 1.0 / ((1.0 + lambdaSheen(NdotV, linearRoughness) + lambdaSheen(NdotL, linearRoughness)) * (4.0 * NdotV * NdotL));
 }
 // Alternative to V_Charlie (but non energy conserving for albedo scaling):
-float V_Neubelt(float NdotV, float NdotL, float NdotH) {
-  return 1.0 / (4.0 * (NdotL + NdotV - NdotL * NdotV));
-}
+// float V_Neubelt(float NdotV, float NdotL, float NdotH) {
+//   return 1.0 / (4.0 * (NdotL + NdotV - NdotL * NdotV));
+// }
 
 // Fresnel:
-// Used by: clearCoat e.g. in indirect.glsl.js
-float F_Schlick(float f0, float f90, float VoH) {
-  return f0 + (f90 - f0) * pow(1.0 - VoH, 5.0);
-}
-
-// Used by: transmission in indirect.glsl.js
-vec3 F_Schlick(vec3 f0, vec3 f90, float VdotH) {
-  return f0 + (f90 - f0) * pow(saturate(1.0 - VdotH), 5.0);
+// Assumes an air-polyurethane interface with a fixed IOR of 1.5 (4% reflectance, IOR = 1.5 -> F0 = 0.04).
+// Used by: clearCoat
+float F_SchlickClearCoat(float VoH) {
+  return 0.04 + 0.96 * pow(1.0 - VoH, 5.0);
 }
 
 // Diffuse:
@@ -103,6 +99,12 @@ vec3 SpecularReflection(vec3 specularColor, float HdotV) {
   float cosTheta = HdotV;
   return specularColor + (1.0 - specularColor) * pow(1.0 - cosTheta, 5.0);
 }
+// // Scalar optimization of the specular F term
+// // https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf/fresnel(specularf)
+// vec3 F_Schlick(const vec3 f0, float VoH) {
+//   float f = pow(1.0 - VoH, 5.0);
+//   return f + f0 * (1.0 - f);
+// }
 
 // Smith Joint GGX
 // Sometimes called Smith GGX Correlated

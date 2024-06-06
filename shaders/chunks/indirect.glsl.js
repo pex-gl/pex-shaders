@@ -39,7 +39,7 @@ export default /* glsl */ `
         vec3 clearCoatR = data.reflectionWorld;
       #endif
       // The clear coat layer assumes an IOR of 1.5 (4% reflectance)
-      float Fc = F_Schlick(0.04, 1.0, clearCoatNoV) * data.clearCoat;
+      float Fc = F_SchlickClearCoat(clearCoatNoV) * data.clearCoat;
       float attenuation = 1.0 - Fc;
       // https://github.com/google/filament/commit/6a8e6d45b5c57280898ad064426bc197978e71c5
       // Fr *= (attenuation * attenuation);

@@ -43,7 +43,7 @@ float getAngleAttenuation(const vec3 lightDir, const vec3 l, const vec2 scaleOff
     float D = D_GGX(data.clearCoatLinearRoughness, clearCoatNoH);
     float V = V_Kelemen(LoH);
     // air-polyurethane interface has IOR = 1.5 -> F0 = 0.04
-    float F = F_Schlick(0.04, 1.0, LoH) * data.clearCoat;
+    float F = F_SchlickClearCoat(LoH) * data.clearCoat;
 
     Fcc = F;
     return D * V * F;
@@ -65,6 +65,7 @@ void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
   float LdotH = saturate(dot(L, H));
   float HdotV = max(0.0, dot(H, V));
 
+  // vec3 F = F_Schlick(data.f0, LdotH);
   vec3 F = SpecularReflection(data.f0, HdotV);
   float D = MicrofacetDistribution(data.linearRoughness, NdotH);
   float Vis = VisibilityOcclusion(data.linearRoughness, NdotL, NdotV);

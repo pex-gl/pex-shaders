@@ -40,7 +40,7 @@ float getAngleAttenuation(const vec3 lightDir, const vec3 l, const vec2 scaleOff
     #else
       float clearCoatNoH = NoH;
     #endif
-    float D = D_GGX(data.clearCoatLinearRoughness, clearCoatNoH, h);
+    float D = D_GGX(data.clearCoatLinearRoughness, clearCoatNoH);
     float V = V_Kelemen(LoH);
     // air-polyurethane interface has IOR = 1.5 -> F0 = 0.04
     float F = F_Schlick(0.04, 1.0, LoH) * data.clearCoat;

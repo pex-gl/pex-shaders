@@ -29,7 +29,7 @@
     "release": "snowdev release"
   },
   "dependencies": {
-    "glsl-tone-map": "^2.1.0"
+    "glsl-tone-map": "^2.1.1"
   },
   "engines": {
     "node": ">=22.0.0",

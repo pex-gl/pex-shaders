@@ -122,6 +122,6 @@ vec3 filmGrain(
   #endif
 
   float luminance = mix(0.0, luma(color), luminanceIntensity);
-  return color + mix(noise, vec3(0.0), pow(luminance + smoothstep(0.2, 0.0, luminance), 4.0)) * intensity;
+  return saturate(color + mix(noise, vec3(0.0), pow(luminance + smoothstep(0.2, 0.0, luminance), 4.0)) * intensity);
 }
 `;

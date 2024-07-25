@@ -1,11 +1,13 @@
+// uEmissiveColor: gltf assumes sRGB color, not linear
+// uEmissiveColorTexture: assumes sRGB color, not linear
 export default /* glsl */ `
 #ifdef USE_EMISSIVE_COLOR
-  uniform vec4 uEmissiveColor; // TODO: gltf assumes sRGB color, not linear
+  uniform vec4 uEmissiveColor;
   uniform float uEmissiveIntensity;
 #endif
 
 #ifdef USE_EMISSIVE_COLOR_TEXTURE
-  uniform sampler2D uEmissiveColorTexture; //assumes sRGB color, not linear
+  uniform sampler2D uEmissiveColorTexture;
 
   #ifdef USE_EMISSIVE_COLOR_TEXTURE_MATRIX
     uniform mat3 uEmissiveColorTextureMatrix;

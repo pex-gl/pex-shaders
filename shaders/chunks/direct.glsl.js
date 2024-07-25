@@ -1,3 +1,5 @@
+// getDistanceAttenuation: https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+// sheenBRDF: The Fresnel term may be omitted, i.e., F = 1.
 export default /* glsl */ `
 struct Light {
   vec3 l;
@@ -5,7 +7,6 @@ struct Light {
   float attenuation;
 };
 
-// https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
 float getDistanceAttenuation(const highp vec3 posToLight, float falloff) {
   // Square Falloff Attenuation
   float distanceSquare = dot(posToLight, posToLight);
@@ -26,9 +27,6 @@ float getAngleAttenuation(const vec3 lightDir, const vec3 l, const vec2 scaleOff
   vec3 sheenBRDF(const PBRData data, float NdotH, float NdotV, float NdotL) {
     float sheenDistribution = D_Charlie(data.sheenLinearRoughness, NdotH);
     float sheenVisibility = V_Charlie(data.sheenLinearRoughness, NdotV, NdotL, NdotH);
-    // float sheenVisibility = V_Neubelt(NdotV, NdotL, NdotH);
-
-    // The Fresnel term may be omitted, i.e., F = 1.
     return data.sheenColor * sheenDistribution * sheenVisibility;
   }
 #endif
@@ -42,7 +40,6 @@ float getAngleAttenuation(const vec3 lightDir, const vec3 l, const vec2 scaleOff
     #endif
     float D = D_GGX(data.clearCoatLinearRoughness, clearCoatNoH);
     float V = V_Kelemen(LoH);
-    // air-polyurethane interface has IOR = 1.5 -> F0 = 0.04
     float F = F_SchlickClearCoat(LoH) * data.clearCoat;
 
     Fcc = F;

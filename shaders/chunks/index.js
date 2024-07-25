@@ -55,6 +55,18 @@ export {
   /** @member {string} */
   default as shadowing,
 } from "./shadowing.glsl.js";
+/**
+ * @name pcf
+ * @type {object}
+ * @static
+ */
+export * as pcf from "./pcf.glsl.js";
+/**
+ * @name pcss
+ * @type {object}
+ * @static
+ */
+export * as pcss from "./pcss.glsl.js";
 
 export {
   /** @member {string} */

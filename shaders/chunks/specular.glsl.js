@@ -1,3 +1,7 @@
+// f0 and f90:
+// https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_specular#implementation
+// dielectricSpecularF0 = min(((ior - outside_ior) / (ior + outside_ior))^2 * specularColorFactor * specularColorTexture.rgb, float3(1.0)) * specularFactor * specularTexture.a
+// dielectricSpecularF90 = specularFactor * specularTexture.a
 export default /* glsl */ `
 uniform float uIor;
 
@@ -51,9 +55,6 @@ void getIor(inout PBRData data) {
       specularColor *= texture2D(uSpecularColorTexture, texCoordSpecularColor).rgb;
     #endif
 
-    // https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_specular#implementation
-    // dielectricSpecularF0 = min(((ior - outside_ior) / (ior + outside_ior))^2 * specularColorFactor * specularColorTexture.rgb, float3(1.0)) * specularFactor * specularTexture.a
-    // dielectricSpecularF90 = specularFactor * specularTexture.a
     data.f0 = mix(
       min(
         pow((data.ior - OUTSIDE_IOR) / (data.ior + OUTSIDE_IOR), 2.0) * specularColor,

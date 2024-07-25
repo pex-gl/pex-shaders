@@ -1,3 +1,4 @@
+// uAlphaTest: assumes sRGB color, not linear
 export default /* glsl */ `
 #ifdef USE_ALPHA_TEXTURE
   uniform sampler2D uAlphaTexture;
@@ -8,12 +9,10 @@ export default /* glsl */ `
 #endif
 
 #ifdef USE_ALPHA_TEST
-  uniform float uAlphaTest; // assumes sRGB color, not linear
+  uniform float uAlphaTest;
 
   void alphaTest(inout PBRData data) {
     if (data.opacity < uAlphaTest) discard;
-    // if (length(data.emissiveColor) < 0.1) discard;
-    // else data.baseColor = vec3(1.0, 0.0, 0.0);
   }
 #endif
 `;

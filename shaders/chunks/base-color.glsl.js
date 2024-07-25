@@ -1,8 +1,10 @@
+// uBaseColor: gltf assumes sRGB color, not linear
+// uBaseColorTexture: assumes sRGB color, not linear
 export default /* glsl */ `
-uniform vec4 uBaseColor; // TODO: gltf assumes sRGB color, not linear
+uniform vec4 uBaseColor;
 
 #ifdef USE_BASE_COLOR_TEXTURE
-  uniform sampler2D uBaseColorTexture; // assumes sRGB color, not linear
+  uniform sampler2D uBaseColorTexture;
 
   #ifdef USE_BASE_COLOR_TEXTURE_MATRIX
     uniform mat3 uBaseColorTextureMatrix;

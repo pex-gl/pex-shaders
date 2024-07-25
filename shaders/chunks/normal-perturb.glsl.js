@@ -1,6 +1,6 @@
+// http://www.thetenthplanet.de/archives/1180
 export default /* glsl */ `
 #if !defined(USE_TANGENTS) && (defined(USE_NORMAL_TEXTURE) || defined(USE_CLEAR_COAT_NORMAL_TEXTURE))
-  //http://www.thetenthplanet.de/archives/1180
   mat3 cotangentFrame(vec3 N, vec3 p, vec2 uv) {
     // get edge vectors of the pixel triangle
     highp vec3 dp1 = dFdx(p);

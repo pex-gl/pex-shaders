@@ -1,11 +1,15 @@
+// uMetallicTexture: assumes linear, TODO: check glTF
+// uRoughnessTexture: assumes linear, TODO: check glTF
+//
+// MIN_ROUGHNESS:
+// Source: Google/Filament/Overview/4.8.3.3 Roughness remapping and clamping, 07/2019
+// Minimum roughness to avoid division by zerio when 1/a^2 and to limit specular aliasing
+// This could be 0.045 when using single precision float fp32
 export default /* glsl */ `
 #ifdef USE_METALLIC_ROUGHNESS_WORKFLOW
   uniform float uMetallic;
   uniform float uRoughness;
 
-  // Source: Google/Filament/Overview/4.8.3.3 Roughness remapping and clamping, 07/2019
-  // Minimum roughness to avoid division by zerio when 1/a^2 and to limit specular aliasing
-  // This could be 0.045 when using single precision float fp32
   #define MIN_ROUGHNESS 0.089
 
   #ifdef USE_METALLIC_ROUGHNESS_TEXTURE
@@ -28,12 +32,10 @@ export default /* glsl */ `
       data.roughness = uRoughness * texelColor.g;
     }
 
-    void getRoughness(inout PBRData data) {
-      // NOP, already read in getMetallic
-    }
+    void getRoughness(inout PBRData data) {}
   #else
     #ifdef USE_METALLIC_TEXTURE
-      uniform sampler2D uMetallicTexture; //assumes linear, TODO: check gltf
+      uniform sampler2D uMetallicTexture;
 
       #ifdef USE_METALLIC_TEXTURE_MATRIX
         uniform mat3 uMetallicTextureMatrix;
@@ -54,7 +56,7 @@ export default /* glsl */ `
     #endif
 
     #ifdef USE_ROUGHNESS_TEXTURE
-      uniform sampler2D uRoughnessTexture; //assumes linear, TODO: check glTF
+      uniform sampler2D uRoughnessTexture;
 
       #ifdef USE_ROUGHNESS_TEXTURE_MATRIX
         uniform mat3 uRoughnessTextureMatrix;

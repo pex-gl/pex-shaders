@@ -124,10 +124,10 @@ void main() {
   #ifdef USE_AA
     // LDR
     #ifdef USE_FXAA_3
-      color = fxaa3(uTexture, uv, uViewportSize);
+      color = fxaa3(uTexture, uv, uTexelSize);
     #endif
     #ifdef USE_FXAA_2
-      color = fxaa2(uTexture, uv, uViewportSize);
+      color = fxaa2(uTexture, uv, uTexelSize);
     #endif
     color.rgb = reinhardInverse(color.rgb);
   #else

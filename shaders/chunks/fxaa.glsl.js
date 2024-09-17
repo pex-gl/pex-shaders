@@ -53,11 +53,10 @@ export default /* glsl */ `
     // #define FXAA_EDGE_THRESHOLD_MAX 0.063 // 1 / 16
 
     // Extreme
-    #define FXAA_EDGE_THRESHOLD_MIN 0.0078 // 1 / 128
-    #define FXAA_EDGE_THRESHOLD_MAX 0.031 // 1 / 32
+    // #define FXAA_EDGE_THRESHOLD_MIN 0.0078 // 1 / 128
+    // #define FXAA_EDGE_THRESHOLD_MAX 0.031 // 1 / 32
 
-    #define FXAA_QUALITY(q) ((q) < 5 ? 1.0 : ((q) > 5 ? ((q) < 10 ? 2.0 : ((q) < 11 ? 4.0 : 8.0)) : 1.5))
-    #define FXAA_ITERATIONS 12
+    uniform vec2 uLumaThreshold;
 
     // FXAA blends anything that has high enough contrast. It helps mitigate fireflies but will blur small details.
     // - 1.00: upper limit (softer)
@@ -65,7 +64,10 @@ export default /* glsl */ `
     // - 0.50: lower limit (sharper, less sub-pixel aliasing removal)
     // - 0.25: almost off
     // - 0.00: completely off
-    #define FXAA_SUBPIXEL_QUALITY 0.75
+    uniform float uSubPixelQuality;
+
+    #define FXAA_QUALITY(q) ((q) < 5 ? 1.0 : ((q) > 5 ? ((q) < 10 ? 2.0 : ((q) < 11 ? 4.0 : 8.0)) : 1.5))
+    #define FXAA_ITERATIONS 12
 
     #define FXAA_ONE_OVER_TWELVE 1.0 / 12.0
 
@@ -75,9 +77,7 @@ export default /* glsl */ `
     varying vec2 vTexCoord0Right;
 
     // Performs FXAA post-process anti-aliasing as described in the Nvidia FXAA white paper and the associated shader code.
-    vec4 fxaa3(sampler2D screenTexture, vec2 texCoord, vec2 resolution) {
-      vec2 texelSize = 1.0 / resolution;
-
+    vec4 fxaa3(sampler2D screenTexture, vec2 texCoord, vec2 texelSize) {
       // vec4 colorCenter = texture2D(screenTexture, texCoord);
       vec4 colorCenter = readTextureLDR3(screenTexture, texCoord);
 
@@ -98,7 +98,7 @@ export default /* glsl */ `
       float lumaRange = lumaMax - lumaMin;
 
       // If the luma variation is lower that a threshold (or if we are in a really dark area), we are not on an edge, don't perform any AA.
-      if (lumaRange < max(FXAA_EDGE_THRESHOLD_MIN, lumaMax * FXAA_EDGE_THRESHOLD_MAX)) {
+      if (lumaRange < max(uLumaThreshold[0], lumaMax * uLumaThreshold[1])) {
         return colorCenter;
       }
 
@@ -259,9 +259,10 @@ export default /* glsl */ `
       float lumaAverage = FXAA_ONE_OVER_TWELVE * (2.0 * (lumaDownUp + lumaLeftRight) + lumaLeftCorners + lumaRightCorners);
       // Ratio of the delta between the global average and the center luma, over the luma range in the 3x3 neighborhood.
       float subPixelOffset1 = clamp(abs(lumaAverage - lumaCenter) / lumaRange, 0.0, 1.0);
-      float subPixelOffset2 = (-2.0 * subPixelOffset1 + 3.0) * subPixelOffset1 * subPixelOffset1;
+      // float subPixelOffset2 = (-2.0 * subPixelOffset1 + 3.0) * subPixelOffset1 * subPixelOffset1;
+      float subPixelOffset2 = smoothstep(0.0, 1.0, subPixelOffset1);
       // Compute a sub-pixel offset based on this delta.
-      float subPixelOffsetFinal = subPixelOffset2 * subPixelOffset2 * FXAA_SUBPIXEL_QUALITY;
+      float subPixelOffsetFinal = subPixelOffset2 * subPixelOffset2 * uSubPixelQuality;
 
       // Pick the biggest of the two offsets.
       finalOffset = max(finalOffset, subPixelOffsetFinal);
@@ -287,9 +288,7 @@ export default /* glsl */ `
     #define FXAA_ONE_OVER_THREE 1.0 / 3.0
     #define FXAA_TWO_OVER_THREE 2.0 / 3.0
 
-    vec4 fxaa2(sampler2D tex, vec2 texCoord, vec2 resolution) {
-      vec2 texelSize = 1.0 / resolution;
-
+    vec4 fxaa2(sampler2D tex, vec2 texCoord, vec2 texelSize) {
       vec4 texColor = texture2D(tex, texCoord);
 
       float lumaNW = rgbToLuma(readTextureLDR(tex, vTexCoord0LeftUp));

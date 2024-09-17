@@ -1,6 +1,6 @@
 {
   "name": "pex-shaders",
-  "version": "1.0.0-alpha.31",
+  "version": "1.0.0-alpha.32",
   "description": "Shader library and manipulation for PEX.",
   "keywords": [
     "pex",
@@ -12,7 +12,10 @@
   ],
   "homepage": "https://github.com/pex-gl/pex-shaders",
   "bugs": "https://github.com/pex-gl/pex-shaders/issues",
-  "repository": "pex-gl/pex-shaders",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pex-gl/pex-shaders.git"
+  },
   "license": "MIT",
   "author": "Marcin Ignac <marcin.ignac@gmail.com> (http://marcinignac.com)",
   "contributors": [

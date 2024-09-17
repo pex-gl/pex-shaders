@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.32](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.31...v1.0.0-alpha.32) (2024-09-17)
+
+
+### Bug Fixes
+
+* saturate film grain result ([9647966](https://github.com/pex-gl/pex-shaders/commit/96479669729bedf1de895d6148a404a495597e5f))
+
+
+### Features
+
+* parametrize fxaa3 ([43fcade](https://github.com/pex-gl/pex-shaders/commit/43fcadea658660914b3cc2b93a567297c5f4d9c4))
+
+
+
 # [1.0.0-alpha.31](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.30...v1.0.0-alpha.31) (2024-06-06)
 
 

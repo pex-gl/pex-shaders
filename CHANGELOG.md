@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.33](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.32...v1.0.0-alpha.33) (2024-09-19)
+
+
+### Features
+
+* remove fxaa 2 ([34d5025](https://github.com/pex-gl/pex-shaders/commit/34d502563c135fd0a59b9173ac5682d29b6184c0))
+
+
+
 # [1.0.0-alpha.32](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.31...v1.0.0-alpha.32) (2024-09-17)
 
 

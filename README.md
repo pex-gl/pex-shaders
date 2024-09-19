@@ -336,8 +336,8 @@ Paper:
 
 Reference Implementations:
 
-- v3.11: https://github.com/FyroxEngine/Fyrox/blob/master/src/renderer/shaders/fxaa_fs.glsl
-- v2: https://github.com/mattdesl/glsl-fxaa
+- https://blog.simonrodriguez.fr/articles/2016/07/implementing_fxaa.html
+- https://gist.github.com/kosua20/0c506b81b3812ac900048059d2383126
 
 Updates: Damien Seguin (2023-10)
 

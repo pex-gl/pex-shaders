@@ -49,6 +49,13 @@ ${Object.values(glslToneMap).join("\n")}
 #endif
 
 #ifdef USE_AA
+  // FXAA blends anything that has high enough contrast. It helps mitigate fireflies but will blur small details.
+  // - 1.00: upper limit (softer)
+  // - 0.75: default amount of filtering
+  // - 0.50: lower limit (sharper, less sub-pixel aliasing removal)
+  // - 0.25: almost off
+  // - 0.00: completely off
+  uniform float uSubPixelQuality;
   ${SHADERS.fxaa}
 #endif
 
@@ -106,14 +113,16 @@ uniform float uOpacity;
 
 varying vec2 vTexCoord0;
 
-// LDR -> HDR
-// Do I need more complex like: https://github.com/libretro/slang-shaders/blob/master/bezel/Mega_Bezel/shaders/megatron/include/inverse_tonemap.h
-vec3 reinhardInverse(vec3 x) {
-  // return x / (1.0 - x);
-  // https://github.com/luluco250/FXShaders/blob/master/Shaders/FXShaders/Tonemap.fxh
-  // return -(x / min(x - 1.0, -0.1));
-  return x / max(vec3(1.0) - x, 0.001);
-}
+#if defined(USE_AA)
+  varying vec2 vTexCoord0LeftUp;
+  varying vec2 vTexCoord0RightUp;
+  varying vec2 vTexCoord0LeftDown;
+  varying vec2 vTexCoord0RightDown;
+  varying vec2 vTexCoord0Down;
+  varying vec2 vTexCoord0Up;
+  varying vec2 vTexCoord0Left;
+  varying vec2 vTexCoord0Right;
+#endif
 
 void main() {
   vec4 color = vec4(0.0);
@@ -122,14 +131,20 @@ void main() {
 
   // Anti-aliasing
   #ifdef USE_AA
-    // LDR
-    #ifdef USE_FXAA_3
-      color = fxaa3(uTexture, uv, uTexelSize);
-    #endif
-    #ifdef USE_FXAA_2
-      color = fxaa2(uTexture, uv, uTexelSize);
-    #endif
-    color.rgb = reinhardInverse(color.rgb);
+    color = fxaa(
+      uTexture,
+      uv,
+      vTexCoord0LeftUp,
+      vTexCoord0RightUp,
+      vTexCoord0LeftDown,
+      vTexCoord0RightDown,
+      vTexCoord0Down,
+      vTexCoord0Up,
+      vTexCoord0Left,
+      vTexCoord0Right,
+      uTexelSize,
+      uSubPixelQuality
+    );
   #else
     color = texture2D(uTexture, uv);
   #endif

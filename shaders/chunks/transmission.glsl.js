@@ -67,8 +67,8 @@ export default /* glsl */ `
 
   // Compute attenuated light as it travels through a volume.
   vec3 applyVolumeAttenuation(vec3 radiance, float transmissionDistance, vec3 attenuationColor, float attenuationDistance) {
-    if (attenuationDistance == 0.0) {
-      // Attenuation distance is +∞ (which we indicate by zero), i.e. the transmitted color is not attenuated at all.
+    if (isinf(attenuationDistance) || attenuationDistance == 0.0) {
+      // Attenuation distance is +∞ (which we indicate by zero or infinity), i.e. the transmitted color is not attenuated at all.
       return radiance;
     } else {
       // Compute light attenuation using Beer's law.

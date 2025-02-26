@@ -72,8 +72,7 @@ export default /* glsl */ `
       return radiance;
     } else {
       // Compute light attenuation using Beer's law.
-      vec3 attenuationCoefficient = -log(attenuationColor) / attenuationDistance;
-      vec3 transmittance = exp(-attenuationCoefficient * transmissionDistance); // Beer's law
+      vec3 transmittance = pow(attenuationColor, vec3(transmissionDistance / attenuationDistance));
       return transmittance * radiance;
     }
   }
@@ -109,7 +108,7 @@ export default /* glsl */ `
   }
 
   float textureBicubicW3(float a) {
-    return ONE_OVER_SIX * (a * a *a);
+    return ONE_OVER_SIX * (a * a * a);
   }
 
   // g0 and g1 are the two amplitude functions

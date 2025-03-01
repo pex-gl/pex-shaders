@@ -39,7 +39,6 @@ uniform mat4 uViewMatrix;
 uniform mat4 uModelMatrix;
 
 // Includes
-${SHADERS.math.transposeMat4}
 ${SHADERS.math.quatToMat4}
 
 #define HOOK_VERT_DECLARATIONS_END

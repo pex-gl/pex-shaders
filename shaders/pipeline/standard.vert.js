@@ -80,7 +80,6 @@ varying vec3 vPositionWorld;
 varying vec3 vPositionView;
 
 // Includes
-${SHADERS.math.transposeMat4}
 ${SHADERS.math.quatToMat4}
 
 #define HOOK_VERT_DECLARATIONS_END

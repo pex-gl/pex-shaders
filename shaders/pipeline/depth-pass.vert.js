@@ -74,7 +74,6 @@ varying vec2 vTexCoord1;
 varying vec3 vPositionView;
 
 // Includes
-${SHADERS.math.transposeMat4}
 ${SHADERS.math.quatToMat4}
 
 #define HOOK_VERT_DECLARATIONS_END

@@ -53,13 +53,11 @@ mat4 quatToMat4(vec4 q) {
   float yz = q.y * zs;
   float zz = q.z * zs;
 
-  return transpose(
-    mat4(
-      1.0 - (yy + zz), xy - wz, xz + wy, 0.0,
-      xy + wz, 1.0 - (xx + zz), yz - wx, 0.0,
-      xz - wy, yz + wx, 1.0 - (xx + yy), 0.0,
-      0.0, 0.0, 0.0, 1.0
-    )
+  return mat4(
+    1.0 - (yy + zz), xy + wz, xz - wy, 0.0,
+    xy - wz, 1.0 - (xx + zz), yz + wx, 0.0,
+    xz + wy, yz - wx, 1.0 - (xx + yy), 0.0,
+    0.0, 0.0, 0.0, 1.0
   );
 }
 `;
@@ -112,18 +110,18 @@ mat3 transpose(mat3 m) {
 #endif
 `;
 
-const transposeMat4 = /* glsl */ `
-#if (__VERSION__ < 300)
-mat4 transpose(mat4 m) {
-  return mat4(
-    m[0][0], m[1][0], m[2][0], m[3][0],
-    m[0][1], m[1][1], m[2][1], m[3][1],
-    m[0][2], m[1][2], m[2][2], m[3][2],
-    m[0][3], m[1][3], m[2][3], m[3][3]
-  );
-}
-#endif
-`;
+// const transposeMat4 = /* glsl */ `
+// #if (__VERSION__ < 300)
+// mat4 transpose(mat4 m) {
+//   return mat4(
+//     m[0][0], m[1][0], m[2][0], m[3][0],
+//     m[0][1], m[1][1], m[2][1], m[3][1],
+//     m[0][2], m[1][2], m[2][2], m[3][2],
+//     m[0][3], m[1][3], m[2][3], m[3][3]
+//   );
+// }
+// #endif
+// `;
 
 // Inverse
 // const inverseFloat = /* glsl */`
@@ -214,7 +212,6 @@ export {
   quatToMat4,
   multQuat,
   transposeMat3,
-  transposeMat4,
   inverseMat4,
   random,
 };

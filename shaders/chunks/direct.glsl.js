@@ -76,6 +76,15 @@ void getSurfaceShading(inout PBRData data, Light light, float illuminated) {
   //TODO: energy compensation
   float energyCompensation = 1.0;
 
+  #ifdef USE_DIFFUSE_TRANSMISSION
+    vec3 diffuse_btdf = light.attenuation * saturate(dot(-N, L)) * (DiffuseLambert() * data.diffuseTransmissionColor);
+
+    #ifdef USE_VOLUME
+      diffuse_btdf = applyVolumeAttenuation(diffuse_btdf, data.diffuseTransmissionThickness, data.attenuationColor, data.attenuationDistance);
+    #endif
+    Fd = mix(Fd, diffuse_btdf, data.diffuseTransmission);
+  #endif
+
   #ifdef USE_TRANSMISSION
     Fd *= (1.0 - data.transmission);
   #endif

@@ -7,10 +7,6 @@ export default /* glsl */ `
   uniform float uTransmission;
   uniform mat4 uProjectionMatrix;
 
-  uniform float uThickness;
-  uniform float uAttenuationDistance;
-  uniform vec3 uAttenuationColor;
-
   #ifdef USE_DISPERSION
     uniform float uDispersion;
   #endif
@@ -37,6 +33,46 @@ export default /* glsl */ `
     }
   #endif
 
+  float applyIorToRoughness(float roughness, float ior) {
+    // Scale roughness with IOR so that an IOR of 1.0 results in no microfacet refraction and
+    // an IOR of 1.5 results in the default amount of microfacet refraction.
+    return roughness * saturate(ior * 2.0 - 2.0);
+  }
+
+  vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior, mat4 modelMatrix) {
+    // Direction of refracted light.
+    vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
+
+    // Compute rotation-independant scaling of the model matrix.
+    vec3 modelScale;
+    modelScale.x = length(vec3(modelMatrix[0].xyz));
+    modelScale.y = length(vec3(modelMatrix[1].xyz));
+    modelScale.z = length(vec3(modelMatrix[2].xyz));
+
+    // The thickness is specified in local space.
+    return normalize(refractionVector) * thickness * modelScale;
+  }
+#endif
+
+#if defined(USE_TRANSMISSION) || defined(USE_VOLUME)
+  // Compute attenuated light as it travels through a volume.
+  vec3 applyVolumeAttenuation(vec3 radiance, float transmissionDistance, vec3 attenuationColor, float attenuationDistance) {
+    if (isinf(attenuationDistance) || attenuationDistance == 0.0) {
+      // Attenuation distance is +∞ (which we indicate by zero or infinity), i.e. the transmitted color is not attenuated at all.
+      return radiance;
+    } else {
+      // Compute light attenuation using Beer's law.
+      vec3 transmittance = pow(attenuationColor, vec3(transmissionDistance / attenuationDistance));
+      return transmittance * radiance;
+    }
+  }
+#endif
+
+#ifdef USE_VOLUME
+  uniform float uThickness;
+  uniform float uAttenuationDistance;
+  uniform vec3 uAttenuationColor;
+
   #ifdef USE_THICKNESS_TEXTURE
     uniform sampler2D uThicknessTexture;
 
@@ -59,36 +95,64 @@ export default /* glsl */ `
     }
   #endif
 
-  float applyIorToRoughness(float roughness, float ior) {
-    // Scale roughness with IOR so that an IOR of 1.0 results in no microfacet refraction and
-    // an IOR of 1.5 results in the default amount of microfacet refraction.
-    return roughness * saturate(ior * 2.0 - 2.0);
+  void getAttenuation(inout PBRData data) {
+    data.attenuationColor = uAttenuationColor;
+    data.attenuationDistance = uAttenuationDistance;
   }
+#endif
 
-  // Compute attenuated light as it travels through a volume.
-  vec3 applyVolumeAttenuation(vec3 radiance, float transmissionDistance, vec3 attenuationColor, float attenuationDistance) {
-    if (isinf(attenuationDistance) || attenuationDistance == 0.0) {
-      // Attenuation distance is +∞ (which we indicate by zero or infinity), i.e. the transmitted color is not attenuated at all.
-      return radiance;
-    } else {
-      // Compute light attenuation using Beer's law.
-      vec3 transmittance = pow(attenuationColor, vec3(transmissionDistance / attenuationDistance));
-      return transmittance * radiance;
-    }
-  }
+#ifdef USE_DIFFUSE_TRANSMISSION
+  uniform float uDiffuseTransmission;
+  uniform vec3 uDiffuseTransmissionColor;
 
-  vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior, mat4 modelMatrix) {
-    // Direction of refracted light.
-    vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
+  #ifdef USE_DIFFUSE_TRANSMISSION_TEXTURE
+    uniform sampler2D uDiffuseTransmissionTexture;
 
-    // Compute rotation-independant scaling of the model matrix.
-    vec3 modelScale;
-    modelScale.x = length(vec3(modelMatrix[0].xyz));
-    modelScale.y = length(vec3(modelMatrix[1].xyz));
-    modelScale.z = length(vec3(modelMatrix[2].xyz));
+    #ifdef USE_DIFFUSE_TRANSMISSION_TEXTURE_MATRIX
+      uniform mat3 uDiffuseTransmissionTextureMatrix;
+    #endif
+  #endif
 
-    // The thickness is specified in local space.
-    return normalize(refractionVector) * thickness * modelScale;
+  #ifdef USE_DIFFUSE_TRANSMISSION_COLOR_TEXTURE
+    uniform sampler2D uDiffuseTransmissionColorTexture;
+
+    #ifdef USE_DIFFUSE_TRANSMISSION_COLOR_TEXTURE_MATRIX
+      uniform mat3 uDiffuseTransmissionColorTextureMatrix;
+    #endif
+  #endif
+
+  void getDiffuseTransmission(inout PBRData data) {
+    // Get diffuse transmission strength and color
+    float diffuseTransmissionStrength = uDiffuseTransmission;
+    vec3 diffuseTransmissionColor = uDiffuseTransmissionColor;
+
+    // Factor in textures
+    #ifdef USE_DIFFUSE_TRANSMISSION_TEXTURE
+      #ifdef USE_DIFFUSE_TRANSMISSION_TEXTURE_MATRIX
+        vec2 texCoordDiffuseTransmission = getTextureCoordinates(data, DIFFUSE_TRANSMISSION_TEXTURE_TEX_COORD, uDiffuseTransmissionTextureMatrix);
+      #else
+        vec2 texCoordDiffuseTransmission = getTextureCoordinates(data, DIFFUSE_TRANSMISSION_TEXTURE_TEX_COORD);
+      #endif
+      diffuseTransmissionStrength *= texture2D(uDiffuseTransmissionTexture, texCoordDiffuseTransmission).a;
+    #endif
+
+    #ifdef USE_DIFFUSE_TRANSMISSION_COLOR_TEXTURE
+      #ifdef USE_DIFFUSE_TRANSMISSION_COLOR_TEXTURE_MATRIX
+        vec2 texCoordDiffuseTransmissionColor = getTextureCoordinates(data, DIFFUSE_TRANSMISSION_COLOR_TEXTURE_TEX_COORD, uDiffuseTransmissionColorTextureMatrix);
+      #else
+        vec2 texCoordDiffuseTransmissionColor = getTextureCoordinates(data, DIFFUSE_TRANSMISSION_COLOR_TEXTURE_TEX_COORD);
+      #endif
+      diffuseTransmissionColor *= decode(texture2D(uDiffuseTransmissionColorTexture, texCoordDiffuseTransmissionColor), SRGB).rgb;
+    #endif
+
+    data.diffuseTransmission = diffuseTransmissionStrength;
+    data.diffuseTransmissionColor = diffuseTransmissionColor;
+
+    #ifdef USE_VOLUME
+      data.diffuseTransmissionThickness = data.thickness * (length(vec3(uModelMatrix[0].xyz)) + length(vec3(uModelMatrix[1].xyz)) + length(vec3(uModelMatrix[2].xyz))) / 3.0;
+    #else
+      data.diffuseTransmissionThickness = 1.0;
+    #endif
   }
 #endif
 

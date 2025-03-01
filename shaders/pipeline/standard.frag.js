@@ -91,6 +91,9 @@ struct PBRData {
   float sheenAlbedoScaling;
   vec3 transmitted;
   float transmission;
+  float diffuseTransmission;
+  vec3 diffuseTransmissionColor;
+  float diffuseTransmissionThickness;
   float thickness;
   vec3 attenuationColor;
   float attenuationDistance;
@@ -247,13 +250,17 @@ void main() {
 
     #ifdef USE_TRANSMISSION
       data.transmitted = vec3(0.0);
-      data.attenuationColor = uAttenuationColor;
-      data.attenuationDistance = uAttenuationDistance;
       #ifdef USE_DISPERSION
         data.dispersion = uDispersion;
       #endif
       getTransmission(data);
+    #endif
+    #ifdef USE_VOLUME
       getThickness(data);
+      getAttenuation(data);
+    #endif
+    #ifdef USE_DIFFUSE_TRANSMISSION
+      getDiffuseTransmission(data);
     #endif
 
     #ifdef USE_OCCLUSION_TEXTURE

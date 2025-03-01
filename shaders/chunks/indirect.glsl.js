@@ -134,6 +134,14 @@ export default /* glsl */ `
     vec3 diffuseIrradiance = getIrradiance(data.normalWorld, uReflectionMap, uReflectionMapSize, uReflectionMapEncoding);
     vec3 Fd = data.diffuseColor * diffuseIrradiance * ao;
 
+    #ifdef USE_DIFFUSE_TRANSMISSION
+      vec3 diffuseTransmissionIBL = getIrradiance(-data.normalWorld, uReflectionMap, uReflectionMapSize, uReflectionMapEncoding) * data.diffuseTransmissionColor;
+      #ifdef USE_VOLUME
+        diffuseTransmissionIBL = applyVolumeAttenuation(diffuseTransmissionIBL, data.diffuseTransmissionThickness, data.attenuationColor, data.attenuationDistance);
+      #endif
+      Fd = mix(Fd, diffuseTransmissionIBL, data.diffuseTransmission);
+    #endif
+
     vec3 specularReflectance = EnvBRDFApprox(data.f0, data.f90, data.roughness, data.NdotV);
     vec3 prefilteredRadiance = getPrefilteredReflection(data.reflectionWorld, data.roughness);
 

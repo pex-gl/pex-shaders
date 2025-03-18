@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0-alpha.34](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.33...v1.0.0-alpha.34) (2025-03-18)
+
+
+### Bug Fixes
+
+* check for attenuationDistance at infinity ([06bd896](https://github.com/pex-gl/pex-shaders/commit/06bd8968510949fab4b9f87e6ed98235d29a0251))
+* decode specular color texture as SRGB ([d6c75b2](https://github.com/pex-gl/pex-shaders/commit/d6c75b2499698330c8baad6b6fa53f807f15b506))
+
+
+### Features
+
+* add diffuse transmission ([25cd99c](https://github.com/pex-gl/pex-shaders/commit/25cd99cbf6ed6ac12be667c33b9632956f81a83d))
+
+
+### Performance Improvements
+
+* remove transpose call from quatToMat4 ([14419a2](https://github.com/pex-gl/pex-shaders/commit/14419a2ac781e1ecea5c589aa57efa2efb67df32)), closes [#23](https://github.com/pex-gl/pex-shaders/issues/23)
+
+
+
 # [1.0.0-alpha.33](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.32...v1.0.0-alpha.33) (2024-09-19)
 
 

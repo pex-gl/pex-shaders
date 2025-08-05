@@ -98,6 +98,26 @@ void main() {
     vTexCoord1 = aTexCoord1;
   #endif
 
+  #ifdef USE_INSTANCED_OFFSET
+    vec3 offset = aOffset;
+  #endif
+
+  #ifdef USE_INSTANCED_SCALE
+    vec3 scale = aScale;
+  #endif
+
+  #ifdef USE_INSTANCED_ROTATION
+    vec4 rotation = aRotation;
+  #endif
+
+  #ifdef USE_INSTANCED_COLOR
+    vec4 color = aColor;
+  #endif
+
+  #ifdef USE_VERTEX_COLORS
+    vec4 vertexColor = aVertexColor;
+  #endif
+
   #define HOOK_VERT_BEFORE_TRANSFORM
 
   #ifdef USE_DISPLACEMENT_TEXTURE
@@ -106,28 +126,28 @@ void main() {
   #endif
 
   #ifdef USE_INSTANCED_SCALE
-    position.xyz *= aScale;
+    position.xyz *= scale;
   #endif
 
   #ifdef USE_INSTANCED_ROTATION
-    mat4 rotationMat = quatToMat4(aRotation);
+    mat4 rotationMat = quatToMat4(rotation);
     position = rotationMat * position;
     normal = vec3(rotationMat * vec4(normal, 0.0));
   #endif
 
   #ifdef USE_INSTANCED_OFFSET
-    position.xyz += aOffset;
+    position.xyz += offset;
   #endif
 
   #if defined(USE_VERTEX_COLORS) && defined(USE_INSTANCED_COLOR)
-    vColor = aVertexColor * aColor;
+    vColor = vertexColor * color;
   #else
     #ifdef USE_INSTANCED_COLOR
-      vColor = aColor;
+      vColor = color;
     #endif
 
     #ifdef USE_VERTEX_COLORS
-      vColor = aVertexColor;
+      vColor = vertexColor;
     #endif
   #endif
 

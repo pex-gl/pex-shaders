@@ -46,32 +46,52 @@ ${SHADERS.math.quatToMat4}
 void main() {
   vec4 position = vec4(aPosition, 1.0);
 
-  #define HOOK_VERT_BEFORE_TRANSFORM
+  #ifdef USE_INSTANCED_OFFSET
+    vec3 offset = aOffset;
+  #endif
 
   #ifdef USE_INSTANCED_SCALE
-    position.xyz *= aScale;
+    vec3 scale = aScale;
   #endif
 
   #ifdef USE_INSTANCED_ROTATION
-    mat4 rotationMat = quatToMat4(aRotation);
+    vec4 rotation = aRotation;
+  #endif
+
+  #ifdef USE_INSTANCED_COLOR
+    vec4 color = aColor;
+  #endif
+
+  #ifdef USE_VERTEX_COLORS
+    vec4 vertexColor = aVertexColor;
+  #endif
+
+  #define HOOK_VERT_BEFORE_TRANSFORM
+
+  #ifdef USE_INSTANCED_SCALE
+    position.xyz *= scale;
+  #endif
+
+  #ifdef USE_INSTANCED_ROTATION
+    mat4 rotationMat = quatToMat4(rotation);
     position = rotationMat * position;
   #endif
 
   #ifdef USE_INSTANCED_OFFSET
-    position.xyz += aOffset;
+    position.xyz += offset;
   #endif
 
   vec4 positionWorld = uModelMatrix * position;
 
 #if defined(USE_VERTEX_COLORS) && defined(USE_INSTANCED_COLOR)
-  vColor = aVertexColor * aColor;
+  vColor = vertexColor * color;
 #else
   #ifdef USE_INSTANCED_COLOR
-    vColor = aColor;
+    vColor = color;
   #endif
 
   #ifdef USE_VERTEX_COLORS
-    vColor = aVertexColor;
+    vColor = vertexColor;
   #endif
 #endif
 

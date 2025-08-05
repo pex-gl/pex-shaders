@@ -107,6 +107,26 @@ void main() {
   vTexCoord1 = aTexCoord1;
 #endif
 
+#ifdef USE_INSTANCED_OFFSET
+  vec3 offset = aOffset;
+#endif
+
+#ifdef USE_INSTANCED_SCALE
+  vec3 scale = aScale;
+#endif
+
+#ifdef USE_INSTANCED_ROTATION
+  vec4 rotation = aRotation;
+#endif
+
+#ifdef USE_INSTANCED_COLOR
+  vec4 color = aColor;
+#endif
+
+#ifdef USE_VERTEX_COLORS
+  vec4 vertexColor = aVertexColor;
+#endif
+
 #define HOOK_VERT_BEFORE_TRANSFORM
 
 #ifdef USE_DISPLACEMENT_TEXTURE
@@ -116,25 +136,23 @@ void main() {
 
 #ifndef USE_SKIN
   #ifdef USE_INSTANCED_SCALE
-    position.xyz *= aScale;
+    position.xyz *= scale;
   #endif
 
   #ifdef USE_INSTANCED_ROTATION
-    mat4 rotationMat = quatToMat4(aRotation);
+    mat4 rotationMat = quatToMat4(rotation);
     position = rotationMat * position;
 
     normal = vec3(rotationMat * vec4(normal, 0.0));
   #endif
 
   #ifdef USE_INSTANCED_OFFSET
-    position.xyz += aOffset;
+    position.xyz += offset;
   #endif
 
   vec4 positionWorld = uModelMatrix * position;
   vNormalView = uNormalMatrix * normal;
-#endif
-
-#ifdef USE_SKIN
+#else
   vec4 positionWorld = uModelMatrix * position;
 
   mat4 skinMat =
@@ -148,38 +166,36 @@ void main() {
   positionWorld = skinMat * position;
 
   #ifdef USE_INSTANCED_SCALE
-  positionWorld.xyz *= aScale;
+    positionWorld.xyz *= scale;
   #endif
 
   #ifdef USE_INSTANCED_ROTATION
-    mat4 rotationMat = quatToMat4(aRotation);
+    mat4 rotationMat = quatToMat4(rotation);
     positionWorld = rotationMat * positionWorld;
 
     normal = vec3(rotationMat * vec4(normal, 0.0));
   #endif
 
   #ifdef USE_INSTANCED_OFFSET
-  positionWorld.xyz += aOffset;
+    positionWorld.xyz += offset;
   #endif
 
   #ifdef USE_TANGENTS
-  tangent = skinMat * vec4(tangent.xyz, 0.0);
+    tangent = skinMat * vec4(tangent.xyz, 0.0);
   #endif
 
   vNormalView = vec3(uViewMatrix * vec4(normal, 0.0));
-#else
-
 #endif
 
 #if defined(USE_VERTEX_COLORS) && defined(USE_INSTANCED_COLOR)
-  vColor = aVertexColor * aColor;
+  vColor = vertexColor * color;
 #else
   #ifdef USE_INSTANCED_COLOR
-    vColor = aColor;
+    vColor = color;
   #endif
 
   #ifdef USE_VERTEX_COLORS
-    vColor = aVertexColor;
+    vColor = vertexColor;
   #endif
 #endif
 

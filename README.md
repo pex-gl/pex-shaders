@@ -245,10 +245,6 @@ Get a formatted error pointing at the issue line
 ## chunks
 
 - [chunks](#module_chunks)
-  - [.colorCorrection](#module_chunks.colorCorrection) : <code>string</code>
-  - [.filmGrain](#module_chunks.filmGrain) : <code>string</code>
-  - [.fog](#module_chunks.fog) : <code>string</code>
-  - [.fxaa](#module_chunks.fxaa) : <code>string</code>
   - [.output](#module_chunks.output) : <code>object</code>
   - [.math](#module_chunks.math) : <code>object</code>
   - [.encodeDecode](#module_chunks.encodeDecode) : <code>string</code>
@@ -292,56 +288,12 @@ Get a formatted error pointing at the issue line
   - [.filmGrain](#module_chunks.filmGrain) : <code>string</code>
   - [.lut](#module_chunks.lut) : <code>string</code>
   - [.vignette](#module_chunks.vignette) : <code>string</code>
+  - [.colorCorrection](#module_chunks.colorCorrection) : <code>string</code>
+  - [.filmGrain](#module_chunks.filmGrain) : <code>string</code>
+  - [.fog](#module_chunks.fog) : <code>string</code>
+  - [.fxaa](#module_chunks.fxaa) : <code>string</code>
   - [.noise](#module_chunks.noise) : <code>object</code>
 
-<a name="module_chunks.colorCorrection"></a>
-
-### chunks.colorCorrection : <code>string</code>
-
-Color Correction
-
-https://github.com/CesiumGS/cesium/blob/master/Source/Shaders/Builtin/Functions
-
-**Kind**: static property of [<code>chunks</code>](#module_chunks)
-<a name="module_chunks.filmGrain"></a>
-
-### chunks.filmGrain : <code>string</code>
-
-Film Grain
-
-Reference Implementations:
-
-- https://devlog-martinsh.blogspot.com/2013/05/image-imperfections-and-film-grain-post.html
-- https://www.shadertoy.com/view/4sSXDW
-
-**Kind**: static property of [<code>chunks</code>](#module_chunks)
-<a name="module_chunks.fog"></a>
-
-### chunks.fog : <code>string</code>
-
-Fog
-
-Adapted from from Iñigo Quilez article: https://iquilezles.org/articles/fog/
-
-**Kind**: static property of [<code>chunks</code>](#module_chunks)
-<a name="module_chunks.fxaa"></a>
-
-### chunks.fxaa : <code>string</code>
-
-FXAA
-
-Paper:
-
-- https://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf
-
-Reference Implementations:
-
-- https://blog.simonrodriguez.fr/articles/2016/07/implementing_fxaa.html
-- https://gist.github.com/kosua20/0c506b81b3812ac900048059d2383126
-
-Updates: Damien Seguin (2023-10)
-
-**Kind**: static property of [<code>chunks</code>](#module_chunks)
 <a name="module_chunks.output"></a>
 
 ### chunks.output : <code>object</code>
@@ -555,6 +507,54 @@ Updates: Damien Seguin (2023-10)
 <a name="module_chunks.vignette"></a>
 
 ### chunks.vignette : <code>string</code>
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.colorCorrection"></a>
+
+### chunks.colorCorrection : <code>string</code>
+
+Color Correction
+
+https://github.com/CesiumGS/cesium/blob/master/Source/Shaders/Builtin/Functions
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.filmGrain"></a>
+
+### chunks.filmGrain : <code>string</code>
+
+Film Grain
+
+Reference Implementations:
+
+- https://devlog-martinsh.blogspot.com/2013/05/image-imperfections-and-film-grain-post.html
+- https://www.shadertoy.com/view/4sSXDW
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.fog"></a>
+
+### chunks.fog : <code>string</code>
+
+Fog
+
+Adapted from from Iñigo Quilez article: https://iquilezles.org/articles/fog/
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.fxaa"></a>
+
+### chunks.fxaa : <code>string</code>
+
+FXAA
+
+Paper:
+
+- https://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf
+
+Reference Implementations:
+
+- https://blog.simonrodriguez.fr/articles/2016/07/implementing_fxaa.html
+- https://gist.github.com/kosua20/0c506b81b3812ac900048059d2383126
+
+Updates: Damien Seguin (2023-10)
 
 **Kind**: static property of [<code>chunks</code>](#module_chunks)
 <a name="module_chunks.noise"></a>

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [1.0.0](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.34...v1.0.0) (2025-08-22)
+
+
+### Features
+
+* unpack instanced attributes before hook in standard vertex shader ([eafca80](https://github.com/pex-gl/pex-shaders/commit/eafca8077faf15f2203cd30a79b9acbf36efd801)), closes [#25](https://github.com/pex-gl/pex-shaders/issues/25)
+
+
+
 # [1.0.0-alpha.34](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.33...v1.0.0-alpha.34) (2025-03-18)
 
 

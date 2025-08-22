@@ -1,38 +1,95 @@
-export default /* glsl */ `
-uniform float uReflectance;
-
-// TODO: used by clearCoat
+// Distribution:
 // https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf
-// Distribution
 // Walter et al. 2007, "Microfacet Models for Refraction through Rough Surfaces"
-float D_GGX(float linearRoughness, float NoH, const vec3 h, const vec3 normalWorld) {
+// Used by: clearCoat
+const D_GGX = /* glsl */ `
+float D_GGX(float linearRoughness, float NoH) {
   float oneMinusNoHSquared = 1.0 - NoH * NoH;
-
   float a = NoH * linearRoughness;
   float k = linearRoughness / (oneMinusNoHSquared + a * a);
   float d = k * k * (1.0 / PI);
   return saturateMediump(d);
 }
+`;
+// TODO: use optimised version
+// The following equation(s) model the distribution of microfacet normals across the area being drawn (aka D())
+// Implementation from "Average Irregularity Representation of a Roughened Surface for Ray Reflection" by T. S. Trowbridge, and K. P. Reitz
+// Follows the distribution function recommended in the SIGGRAPH 2013 course notes from EPIC Games [1], Equation 3.
+// float D_GGX(float NdotH, float alphaRoughness) {
+//   float alphaRoughnessSq = alphaRoughness * alphaRoughness;
+//   float f = (NdotH * NdotH) * (alphaRoughnessSq - 1.0) + 1.0;
+//   return alphaRoughnessSq / (PI * f * f);
+// }
 
-// TODO: Used by clearCoat
+// Estevez and Kulla 2017, "Production Friendly Microfacet Sheen BRDF"
+// https://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017_pbs_imageworks_sheen.pdf
+// https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_sheen/README.md#sheen-distribution
+// Used by: sheen
+const D_Charlie = /* glsl */ `
+float D_Charlie(float linearRoughness, float NoH) {
+  float invAlpha  = 1.0 / linearRoughness;
+  float cos2h = NoH * NoH;
+  // float sin2h = max(1.0 - cos2h, 0.0078125); // 2^(-14/2), so sin2h^2 > 0 in fp16
+  float sin2h = 1.0 - cos2h;
+  return (2.0 + invAlpha) * pow(sin2h, invAlpha * 0.5) / (2.0 * PI);
+}
+`;
+
+// Visibility:
 // Kelemen 2001, "A Microfacet Based Coupled Specular-Matte BRDF Model with Importance Sampling"
+// Used by: clearCoat
+const V_Kelemen = /* glsl */ `
 float V_Kelemen(float LoH) {
   return saturateMediump(0.25 / (LoH * LoH));
 }
+`;
 
-
-// TODO: used by clearCoat e.g. in indirect.glsl.js
-float F_Schlick(float f0, float f90, float VoH) {
-  return f0 + (f90 - f0) * pow(1.0 - VoH, 5.0);
+// Estevez and Kulla 2017, "Production Friendly Microfacet Sheen BRDF"
+// https://blog.selfshadow.com/publications/s2017-shading-course/imageworks/s2017_pbs_imageworks_sheen.pdf
+// https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_sheen/README.md#sheen-distribution
+// Used by: sheen
+const V_Charlie = /* glsl */ `
+float Sheen_l(float x, float alphaG) {
+  float oneMinusAlphaSq = (1.0 - alphaG) * (1.0 - alphaG);
+  float a = mix(21.5473, 25.3245, oneMinusAlphaSq);
+  float b = mix(3.82987, 3.32435, oneMinusAlphaSq);
+  float c = mix(0.19823, 0.16801, oneMinusAlphaSq);
+  float d = mix(-1.97760, -1.27393, oneMinusAlphaSq);
+  float e = mix(-4.32054, -4.85967, oneMinusAlphaSq);
+  return a / (1.0 + b * pow(x, c)) + d * x + e;
 }
+float lambdaSheen(float cosTheta, float alphaG) {
+  return abs(cosTheta) < 0.5 ? exp(Sheen_l(cosTheta, alphaG)) : exp(2.0 * Sheen_l(0.5, alphaG) - Sheen_l(1.0 - cosTheta, alphaG));
+}
+float V_Charlie(float linearRoughness, float NdotV, float NdotL, float NdotH) {
+  return 1.0 / ((1.0 + lambdaSheen(NdotV, linearRoughness) + lambdaSheen(NdotL, linearRoughness)) * (4.0 * NdotV * NdotL));
+}
+`;
+// Alternative to V_Charlie (but non energy conserving for albedo scaling):
+// float V_Neubelt(float NdotV, float NdotL, float NdotH) {
+//   return 1.0 / (4.0 * (NdotL + NdotV - NdotL * NdotV));
+// }
 
-// Diffuse
+// Fresnel:
+// Assumes an air-polyurethane interface with a fixed IOR of 1.5 (4% reflectance, IOR = 1.5 -> F0 = 0.04).
+// Used by: clearCoat
+const F_SchlickClearCoat = /* glsl */ `
+float F_SchlickClearCoat(float VoH) {
+  return 0.04 + 0.96 * pow(1.0 - VoH, 5.0);
+}
+`;
+
+// Diffuse:
+const DiffuseLambert = /* glsl */ `
 float DiffuseLambert() {
   return 1.0 / PI;
 }
+`;
 
+// Base layer:
 // GGX, Trowbridge-Reitz
 // Same as glTF2.0 PBR Spec
+const MicrofacetDistribution = /* glsl */ `
 float MicrofacetDistribution(float linearRoughness, float NdotH) {
   float a2 = linearRoughness * linearRoughness;
   float NdotH2 = NdotH * NdotH;
@@ -47,13 +104,23 @@ float MicrofacetDistribution(float linearRoughness, float NdotH) {
     return 1.0;
   }
 }
+`;
 
 // FresnelSchlick
 // Same as glTF2.0 PBR Spec
+const SpecularReflection = /* glsl */ `
 vec3 SpecularReflection(vec3 specularColor, float HdotV) {
   float cosTheta = HdotV;
   return specularColor + (1.0 - specularColor) * pow(1.0 - cosTheta, 5.0);
 }
+`;
+// TODO: use optimised version
+// Scalar optimization of the specular F term
+// https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf/fresnel(specularf)
+// vec3 F_Schlick(const vec3 f0, float VoH) {
+//   float f = pow(1.0 - VoH, 5.0);
+//   return f + f0 * (1.0 - f);
+// }
 
 // Smith Joint GGX
 // Sometimes called Smith GGX Correlated
@@ -61,6 +128,7 @@ vec3 SpecularReflection(vec3 specularColor, float HdotV) {
 // see Eric Heitz. 2014. Understanding the Masking-Shadowing Function in Microfacet-Based BRDFs. Journal of Computer Graphics Techniques, 3
 // see Real-Time Rendering. Page 331 to 336.
 // see https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf/geometricshadowing(specularg)
+const VisibilityOcclusion = /* glsl */ `
 float VisibilityOcclusion(float linearRoughness, float NdotL, float NdotV) {
   float linearRoughnessSq = linearRoughness * linearRoughness;
 
@@ -73,5 +141,17 @@ float VisibilityOcclusion(float linearRoughness, float NdotL, float NdotV) {
   }
   return 0.0;
 }
+`;
 
+export default /* glsl */ `
+${D_GGX}
+${D_Charlie}
+${V_Kelemen}
+${V_Charlie}
+${F_SchlickClearCoat}
+
+${DiffuseLambert}
+${MicrofacetDistribution}
+${SpecularReflection}
+${VisibilityOcclusion}
 `;

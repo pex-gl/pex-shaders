@@ -1,15 +1,20 @@
+/**
+ * Fog
+ *
+ * Adapted from from Iñigo Quilez article: https://iquilezles.org/articles/fog/
+ * @alias module:chunks.fog
+ * @type {string}
+ */
 export default /* glsl */ `
-uniform float       uFogDensity;
+uniform float uFogDensity;
 
-uniform vec3        uSunColor;
-uniform float       uSunDispertion;
-uniform float       uSunIntensity;
-uniform vec3        uInscatteringCoeffs;
-uniform vec3        uFogColor;
+uniform vec3 uSunColor;
+uniform float uSunDispertion;
+uniform float uSunIntensity;
+uniform vec3 uInscatteringCoeffs;
+uniform vec3 uFogColor;
 
-// Fog adapted from from Iñigo Quilez article on fog
-// http://www.iquilezles.org/www/articles/fog/fog.htm
-vec4 fog(vec3 rgb, float dist, vec3 rayDir, vec3 sunDir) {
+vec3 fog(vec3 rgb, float dist, vec3 rayDir, vec3 sunDir) {
   vec3 sunColor = toLinear(uSunColor).rgb;
   vec3 fogColor = toLinear(uFogColor).rgb;
 
@@ -19,12 +24,12 @@ vec4 fog(vec3 rgb, float dist, vec3 rayDir, vec3 sunDir) {
   sunAmount           = uSunIntensity * 10.0 * pow(sunAmount,10.0);
   sunAmount           = max(0.0, min(sunAmount, 1.0));
   vec3 sunFogColor    = mix(fogColor, sunColor, sunAmount);
-  vec3 insColor       = vec3(1.0) - clamp( vec3(
+  vec3 insColor       = vec3(1.0) - saturate( vec3(
         exp(density*(uInscatteringCoeffs.x+minSc)),
         exp(density*(uInscatteringCoeffs.y+minSc)),
-        exp(density*(uInscatteringCoeffs.z+minSc))),
-      vec3(0), vec3(1));
+        exp(density*(uInscatteringCoeffs.z+minSc)))
+      );
 
-  return vec4(mix(rgb, sunFogColor, insColor), 1.0);
+  return mix(rgb, sunFogColor, insColor);
 }
 `;

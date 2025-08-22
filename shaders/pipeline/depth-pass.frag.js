@@ -1,7 +1,13 @@
-import SHADERS from "../chunks/index.js";
+import * as SHADERS from "../chunks/index.js";
 
+/**
+ * @alias module:pipeline.depthPass.frag
+ * @type {string}
+ */
 export default /* glsl */ `
 precision highp float;
+
+${SHADERS.output.frag}
 
 // Variables
 varying vec3 vNormalView;
@@ -27,6 +33,8 @@ ${SHADERS.baseColor}
 ${SHADERS.alpha}
 ${SHADERS.depthPack}
 
+#define HOOK_FRAG_DECLARATIONS_END
+
 void main() {
   PBRData data;
   data.texCoord0 = vTexCoord0;
@@ -37,20 +45,23 @@ void main() {
 
   getBaseColor(data);
 
-  #ifdef USE_ALPHA_MAP
-    #ifdef ALPHA_MAP_TEX_COORD_TRANSFORM
-      vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_MAP_TEX_COORD_INDEX, uAlphaMapTexCoordTransform);
+  #ifdef USE_ALPHA_TEXTURE
+    #ifdef ALPHA_TEXTURE_MATRIX
+      vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_TEXTURE_TEX_COORD, uAlphaTextureMatrix);
     #else
-      vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_MAP_TEX_COORD_INDEX);
+      vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_TEXTURE_TEX_COORD);
     #endif
-    data.opacity *= texture2D(uAlphaMap, alphaTexCoord).r;
+    data.opacity *= texture2D(uAlphaTexture, alphaTexCoord).r;
   #endif
 
   #ifdef USE_ALPHA_TEST
     alphaTest(data);
   #endif
 
-  float far = 10.0; // TODO: hardcoded far for depth pass
-  gl_FragColor = packDepth(length(vPositionView) / far);
+  gl_FragColor = packDepth(length(vPositionView) / DEPTH_PACK_FAR);
+
+  ${SHADERS.output.assignment}
+
+  #define HOOK_FRAG_END
 }
 `;

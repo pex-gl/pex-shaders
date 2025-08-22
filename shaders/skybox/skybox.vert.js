@@ -1,7 +1,15 @@
-import SHADERS from "../chunks/index.js";
+import * as SHADERS from "../chunks/index.js";
 
-// Based on http://gamedev.stackexchange.com/questions/60313/implementing-a-skybox-with-glsl-version-330
+/**
+ * Skybox
+ *
+ * Based on http://gamedev.stackexchange.com/questions/60313/implementing-a-skybox-with-glsl-version-330
+ * @alias module:skybox.skybox.vert
+ * @type {string}
+ */
 export default /* glsl */ `
+${SHADERS.output.vert}
+
 attribute vec2 aPosition;
 
 ${SHADERS.math.inverseMat4}

@@ -1,17 +1,26 @@
+import * as SHADERS from "../chunks/index.js";
+
+/**
+ * @alias module:reflectionProbe.blitToOctMapAtlas.frag
+ * @type {string}
+ */
 export default /* glsl */ `
 precision highp float;
 
-varying vec2 vTexCoord;
+${SHADERS.output.frag}
 
-uniform float uLevelSize;
-uniform sampler2D uSource;
-uniform float uSourceSize;
+uniform sampler2D uOctMap;
+uniform float uOctMapSize;
 uniform float uSourceRegionSize;
 
-void main() {
-  vec2 uv = vTexCoord;
-  uv *= uSourceRegionSize / uSourceSize;
+varying vec2 vTexCoord0;
 
-  gl_FragColor = texture2D(uSource, uv);
+void main() {
+  vec2 uv = vTexCoord0;
+  uv *= uSourceRegionSize / uOctMapSize;
+
+  gl_FragColor = texture2D(uOctMap, uv);
+
+  ${SHADERS.output.assignment}
 }
 `;

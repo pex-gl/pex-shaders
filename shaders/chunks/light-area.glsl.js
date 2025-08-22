@@ -1,227 +1,95 @@
+// Real-Time Polygonal-Light Shading with Linearly Transformed Cosines.
+// Eric Heitz, Jonathan Dupuy, Stephen Hill and David Neubelt.
+// ACM Transactions on Graphics (Proceedings of ACM SIGGRAPH 2016) 35(4), 2016.
+// Project page: https://eheitzresearch.wordpress.com/415-2/
 export default /* glsl */ `
 #if NUM_AREA_LIGHTS > 0
 
 struct AreaLight {
-    vec3 position;
-    vec2 size;
-    vec4 color;
-    float intensity;
-    vec4 rotation;
+  vec3 position;
+  vec4 color;
+  vec4 rotation;
+  vec2 size;
+  bool disk;
+  bool doubleSided;
+
+  mat4 projectionMatrix;
+  mat4 viewMatrix;
+  bool castShadows;
+  float near;
+  float far;
+  float bias;
+  vec2 radiusUV;
+  vec2 shadowMapSize;
 };
 
 uniform AreaLight uAreaLights[NUM_AREA_LIGHTS];
+uniform sampler2D uAreaLightShadowMaps[NUM_AREA_LIGHTS];
 
-uniform sampler2D ltc_mat;
-uniform sampler2D ltc_mag;
+const bool clipless = false;
+const bool groundTruth = false;
 
-uniform mat4  view;
+uniform sampler2D ltc_1;
+uniform sampler2D ltc_2;
 
-const vec2  resolution = vec2(1280.0, 720.0);
+const float LUT_SIZE  = 64.0;
+const float LUT_SCALE = (LUT_SIZE - 1.0)/LUT_SIZE;
+const float LUT_BIAS  = 0.5/LUT_SIZE;
 
-const int   sampleCount = 4;
+// Disk
+const int NUM_SAMPLES = 8;
+const int sampleCount = 4;
+const float pi = 3.14159265;
+const float NO_HIT = 1e9;
 
-const int   NUM_SAMPLES_3020430251 = 8;
-const float LUT_SIZE_3020430251  = 64.0;
-const float LUT_SCALE_3020430251 = (LUT_SIZE_3020430251 - 1.0)/LUT_SIZE_3020430251;
-const float LUT_BIAS_3020430251  = 0.5/LUT_SIZE_3020430251;
-const float pi_0 = 3.14159265;
-
-// Tracing and intersection
-///////////////////////////
-///
-///
 struct Ray
 {
     vec3 origin;
     vec3 dir;
 };
 
-struct Rect
+struct Disk
 {
-    vec3  origin;
+    vec3  center;
+    vec3  dirx;
+    vec3  diry;
+    float halfx;
+    float halfy;
+
     vec4  plane;
-    float sizex;
-    float sizey;
 };
 
-bool RayPlaneIntersect(Ray ray, vec4 plane, out float t)
+float RayPlaneIntersect(Ray ray, vec4 plane)
 {
-    t = -dot(plane, vec4(ray.origin, 1.0))/dot(plane.xyz, ray.dir);
-    return t > 0.0;
+    float t = -dot(plane, vec4(ray.origin, 1.0))/dot(plane.xyz, ray.dir);
+    return (t > 0.0) ? t : NO_HIT;
 }
 
-bool RayRectIntersect(Ray ray, Rect rect, out float t)
+float sqr(float x) { return x*x; }
+
+float RayDiskIntersect(Ray ray, Disk disk)
 {
-    bool intersect = RayPlaneIntersect(ray, rect.plane, t);
-    if (intersect)
+    float t = RayPlaneIntersect(ray, disk.plane);
+    if (t != NO_HIT)
     {
-        vec3 pos = ray.origin + ray.dir*t;
-        vec3 lpos = pos - rect.origin;
-        if (abs(lpos.x) > rect.sizex || abs(lpos.y) > rect.sizey)
-            intersect = false;
+        vec3 pos  = ray.origin + ray.dir*t;
+        vec3 lpos = pos - disk.center;
+
+        float x = dot(lpos, disk.dirx);
+        float y = dot(lpos, disk.diry);
+
+        if (sqr(x/disk.halfx) + sqr(y/disk.halfy) > 1.0)
+            t = NO_HIT;
     }
 
-    return intersect;
+    return t;
 }
 
-// Adapted from:
-// https://www.shadertoy.com/view/4djSRW
-float hash(float x, float y)
+mat3 mat3_from_columns(vec3 c0, vec3 c1, vec3 c2)
 {
-    vec2 p = vec2(x, y);
-    p  = fract(p * vec2(443.8975, 397.2973));
-    p += dot(p.xy, p.yx + 19.19);
-    return fract(p.x + p.y);
+    mat3 m = mat3(c0, c1, c2);
+    return m;
 }
-
-//TODO: which coordinate space?
-Ray GenerateCameraRay(float u1, float u2)
-{
-    Ray ray;
-
-    // Random jitter within pixel for AA, huh? what jitter
-    vec2 xy = 2.0*(gl_FragCoord.xy)/resolution - vec2(1.0);
-
-    ray.dir = normalize(vec3(xy, 2.0));
-
-    float focalDistance = 2.0;
-    float ft = focalDistance/ray.dir.z;
-    vec3 pFocus = ray.dir*ft;
-
-    ray.origin = vec3(0);
-    ray.dir    = normalize(pFocus - ray.origin);
-
-    // Apply camera transform
-    ray.origin = (view*vec4(ray.origin, 1)).xyz;
-    ray.dir    = (view*vec4(ray.dir,    0)).xyz;
-
-    return ray;
-}
-
-vec3 mul(mat3 m, vec3 v)
-{
-    return m * v;
-}
-
-mat3 mul(mat3 m1, mat3 m2)
-{
-    return m1 * m2;
-}
-
-int modi(int x, int y)
-{
-    return int(mod(float(x), float(y)));
-}
-
-#if (__VERSION__ < 300)
-mat3 transpose(mat3 v)
-{
-    mat3 tmp;
-    tmp[0] = vec3(v[0].x, v[1].x, v[2].x);
-    tmp[1] = vec3(v[0].y, v[1].y, v[2].y);
-    tmp[2] = vec3(v[0].z, v[1].z, v[2].z);
-
-    return tmp;
-}
-#endif
-
-struct SphQuad
-{
-    vec3 o, x, y, z;
-    float z0, z0sq;
-    float x0, y0, y0sq;
-    float x1, y1, y1sq;
-    float b0, b1, b0sq, k;
-    float S;
-};
-
-SphQuad SphQuadInit(vec3 s, vec3 ex, vec3 ey, vec3 o)
-{
-    SphQuad squad;
-
-    squad.o = o;
-    float exl = length(ex);
-    float eyl = length(ey);
-
-    // compute local reference system ’R’
-    squad.x = ex / exl;
-    squad.y = ey / eyl;
-    squad.z = cross(squad.x, squad.y);
-
-    // compute rectangle coords in local reference system
-    vec3 d = s - o;
-    squad.z0 = dot(d, squad.z);
-
-    // flip ’z’ to make it point against ’Q’
-    if (squad.z0 > 0.0)
-    {
-        squad.z  *= -1.0;
-        squad.z0 *= -1.0;
-    }
-
-    squad.z0sq = squad.z0 * squad.z0;
-    squad.x0 = dot(d, squad.x);
-    squad.y0 = dot(d, squad.y);
-    squad.x1 = squad.x0 + exl;
-    squad.y1 = squad.y0 + eyl;
-    squad.y0sq = squad.y0 * squad.y0;
-    squad.y1sq = squad.y1 * squad.y1;
-
-    // create vectors to four vertices
-    vec3 v00 = vec3(squad.x0, squad.y0, squad.z0);
-    vec3 v01 = vec3(squad.x0, squad.y1, squad.z0);
-    vec3 v10 = vec3(squad.x1, squad.y0, squad.z0);
-    vec3 v11 = vec3(squad.x1, squad.y1, squad.z0);
-
-    // compute normals to edges
-    vec3 n0 = normalize(cross(v00, v10));
-    vec3 n1 = normalize(cross(v10, v11));
-    vec3 n2 = normalize(cross(v11, v01));
-    vec3 n3 = normalize(cross(v01, v00));
-
-    // compute internal angles (gamma_i)
-    float g0 = acos(-dot(n0, n1));
-    float g1 = acos(-dot(n1, n2));
-    float g2 = acos(-dot(n2, n3));
-    float g3 = acos(-dot(n3, n0));
-
-    // compute predefined constants
-    squad.b0 = n0.z;
-    squad.b1 = n2.z;
-    squad.b0sq = squad.b0 * squad.b0;
-    squad.k = 2.0*pi_0 - g2 - g3;
-
-    // compute solid angle from internal angles
-    squad.S = g0 + g1 - squad.k;
-
-    return squad;
-}
-
-vec3 SphQuadSample(SphQuad squad, float u, float v)
-{
-    // 1. compute 'cu'
-    float au = u * squad.S + squad.k;
-    float fu = (cos(au) * squad.b0 - squad.b1) / sin(au);
-    float cu = 1.0 / sqrt(fu*fu + squad.b0sq) * (fu > 0.0 ? 1.0 : -1.0);
-    cu = clamp(cu, -1.0, 1.0); // avoid NaNs
-
-    // 2. compute 'xu'
-    float xu = -(cu * squad.z0) / sqrt(1.0 - cu * cu);
-    xu = clamp(xu, squad.x0, squad.x1); // avoid Infs
-
-    // 3. compute 'yv'
-    float d = sqrt(xu * xu + squad.z0sq);
-    float h0 = squad.y0 / sqrt(d*d + squad.y0sq);
-    float h1 = squad.y1 / sqrt(d*d + squad.y1sq);
-    float hv = h0 + v * (h1 - h0), hv2 = hv * hv;
-    float yv = (hv2 < 1.0 - 1e-6) ? (hv * d) / sqrt(1.0 - hv2) : squad.y1;
-
-    // 4. transform (xu, yv, z0) to world coords
-    return squad.o + xu*squad.x + yv*squad.y + squad.z0*squad.z;
-}
-
-// Sample generation
-////////////////////
 
 float Halton(int index, float base)
 {
@@ -240,27 +108,326 @@ float Halton(int index, float base)
     return result;
 }
 
-void Halton2D(out vec2 s[NUM_SAMPLES_3020430251], int offset)
+void Halton2D(out vec2 s[NUM_SAMPLES], int offset)
 {
-    for (int i = 0; i < NUM_SAMPLES_3020430251; i++)
+    for (int i = 0; i < NUM_SAMPLES; i++)
     {
         s[i].x = Halton(i + offset, 2.0);
         s[i].y = Halton(i + offset, 3.0);
     }
 }
 
-// Linearly Transformed Cosines
-///////////////////////////////
+Disk InitDisk(vec3 center, vec3 dirx, vec3 diry, float halfx, float halfy)
+{
+    Disk disk;
+
+    disk.center = center;
+    disk.dirx   = dirx;
+    disk.diry   = diry;
+    disk.halfx  = halfx;
+    disk.halfy  = halfy;
+
+    vec3 diskNormal = cross(disk.dirx, disk.diry);
+    disk.plane = vec4(diskNormal, -dot(diskNormal, disk.center));
+
+    return disk;
+}
+
+// An extended version of the implementation from
+// "How to solve a cubic equation, revisited"
+// http://momentsingraphics.de/?p=105
+vec3 SolveCubic(vec4 Coefficient)
+{
+    // Normalize the polynomial
+    Coefficient.xyz /= Coefficient.w;
+    // Divide middle coefficients by three
+    Coefficient.yz /= 3.0;
+
+    float A = Coefficient.w;
+    float B = Coefficient.z;
+    float C = Coefficient.y;
+    float D = Coefficient.x;
+
+    // Compute the Hessian and the discriminant
+    vec3 Delta = vec3(
+        -Coefficient.z*Coefficient.z + Coefficient.y,
+        -Coefficient.y*Coefficient.z + Coefficient.x,
+        dot(vec2(Coefficient.z, -Coefficient.y), Coefficient.xy)
+    );
+
+    float Discriminant = dot(vec2(4.0*Delta.x, -Delta.y), Delta.zy);
+
+    vec3 RootsA, RootsD;
+
+    vec2 xlc, xsc;
+
+    // Algorithm A
+    {
+        float A_a = 1.0;
+        float C_a = Delta.x;
+        float D_a = -2.0*B*Delta.x + Delta.y;
+
+        // Take the cubic root of a normalized complex number
+        float Theta = atan(sqrt(Discriminant), -D_a)/3.0;
+
+        float x_1a = 2.0*sqrt(-C_a)*cos(Theta);
+        float x_3a = 2.0*sqrt(-C_a)*cos(Theta + (2.0/3.0)*pi);
+
+        float xl;
+        if ((x_1a + x_3a) > 2.0*B)
+            xl = x_1a;
+        else
+            xl = x_3a;
+
+        xlc = vec2(xl - B, A);
+    }
+
+    // Algorithm D
+    {
+        float A_d = D;
+        float C_d = Delta.z;
+        float D_d = -D*Delta.y + 2.0*C*Delta.z;
+
+        // Take the cubic root of a normalized complex number
+        float Theta = atan(D*sqrt(Discriminant), -D_d)/3.0;
+
+        float x_1d = 2.0*sqrt(-C_d)*cos(Theta);
+        float x_3d = 2.0*sqrt(-C_d)*cos(Theta + (2.0/3.0)*pi);
+
+        float xs;
+        if (x_1d + x_3d < 2.0*C)
+            xs = x_1d;
+        else
+            xs = x_3d;
+
+        xsc = vec2(-D, xs + C);
+    }
+
+    float E =  xlc.y*xsc.y;
+    float F = -xlc.x*xsc.y - xlc.y*xsc.x;
+    float G =  xlc.x*xsc.x;
+
+    vec2 xmc = vec2(C*F - B*G, -B*F + C*E);
+
+    vec3 Root = vec3(xsc.x/xsc.y, xmc.x/xmc.y, xlc.x/xlc.y);
+
+    if (Root.x < Root.y && Root.x < Root.z)
+        Root.xyz = Root.yxz;
+    else if (Root.z < Root.x && Root.z < Root.y)
+        Root.xyz = Root.xzy;
+
+    return Root;
+}
+
+vec3 LTC_Evaluate(
+    vec3 N, vec3 V, vec3 P, mat3 Minv, vec3 points[4], bool twoSided, float u1, float u2)
+{
+    // construct orthonormal basis around N
+    vec3 T1, T2;
+    T1 = normalize(V - N*dot(V, N));
+    T2 = cross(N, T1);
+
+    // rotate area light in (T1, T2, N) basis
+    mat3 R = transpose(mat3(T1, T2, N));
+
+    // polygon (allocate 5 vertices for clipping)
+    vec3 L_[3];
+    L_[0] = R * (points[0] - P);
+    L_[1] = R * (points[1] - P);
+    L_[2] = R * (points[2] - P);
+
+    vec3 Lo_i = vec3(0);
+
+    // init ellipse
+    vec3 C  = 0.5 * (L_[0] + L_[2]);
+    vec3 V1 = 0.5 * (L_[1] - L_[2]);
+    vec3 V2 = 0.5 * (L_[1] - L_[0]);
+
+    C  = Minv * C;
+    V1 = Minv * V1;
+    V2 = Minv * V2;
+
+    if(!twoSided && dot(cross(V1, V2), C) < 0.0)
+        return vec3(0.0);
+
+    // compute eigenvectors of ellipse
+    float a, b;
+    float d11 = dot(V1, V1);
+    float d22 = dot(V2, V2);
+    float d12 = dot(V1, V2);
+    if (abs(d12)/sqrt(d11*d22) > 0.0001)
+    {
+        float tr = d11 + d22;
+        float det = -d12*d12 + d11*d22;
+
+        // use sqrt matrix to solve for eigenvalues
+        det = sqrt(det);
+        float u = 0.5*sqrt(tr - 2.0*det);
+        float v = 0.5*sqrt(tr + 2.0*det);
+        float e_max = sqr(u + v);
+        float e_min = sqr(u - v);
+
+        vec3 V1_, V2_;
+
+        if (d11 > d22)
+        {
+            V1_ = d12*V1 + (e_max - d11)*V2;
+            V2_ = d12*V1 + (e_min - d11)*V2;
+        }
+        else
+        {
+            V1_ = d12*V2 + (e_max - d22)*V1;
+            V2_ = d12*V2 + (e_min - d22)*V1;
+        }
+
+        a = 1.0 / e_max;
+        b = 1.0 / e_min;
+        V1 = normalize(V1_);
+        V2 = normalize(V2_);
+    }
+    else
+    {
+        a = 1.0 / dot(V1, V1);
+        b = 1.0 / dot(V2, V2);
+        V1 *= sqrt(a);
+        V2 *= sqrt(b);
+    }
+
+    vec3 V3 = cross(V1, V2);
+    if (dot(C, V3) < 0.0)
+        V3 *= -1.0;
+
+    float L  = dot(V3, C);
+    float x0 = dot(V1, C) / L;
+    float y0 = dot(V2, C) / L;
+
+    float E1 = inversesqrt(a);
+    float E2 = inversesqrt(b);
+
+    a *= L*L;
+    b *= L*L;
+
+    float c0 = a*b;
+    float c1 = a*b*(1.0 + x0*x0 + y0*y0) - a - b;
+    float c2 = 1.0 - a*(1.0 + x0*x0) - b*(1.0 + y0*y0);
+    float c3 = 1.0;
+
+    vec3 roots = SolveCubic(vec4(c0, c1, c2, c3));
+    float e1 = roots.x;
+    float e2 = roots.y;
+    float e3 = roots.z;
+
+    vec3 avgDir = vec3(a*x0/(a - e2), b*y0/(b - e2), 1.0);
+
+    mat3 rotate = mat3_from_columns(V1, V2, V3);
+
+    avgDir = rotate*avgDir;
+    avgDir = normalize(avgDir);
+
+    float L1 = sqrt(-e2/e3);
+    float L2 = sqrt(-e2/e1);
+
+    float formFactor = L1*L2*inversesqrt((1.0 + L1*L1)*(1.0 + L2*L2));
+
+    // use tabulated horizon-clipped sphere
+    vec2 uv = vec2(avgDir.z*0.5 + 0.5, formFactor);
+    uv = uv*LUT_SCALE + LUT_BIAS;
+    float scale = texture2D(ltc_2, uv).w;
+
+    float spec = formFactor*scale;
+
+    if (groundTruth)
+    {
+        spec = 0.0;
+
+        float diskArea = pi*E1*E2;
+
+        // light sample
+        {
+            // random point on ellipse
+            float rad = sqrt(u1);
+            float phi = 2.0*pi*u2;
+            float x = E1*rad*cos(phi);
+            float y = E2*rad*sin(phi);
+
+            vec3 p = x*V1 + y*V2 + C;
+            vec3 v = normalize(p);
+
+            float c2 = max(dot(V3, v), 0.0);
+            float solidAngle = max(c2/dot(p, p), 1e-7);
+            float pdfLight = 1.0/solidAngle/diskArea;
+
+            float cosTheta = max(v.z, 0.0);
+            float brdf = 1.0/pi;
+            float pdfBRDF = cosTheta/pi;
+
+            if (cosTheta > 0.0)
+                spec += brdf*cosTheta/(pdfBRDF + pdfLight);
+        }
+
+        // BRDF sample
+        {
+            // generate a cosine-distributed direction
+            float rad = sqrt(u1);
+            float phi = 2.0*pi*u2;
+            float x = rad*cos(phi);
+            float y = rad*sin(phi);
+            vec3 dir = vec3(x, y, sqrt(1.0 - u1));
+
+            Ray ray;
+            ray.origin = vec3(0, 0, 0);
+            ray.dir = dir;
+
+            Disk disk = InitDisk(C, V1, V2, E1, E2);
+
+            vec3 diskNormal = V3;
+            disk.plane = vec4(diskNormal, -dot(diskNormal, disk.center));
+
+            float distToDisk = RayDiskIntersect(ray, disk);
+            bool  intersect  = distToDisk != NO_HIT;
+
+            float cosTheta = max(dir.z, 0.0);
+            float brdf = 1.0/pi;
+            float pdfBRDF = cosTheta/pi;
+
+            float pdfLight = 0.0;
+            if (intersect)
+            {
+                vec3 p = distToDisk*ray.dir;
+                vec3 v = normalize(p);
+                float c2 = max(dot(V3, v), 0.0);
+                float solidAngle = max(c2/dot(p, p), 1e-7);
+                pdfLight = 1.0/solidAngle/diskArea;
+            }
+
+            if (intersect)
+                spec += brdf*cosTheta/(pdfBRDF + pdfLight);
+        }
+    }
+
+    Lo_i = vec3(spec, spec, spec);
+
+    return vec3(Lo_i);
+}
+
+// Quad
+vec3 IntegrateEdgeVec(vec3 v1, vec3 v2)
+{
+    float x = dot(v1, v2);
+    float y = abs(x);
+
+    float a = 0.8543985 + (0.4965155 + 0.0145206*y)*y;
+    float b = 3.4175940 + (4.1616724 + y)*y;
+    float v = a / b;
+
+    float theta_sintheta = (x > 0.0) ? v : 0.5*inversesqrt(max(1.0 - x*x, 1e-7)) - v;
+
+    return cross(v1, v2)*theta_sintheta;
+}
 
 float IntegrateEdge(vec3 v1, vec3 v2)
 {
-    float cosTheta = dot(v1, v2);
-    cosTheta = clamp(cosTheta, -0.9999, 0.9999);
-
-    float theta = acos(cosTheta);
-    float res = cross(v1, v2).z * theta / sin(theta);
-
-    return res;
+    return IntegrateEdgeVec(v1, v2).z;
 }
 
 void ClipQuadToHorizon(inout vec3 L[5], out int n)
@@ -374,7 +541,7 @@ void ClipQuadToHorizon(inout vec3 L[5], out int n)
         L[4] = L[0];
 }
 
-vec3 LTC_Evaluate_3020430251(
+vec3 LTC_Evaluate(
     vec3 N, vec3 V, vec3 P, mat3 Minv, vec3 points[4], bool twoSided)
 {
     // construct orthonormal basis around N
@@ -382,7 +549,7 @@ vec3 LTC_Evaluate_3020430251(
     T1 = normalize(V - N*dot(V, N));
     T2 = cross(N, T1);
 
-    // rotate area light in (T1, T2, R) basis
+    // rotate area light in (T1, T2, N) basis
     Minv = Minv * transpose(mat3(T1, T2, N));
 
     // polygon (allocate 5 vertices for clipping)
@@ -392,142 +559,159 @@ vec3 LTC_Evaluate_3020430251(
     L[2] = Minv * (points[2] - P);
     L[3] = Minv * (points[3] - P);
 
-    int n;
-    ClipQuadToHorizon(L, n);
-
-    if (n == 0)
-        return vec3(0, 0, 0);
-
-    // project onto sphere
-    L[0] = normalize(L[0]);
-    L[1] = normalize(L[1]);
-    L[2] = normalize(L[2]);
-    L[3] = normalize(L[3]);
-    L[4] = normalize(L[4]);
-
     // integrate
     float sum = 0.0;
 
-    sum += IntegrateEdge(L[0], L[1]);
-    sum += IntegrateEdge(L[1], L[2]);
-    sum += IntegrateEdge(L[2], L[3]);
-    if (n >= 4)
-        sum += IntegrateEdge(L[3], L[4]);
-    if (n == 5)
-        sum += IntegrateEdge(L[4], L[0]);
+    if (clipless)
+    {
+        vec3 dir = points[0].xyz - P;
+        vec3 lightNormal = cross(points[1] - points[0], points[3] - points[0]);
+        bool behind = (dot(dir, lightNormal) < 0.0);
 
-    sum = twoSided ? abs(sum) : max(0.0, -sum);
+        L[0] = normalize(L[0]);
+        L[1] = normalize(L[1]);
+        L[2] = normalize(L[2]);
+        L[3] = normalize(L[3]);
+
+        vec3 vsum = vec3(0.0);
+
+        vsum += IntegrateEdgeVec(L[0], L[1]);
+        vsum += IntegrateEdgeVec(L[1], L[2]);
+        vsum += IntegrateEdgeVec(L[2], L[3]);
+        vsum += IntegrateEdgeVec(L[3], L[0]);
+
+        float len = length(vsum);
+        float z = vsum.z/len;
+
+        if (behind)
+            z = -z;
+
+        vec2 uv = vec2(z*0.5 + 0.5, len);
+        uv = uv*LUT_SCALE + LUT_BIAS;
+
+        float scale = texture2D(ltc_2, uv).w;
+
+        sum = len*scale;
+
+        if (behind && !twoSided)
+            sum = 0.0;
+    }
+    else
+    {
+        int n;
+        ClipQuadToHorizon(L, n);
+
+        if (n == 0)
+            return vec3(0, 0, 0);
+        // project onto sphere
+        L[0] = normalize(L[0]);
+        L[1] = normalize(L[1]);
+        L[2] = normalize(L[2]);
+        L[3] = normalize(L[3]);
+        L[4] = normalize(L[4]);
+
+        // integrate
+        sum += IntegrateEdge(L[0], L[1]);
+        sum += IntegrateEdge(L[1], L[2]);
+        sum += IntegrateEdge(L[2], L[3]);
+        if (n >= 4)
+            sum += IntegrateEdge(L[3], L[4]);
+        if (n == 5)
+            sum += IntegrateEdge(L[4], L[0]);
+
+        sum = twoSided ? abs(sum) : max(0.0, sum);
+    }
 
     vec3 Lo_i = vec3(sum, sum, sum);
 
     return Lo_i;
 }
 
-// Misc. helpers
-////////////////
+void EvaluateAreaLight(inout PBRData data, AreaLight light, sampler2D shadowMap, float ao) {
+  vec4 lightViewPosition = light.viewMatrix * vec4(vPositionWorld, 1.0); // TODO: move in the vertex shader
+  float lightDistView = -lightViewPosition.z;
+  vec4 lightDeviceCoordsPosition = light.projectionMatrix * lightViewPosition;
+  vec3 lightDeviceCoordsPositionNormalized = lightDeviceCoordsPosition.xyz / lightDeviceCoordsPosition.w;
+  vec2 lightUV = lightDeviceCoordsPositionNormalized.xy * 0.5 + 0.5;
 
-vec3 PowVec3(vec3 v, float p)
-{
-    return vec3(pow(v.x, p), pow(v.y, p), pow(v.z, p));
-}
+  float illuminated = bool(light.castShadows)
+    ? getShadow(
+        shadowMap,
+        light.shadowMapSize,
+        lightUV,
+        lightDistView - light.bias,
+        light.near,
+        light.far,
+        lightDeviceCoordsPositionNormalized.z,
+        light.radiusUV
+      )
+    : 1.0;
 
-vec3 check(bool test) {
-    if (test) return vec3(0,1,0);
-    else return vec3(1,0.2,0);
-}
+  if (illuminated > 0.0) {
+    vec3 pos = data.positionWorld;
+    vec3 N = data.normalWorld;
+    vec3 V = -normalize(pos - uCameraPosition);
+    float roughness = data.roughness;
 
-vec3 multQuat(vec3 a, vec4 q){
-    float x = a.x;
-    float y = a.y;
-    float z = a.z;
+    vec3 ex = multQuat(vec3(1, 0, 0), light.rotation) * light.size.x;
+    vec3 ey = multQuat(vec3(0, 1, 0), light.rotation) * light.size.y;
 
-    float qx = q.x;
-    float qy = q.y;
-    float qz = q.z;
-    float qw = q.w;
+    vec3 points[4];
+    points[0] = light.position - ex + ey;
+    points[1] = light.position + ex + ey;
+    points[2] = light.position + ex - ey;
+    points[3] = light.position - ex - ey;
 
-    float ix =  qw * x + qy * z - qz * y;
-    float iy =  qw * y + qz * x - qx * z;
-    float iz =  qw * z + qx * y - qy * x;
-    float iw = -qx * x - qy * y - qz * z;
+    float u1;
+    float u2;
+    if (light.disk) {
+      vec2 seq[NUM_SAMPLES];
+      Halton2D(seq, sampleCount);
 
-    a.x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
-    a.y = iy * qw + iw * -qy + iz * -qx - ix * -qz;
-    a.z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
+      u1 = rand(gl_FragCoord.xy*0.01);
+      u2 = rand(gl_FragCoord.yx*0.01);
 
-    return a;
-}
-
-vec3 evalAreaLight(AreaLight light, vec3 posWorld, vec3 normalWorld, vec3 diffuseColor, vec3 specularColor, float roughness)
-{
-    vec2 seq[NUM_SAMPLES_3020430251];
-    Halton2D(seq, sampleCount);
-
-    vec3 col = vec3(0);
-
-    // Scene info
-
-    vec3 lcol = toLinear(light.color.rgb) * light.intensity;
-    vec3 dcol = diffuseColor;
-    vec3 scol = specularColor;
-    {
-        Ray ray;
-        ray.origin = uCameraPosition;
-        ray.dir = normalize(posWorld - uCameraPosition);
-        {
-            vec3 pos = posWorld;
-
-            vec3 N = normalWorld;
-            vec3 V = -ray.dir;
-
-            //FIXME: why this has to be -1?
-            vec3 ex = multQuat(vec3(-1, 0, 0), light.rotation)*light.size.x;
-            vec3 ey = multQuat(vec3(0, 1, 0), light.rotation)*light.size.y;
-
-            vec3 p1 = light.position - ex + ey;
-            vec3 p2 = light.position + ex + ey;
-            vec3 p3 = light.position + ex - ey;
-            vec3 p4 = light.position - ex - ey;
-
-            vec3 points[4];
-            points[0] = p1;
-            points[1] = p2;
-            points[2] = p3;
-            points[3] = p4;
-
-            float theta = acos(dot(N, V));
-            vec2 uv = vec2(roughness, theta/(0.5*pi_0));
-            uv = uv*LUT_SCALE_3020430251 + LUT_BIAS_3020430251;
-
-            vec4 t = texture2D(ltc_mat, uv);
-            mat3 Minv = mat3(
-                vec3(  1,   0, t.y),
-                vec3(  0, t.z,   0),
-                vec3(t.w,   0, t.x)
-            );
-
-            vec3 spec = lcol*scol*LTC_Evaluate_3020430251(N, V, pos, Minv, points, false);
-            spec *= texture2D(ltc_mag, uv).w;
-
-            vec3 diff = lcol*dcol*LTC_Evaluate_3020430251(N, V, pos, mat3(1), points, false);
-
-            col  = spec + diff;
-            col /= 2.0*pi_0;
-        }
-
-        //TODO: how to find out we had hit the screen?
-        //float distToRect;
-        //if (RayRectIntersect(ray, rect, distToRect))
-        //    if ((distToRect < distToFloor) || !hitFloor)
-        //        col = lcol;
+      u1 = fract(u1 + seq[0].x);
+      u2 = fract(u2 + seq[0].y);
     }
 
-    return col;
-}
+    float ndotv = saturate(dot(N, V));
+    vec2 uv = vec2(roughness, sqrt(1.0 - ndotv));
+    uv = uv * LUT_SCALE + LUT_BIAS;
 
+    vec4 t1 = texture2D(ltc_1, uv);
+    vec4 t2 = texture2D(ltc_2, uv);
 
-void EvaluateAreaLight(inout PBRData data, AreaLight light, float ao) {
-  data.indirectSpecular += ao * evalAreaLight(light, data.positionWorld, data.normalWorld, data.baseColor, data.f0, data.roughness);
+    mat3 Minv = mat3(
+      vec3(t1.x, 0, t1.y),
+      vec3(  0,  1,    0),
+      vec3(t1.z, 0, t1.w)
+    );
+
+    vec3 spec = light.disk
+      ? LTC_Evaluate(N, V, pos, Minv, points, light.doubleSided, u1, u2)
+      : LTC_Evaluate(N, V, pos, Minv, points, light.doubleSided);
+    spec *= data.f0 * t2.x + (1.0 - data.f0) * t2.y;
+
+    vec3 diff = light.disk
+      ? LTC_Evaluate(N, V, pos, mat3(1), points, light.doubleSided, u1, u2)
+      : LTC_Evaluate(N, V, pos, mat3(1), points, light.doubleSided);
+
+    // spec *= scol * t2.x + (1.0 - scol) * t2.y;
+    // col = lcol*(spec + dcol*diff);
+    // data.indirectSpecular += ao * col;
+
+    spec = max(spec, vec3(0.0));
+    diff = max(diff, vec3(0.0));
+
+    #ifdef USE_TRANSMISSION
+      diff *= (1.0 - data.transmission);
+    #endif
+
+    vec3 lightColor = decode(light.color, SRGB).rgb;
+    data.directColor += illuminated * ao * lightColor * data.baseColor * diff;
+    data.indirectSpecular += illuminated * ao * lightColor * spec;
+  }
 }
 #endif
 `;

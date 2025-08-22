@@ -4,47 +4,46 @@ export default /* glsl */ `
   uniform vec3 uSpecular;
   uniform float uGlossiness;
 
-  #ifdef USE_DIFFUSE_MAP
-    uniform sampler2D uDiffuseMap;
-    uniform float uDiffuseMapEncoding;
+  #ifdef USE_DIFFUSE_TEXTURE
+    uniform sampler2D uDiffuseTexture;
 
-    #ifdef USE_DIFFUSE_MAP_TEX_COORD_TRANSFORM
-      uniform mat3 uDiffuseMapTexCoordTransform;
+    #ifdef USE_DIFFUSE_TEXTURE_MATRIX
+      uniform mat3 uDiffuseTextureMatrix;
     #endif
 
     vec4 getDiffuse(in PBRData data) {
       // assumes sRGB texture
-      #ifdef USE_DIFFUSE_MAP_TEX_COORD_TRANSFORM
-        vec2 texCoord = getTextureCoordinates(data, DIFFUSE_MAP_TEX_COORD_INDEX, uDiffuseMapTexCoordTransform);
+      #ifdef USE_DIFFUSE_TEXTURE_MATRIX
+        vec2 texCoord = getTextureCoordinates(data, DIFFUSE_TEXTURE_TEX_COORD, uDiffuseTextureMatrix);
       #else
-        vec2 texCoord = getTextureCoordinates(data, DIFFUSE_MAP_TEX_COORD_INDEX);
+        vec2 texCoord = getTextureCoordinates(data, DIFFUSE_TEXTURE_TEX_COORD);
       #endif
-      vec4 texelColor = texture2D(uDiffuseMap, texCoord);
-      return vec4(decode(uDiffuse, 3).rgb, uDiffuse.a) * vec4(decode(texelColor, 3).rgb, texelColor.a);
+      vec4 texelColor = texture2D(uDiffuseTexture, texCoord);
+      return vec4(decode(uDiffuse, SRGB).rgb, uDiffuse.a) * vec4(decode(texelColor, SRGB).rgb, texelColor.a);
     }
   #else
     vec4 getDiffuse(in PBRData data) {
-      return vec4(decode(uDiffuse, 3).rgb, uDiffuse.a);
+      return vec4(decode(uDiffuse, SRGB).rgb, uDiffuse.a);
     }
   #endif
 
-  #ifdef USE_SPECULAR_GLOSSINESS_MAP
-    uniform sampler2D uSpecularGlossinessMap;
+  #ifdef USE_SPECULAR_GLOSSINESS_TEXTURE
+    uniform sampler2D uSpecularGlossinessTexture;
 
-    #ifdef USE_SPECULAR_GLOSSINESS_MAP_TEX_COORD_TRANSFORM
-      uniform mat3 uSpecularGlossinessMapTexCoordTransform;
+    #ifdef USE_SPECULAR_GLOSSINESS_TEXTURE_MATRIX
+      uniform mat3 uSpecularGlossinessTextureMatrix;
     #endif
 
     vec4 getSpecularGlossiness(in PBRData data) {
       // assumes specular is sRGB and glossiness is linear
-      #ifdef USE_SPECULAR_GLOSSINESS_MAP_TEX_COORD_TRANSFORM
-        vec2 texCoord = getTextureCoordinates(data, SPECULAR_GLOSSINESS_MAP_TEX_COORD_INDEX, uSpecularGlossinessMapTexCoordTransform);
+      #ifdef USE_SPECULAR_GLOSSINESS_TEXTURE_MATRIX
+        vec2 texCoord = getTextureCoordinates(data, SPECULAR_GLOSSINESS_TEXTURE_TEX_COORD, uSpecularGlossinessTextureMatrix);
       #else
-        vec2 texCoord = getTextureCoordinates(data, SPECULAR_GLOSSINESS_MAP_TEX_COORD_INDEX);
+        vec2 texCoord = getTextureCoordinates(data, SPECULAR_GLOSSINESS_TEXTURE_TEX_COORD);
       #endif
-      vec4 specGloss = texture2D(uSpecularGlossinessMap, texCoord);
+      vec4 specGloss = texture2D(uSpecularGlossinessTexture, texCoord);
       //TODO: should i move uSpecular to linear?
-      return vec4(uSpecular, uGlossiness) * vec4(decode(vec4(specGloss.rgb, 1.0), 3).rgb, specGloss.a);
+      return vec4(uSpecular, uGlossiness) * vec4(decode(vec4(specGloss.rgb, 1.0), SRGB).rgb, specGloss.a);
     }
   #else
     vec4 getSpecularGlossiness(in PBRData data) {
@@ -70,7 +69,7 @@ export default /* glsl */ `
     float b = diffuse * oneMinusSpecularStrength / (1.0 - a) + specular - 2.0 * a;
     float c = a - specular;
     float D = max(b * b - 4.0 * a * c, 0.0);
-    return clamp((-b + sqrt(D)) / (2.0 * a), 0.0, 1.0);
+    return saturate((-b + sqrt(D)) / (2.0 * a));
   }
 
   void getBaseColorAndMetallicRoughnessFromSpecularGlossiness(inout PBRData data) {

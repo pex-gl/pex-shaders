@@ -1,7 +1,13 @@
-import SHADERS from "../chunks/index.js";
+import * as SHADERS from "../chunks/index.js";
 
+/**
+ * @alias module:pipeline.depthPrePass.frag
+ * @type {string}
+ */
 export default /* glsl */ `
 precision highp float;
+
+${SHADERS.output.frag}
 
 // Variables
 varying vec3 vNormalView;
@@ -26,6 +32,8 @@ ${SHADERS.textureCoordinates}
 ${SHADERS.baseColor}
 ${SHADERS.alpha}
 
+#define HOOK_FRAG_DECLARATIONS_END
+
 void main() {
   PBRData data;
   data.texCoord0 = vTexCoord0;
@@ -36,13 +44,13 @@ void main() {
 
   getBaseColor(data);
 
-  #ifdef USE_ALPHA_MAP
-    #ifdef USE_ALPHA_MAP_TEX_COORD_TRANSFORM
-      vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_MAP_TEX_COORD_INDEX, uAlphaMapTexCoordTransform);
+  #ifdef USE_ALPHA_TEXTURE
+    #ifdef USE_ALPHA_TEXTURE_MATRIX
+      vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_TEXTURE_TEX_COORD, uAlphaTextureMatrix);
     #else
-      vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_MAP_TEX_COORD_INDEX);
+      vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_TEXTURE_TEX_COORD);
     #endif
-    data.opacity *= texture2D(uAlphaMap, alphaTexCoord).r;
+    data.opacity *= texture2D(uAlphaTexture, alphaTexCoord).r;
   #endif
 
   #ifdef USE_ALPHA_TEST
@@ -53,5 +61,9 @@ void main() {
   normal *= float(gl_FrontFacing) * 2.0 - 1.0;
 
   gl_FragColor = vec4(normal * 0.5 + 0.5, 1.0);
+
+  ${SHADERS.output.assignment}
+
+  #define HOOK_FRAG_END
 }
 `;

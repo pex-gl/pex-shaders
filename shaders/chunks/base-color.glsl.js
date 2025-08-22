@@ -1,28 +1,30 @@
+// uBaseColor: gltf assumes sRGB color, not linear
+// uBaseColorTexture: assumes sRGB color, not linear
 export default /* glsl */ `
-uniform vec4 uBaseColor; // TODO: gltf assumes sRGB color, not linear
+uniform vec4 uBaseColor;
 
-#ifdef USE_BASE_COLOR_MAP
-  uniform sampler2D uBaseColorMap; // assumes sRGB color, not linear
+#ifdef USE_BASE_COLOR_TEXTURE
+  uniform sampler2D uBaseColorTexture;
 
-  #ifdef USE_BASE_COLOR_MAP_TEX_COORD_TRANSFORM
-    uniform mat3 uBaseColorMapTexCoordTransform;
+  #ifdef USE_BASE_COLOR_TEXTURE_MATRIX
+    uniform mat3 uBaseColorTextureMatrix;
   #endif
 
   void getBaseColor(inout PBRData data) {
-    #ifdef USE_BASE_COLOR_MAP_TEX_COORD_TRANSFORM
-      vec2 texCoord = getTextureCoordinates(data, BASE_COLOR_MAP_TEX_COORD_INDEX, uBaseColorMapTexCoordTransform);
+    #ifdef USE_BASE_COLOR_TEXTURE_MATRIX
+      vec2 texCoord = getTextureCoordinates(data, BASE_COLOR_TEXTURE_TEX_COORD, uBaseColorTextureMatrix);
     #else
-      vec2 texCoord = getTextureCoordinates(data, BASE_COLOR_MAP_TEX_COORD_INDEX);
+      vec2 texCoord = getTextureCoordinates(data, BASE_COLOR_TEXTURE_TEX_COORD);
     #endif
-    vec4 texelColor = texture2D(uBaseColorMap, texCoord);
+    vec4 texelColor = texture2D(uBaseColorTexture, texCoord);
 
     #if !defined(DEPTH_PASS_ONLY) && !defined(DEPTH_PRE_PASS_ONLY)
-      data.baseColor = decode(uBaseColor, 3).rgb * decode(texelColor, 3).rgb;
+      data.baseColor = decode(uBaseColor, SRGB).rgb * decode(texelColor, SRGB).rgb;
     #endif
 
     #if defined(USE_VERTEX_COLORS) || defined(USE_INSTANCED_COLOR)
       #if !defined(DEPTH_PASS_ONLY) && !defined(DEPTH_PRE_PASS_ONLY)
-        data.baseColor *= decode(vColor, 3).rgb;
+        data.baseColor *= decode(vColor, SRGB).rgb;
       #endif
       data.opacity = uBaseColor.a * texelColor.a * vColor.a;
     #else
@@ -32,12 +34,12 @@ uniform vec4 uBaseColor; // TODO: gltf assumes sRGB color, not linear
 #else
   void getBaseColor(inout PBRData data) {
     #if !defined(DEPTH_PASS_ONLY) && !defined(DEPTH_PRE_PASS_ONLY)
-      data.baseColor = decode(uBaseColor, 3).rgb;
+      data.baseColor = decode(uBaseColor, SRGB).rgb;
     #endif
 
     #if defined(USE_VERTEX_COLORS) || defined(USE_INSTANCED_COLOR)
       #if !defined(DEPTH_PASS_ONLY) && !defined(DEPTH_PRE_PASS_ONLY)
-        data.baseColor *= decode(vColor, 3).rgb;
+        data.baseColor *= decode(vColor, SRGB).rgb;
       #endif
       data.opacity = uBaseColor.a * vColor.a;
     #else

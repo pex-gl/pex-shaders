@@ -1,28 +1,55 @@
-import SHADERS from "../chunks/index.js";
+import * as glslToneMap from "glsl-tone-map";
 
+import * as SHADERS from "../chunks/index.js";
+
+/**
+ * @alias module:pipeline.helper.frag
+ * @type {string}
+ */
 export default /* glsl */ `
-#ifdef USE_DRAW_BUFFERS
-  #extension GL_EXT_draw_buffers : enable
-#endif
-#ifdef GL_ES
-precision highp float;
+#if (__VERSION__ < 300)
+  #ifdef USE_DRAW_BUFFERS
+    #extension GL_EXT_draw_buffers : enable
+  #endif
 #endif
 
-#ifdef USE_DRAW_BUFFERS
-${SHADERS.gamma}
-${SHADERS.rgbm}
-${SHADERS.encodeDecode}
+precision highp float;
+
+${SHADERS.output.frag}
+
+uniform float uExposure;
 uniform int uOutputEncoding;
-#endif
 
 varying vec4 vColor;
 
+// Includes
+${SHADERS.encodeDecode}
+${Object.values(glslToneMap).join("\n")}
+
+#define HOOK_FRAG_DECLARATIONS_END
+
 void main () {
-#ifdef USE_DRAW_BUFFERS
-  gl_FragData[0] = encode(vec4(vColor.rgb * 3.0, 1.0), uOutputEncoding);
-  gl_FragData[1] = vec4(0.0);
-#else
-  gl_FragData[0] = vColor;
-#endif
+  vec4 color = decode(vColor, SRGB);
+
+  color.rgb *= uExposure;
+
+  #if defined(TONE_MAP)
+    color.rgb = TONE_MAP(color.rgb);
+  #endif
+
+  gl_FragData[0] = encode(color, uOutputEncoding);
+
+  #ifdef USE_DRAW_BUFFERS
+    #if LOCATION_NORMAL >= 0
+      gl_FragData[LOCATION_NORMAL] = vec4(0.0, 0.0, 1.0, 1.0);
+    #endif
+    #if LOCATION_EMISSIVE >= 0
+      gl_FragData[LOCATION_EMISSIVE] = vec4(0.0);
+    #endif
+  #endif
+
+  ${SHADERS.output.assignment}
+
+  #define HOOK_FRAG_END
 }
 `;

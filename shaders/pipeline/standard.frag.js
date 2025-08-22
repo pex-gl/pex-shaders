@@ -1,13 +1,29 @@
-import SHADERS from "../chunks/index.js";
+import * as glslToneMap from "glsl-tone-map";
 
+import * as SHADERS from "../chunks/index.js";
+
+/**
+ * @alias module:pipeline.standard.frag
+ * @type {string}
+ */
 export default /* glsl */ `
-#ifdef USE_DRAW_BUFFERS
-  #extension GL_EXT_draw_buffers : enable
+#if (__VERSION__ < 300)
+  #extension GL_OES_standard_derivatives : require
+  #ifdef USE_TRANSMISSION
+    #extension GL_EXT_shader_texture_lod : require
+  #endif
+  #ifdef USE_DRAW_BUFFERS
+    #extension GL_EXT_draw_buffers : enable
+  #endif
 #endif
 
-precision mediump float;
+precision highp float;
+
+${SHADERS.output.frag}
 
 // Variables
+uniform vec2 uViewportSize;
+
 uniform highp mat4 uInverseViewMatrix;
 uniform highp mat4 uViewMatrix;
 uniform highp mat3 uNormalMatrix;
@@ -15,12 +31,8 @@ uniform highp mat4 uModelMatrix;
 
 uniform vec3 uCameraPosition;
 
+uniform float uExposure;
 uniform int uOutputEncoding;
-
-#ifdef USE_TONEMAPPING
-  ${SHADERS.tonemapUncharted2}
-  uniform float uExposure;
-#endif
 
 varying vec3 vNormalWorld;
 varying vec3 vNormalView;
@@ -62,6 +74,7 @@ struct PBRData {
   float metallic; // metallic value at the surface
   float linearRoughness; // roughness mapped to a more linear change in the roughness (proposed by [2])
   vec3 f0; // Reflectance at normal incidence, specular color
+  vec3 f90; // Specular response at grazing incidence
   float clearCoat;
   float clearCoatRoughness;
   float clearCoatLinearRoughness;
@@ -73,29 +86,49 @@ struct PBRData {
   vec3 indirectSpecular; // contribution from IBL light probe and Area Light
   vec3 sheenColor;
   float sheenRoughness;
+  float sheenLinearRoughness;
   vec3 sheen;
+  float sheenAlbedoScaling;
+  vec3 transmitted;
+  float transmission;
+  float diffuseTransmission;
+  vec3 diffuseTransmissionColor;
+  float diffuseTransmissionThickness;
+  float thickness;
+  vec3 attenuationColor;
+  float attenuationDistance;
+  float dispersion;
+  float ior;
+  float ao;
 };
 
 // Includes
 ${SHADERS.math.PI}
+${SHADERS.math.TWO_PI}
 ${SHADERS.math.saturate}
-${SHADERS.rgbm}
-${SHADERS.gamma}
+${SHADERS.math.transposeMat3}
+${SHADERS.math.multQuat}
+${SHADERS.math.random}
 ${SHADERS.encodeDecode}
 ${SHADERS.textureCoordinates}
 ${SHADERS.baseColor}
-${SHADERS.sheenColor}
 ${SHADERS.alpha}
+${SHADERS.ambientOcclusion}
+${Object.values(glslToneMap).join("\n")}
 
 #ifndef USE_UNLIT_WORKFLOW
   // Lighting
   ${SHADERS.octMap}
   ${SHADERS.depthUnpack}
+  ${SHADERS.depthRead}
   ${SHADERS.normalPerturb}
   ${SHADERS.irradiance}
   ${SHADERS.shadowing}
   ${SHADERS.brdf}
+  ${SHADERS.specular}
   ${SHADERS.clearCoat}
+  ${SHADERS.sheenColor}
+  ${SHADERS.transmission}
   ${SHADERS.indirect}
   ${SHADERS.direct}
   ${SHADERS.lightAmbient}
@@ -106,11 +139,12 @@ ${SHADERS.alpha}
 
   // Material and geometric context
   ${SHADERS.emissiveColor}
-  ${SHADERS.ambientOcclusion}
   ${SHADERS.normal}
   ${SHADERS.metallicRoughness}
   ${SHADERS.specularGlossiness}
 #endif
+
+#define HOOK_FRAG_DECLARATIONS_END
 
 void main() {
   vec3 color;
@@ -127,13 +161,13 @@ void main() {
 
     color = data.baseColor;
 
-    #ifdef USE_ALPHA_MAP
-      #ifdef USE_ALPHA_MAP_TEX_COORD_TRANSFORM
-        vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_MAP_TEX_COORD_INDEX, uAlphaMapTexCoordTransform);
+    #ifdef USE_ALPHA_TEXTURE
+      #ifdef USE_ALPHA_TEXTURE_MATRIX
+        vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_TEXTURE_TEX_COORD, uAlphaTextureMatrix);
       #else
-        vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_MAP_TEX_COORD_INDEX);
+        vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_TEXTURE_TEX_COORD);
       #endif
-      data.opacity *= texture2D(uAlphaMap, alphaTexCoord).r;
+      data.opacity *= texture2D(uAlphaTexture, alphaTexCoord).r;
     #endif
     #ifdef USE_ALPHA_TEST
       alphaTest(data);
@@ -156,9 +190,17 @@ void main() {
     data.indirectDiffuse = vec3(0.0);
     data.indirectSpecular = vec3(0.0);
     data.sheen = vec3(0.0);
+    data.ao = 1.0;
     data.opacity = 1.0;
 
+    // view vector in world space
+    data.viewWorld = normalize(uCameraPosition - vPositionWorld);
+    data.NdotV = saturate(abs(dot(data.normalWorld, data.viewWorld)) + FLT_EPS);
+
+    #define HOOK_FRAG_BEFORE_TEXTURES
+
     getNormal(data);
+
     getEmissiveColor(data);
 
     #ifdef USE_METALLIC_ROUGHNESS_WORKFLOW
@@ -168,29 +210,23 @@ void main() {
       // data.roughness = 0.004 + 0.996 * data.roughness;
       data.roughness = clamp(data.roughness, MIN_ROUGHNESS, 1.0);
       getMetallic(data);
-
-      // Compute F0 for both dielectric and metallic materials
-      data.f0 = 0.16 * uReflectance * uReflectance * (1.0 - data.metallic) + data.baseColor.rgb * data.metallic;
-      data.diffuseColor = data.baseColor * (1.0 - data.metallic);
     #endif
+
     #ifdef USE_SPECULAR_GLOSSINESS_WORKFLOW
       getBaseColorAndMetallicRoughnessFromSpecularGlossiness(data);
-      data.diffuseColor = data.baseColor * (1.0 - data.metallic);
     #endif
 
-    #ifdef USE_ALPHA_MAP
-      #ifdef USE_ALPHA_MAP_TEX_COORD_TRANSFORM
-        vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_MAP_TEX_COORD_INDEX, uAlphaMapTexCoordTransform);
+    #ifdef USE_ALPHA_TEXTURE
+      #ifdef USE_ALPHA_TEXTURE_MATRIX
+        vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_TEXTURE_TEX_COORD, uAlphaTextureMatrix);
       #else
-        vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_MAP_TEX_COORD_INDEX);
+        vec2 alphaTexCoord = getTextureCoordinates(data, ALPHA_TEXTURE_TEX_COORD);
       #endif
-      data.opacity *= texture2D(uAlphaMap, alphaTexCoord).r;
+      data.opacity *= texture2D(uAlphaTexture, alphaTexCoord).r;
     #endif
     #ifdef USE_ALPHA_TEST
       alphaTest(data);
     #endif
-
-    data.linearRoughness = data.roughness * data.roughness;
 
     #ifdef USE_CLEAR_COAT
       getClearCoat(data);
@@ -203,39 +239,54 @@ void main() {
       getClearCoatNormal(data);
     #endif
 
-    // view vector in world space
-    data.viewWorld = normalize(uCameraPosition - vPositionWorld);
-
-    data.NdotV = clamp(abs(dot(data.normalWorld, data.viewWorld)) + FLT_EPS, 0.0, 1.0);
-
     #ifdef USE_SHEEN
       getSheenColor(data);
+      getSheenRoughness(data);
+      getSheenAlbedoScaling(data);
+
+      data.sheenRoughness = max(data.sheenRoughness, MIN_ROUGHNESS);
+      data.sheenLinearRoughness = data.sheenRoughness * data.sheenRoughness;
     #endif
 
-    float ao = 1.0;
-    #ifdef USE_OCCLUSION_MAP
-      #ifdef USE_OCCLUSION_MAP_TEX_COORD_TRANSFORM
-        vec2 aoTexCoord = getTextureCoordinates(data, OCCLUSION_MAP_TEX_COORD_INDEX, uOcclusionMapTexCoordTransform);
-      #else
-        vec2 aoTexCoord = getTextureCoordinates(data, OCCLUSION_MAP_TEX_COORD_INDEX);
+    #ifdef USE_TRANSMISSION
+      data.transmitted = vec3(0.0);
+      #ifdef USE_DISPERSION
+        data.dispersion = uDispersion;
       #endif
-      ao *= texture2D(uOcclusionMap, aoTexCoord).r;
+      getTransmission(data);
     #endif
-    #ifdef USE_AO
-      vec2 vUV = vec2(gl_FragCoord.x / uScreenSize.x, gl_FragCoord.y / uScreenSize.y);
-      ao *= texture2D(uAO, vUV).r;
+    #ifdef USE_VOLUME
+      getThickness(data);
+      getAttenuation(data);
+    #endif
+    #ifdef USE_DIFFUSE_TRANSMISSION
+      getDiffuseTransmission(data);
+    #endif
+
+    #ifdef USE_OCCLUSION_TEXTURE
+      getAmbientOcclusion(data);
+    #endif
+
+    #define HOOK_FRAG_BEFORE_LIGHTING
+
+    data.diffuseColor = data.baseColor * (1.0 - data.metallic);
+    data.linearRoughness = data.roughness * data.roughness;
+
+    #ifdef USE_METALLIC_ROUGHNESS_WORKFLOW
+      getIor(data);
+      getSpecular(data);
     #endif
 
     //TODO: No kd? so not really energy conserving
     //we could use disney brdf for irradiance map to compensate for that like in Frostbite
     #ifdef USE_REFLECTION_PROBES
       data.reflectionWorld = reflect(-data.eyeDirWorld, data.normalWorld);
-      EvaluateLightProbe(data, ao);
+      EvaluateLightProbe(data, data.ao);
     #endif
     #if NUM_AMBIENT_LIGHTS > 0
       #pragma unroll_loop
       for (int i = 0; i < NUM_AMBIENT_LIGHTS; i++) {
-        EvaluateAmbientLight(data, uAmbientLights[i], ao);
+        EvaluateAmbientLight(data, uAmbientLights[i], data.ao);
       }
     #endif
     #if NUM_DIRECTIONAL_LIGHTS > 0
@@ -259,23 +310,37 @@ void main() {
     #if NUM_AREA_LIGHTS > 0
       #pragma unroll_loop
       for (int i = 0; i < NUM_AREA_LIGHTS; i++) {
-        EvaluateAreaLight(data, uAreaLights[i], ao);
+        EvaluateAreaLight(data, uAreaLights[i], uAreaLightShadowMaps[i], data.ao);
       }
     #endif
-    color = data.emissiveColor + data.indirectDiffuse + data.indirectSpecular + data.directColor;
-    #ifdef USE_TONEMAPPING
-      color.rgb *= uExposure;
-      color.rgb = tonemapUncharted2(color.rgb);
-    #endif
+
+    #define HOOK_FRAG_AFTER_LIGHTING
+
+    color = data.emissiveColor + data.indirectDiffuse + data.indirectSpecular + data.directColor + data.transmitted;
   #endif // USE_UNLIT_WORKFLOW
 
-  gl_FragData[0] = encode(vec4(color, 1.0), uOutputEncoding);
-  #ifdef USE_DRAW_BUFFERS
-    gl_FragData[1] = encode(vec4(data.emissiveColor, 1.0), uOutputEncoding);
-    gl_FragData[2] = vec4(data.normalView * 0.5 + 0.5, 1.0);
+  color.rgb *= uExposure;
+
+  #if defined(TONE_MAP)
+    color.rgb = TONE_MAP(color.rgb);
   #endif
-  #ifdef USE_BLEND
+
+  gl_FragData[0] = encode(vec4(color, 1.0), uOutputEncoding);
+
+  #ifdef USE_DRAW_BUFFERS
+    #if LOCATION_NORMAL >= 0
+      gl_FragData[LOCATION_NORMAL] = vec4(data.normalView * 0.5 + 0.5, 1.0);
+    #endif
+    #if LOCATION_EMISSIVE >= 0
+      gl_FragData[LOCATION_EMISSIVE] = encode(vec4(data.emissiveColor, 1.0), uOutputEncoding);
+    #endif
+  #endif
+  #if defined(USE_BLEND) || defined(USE_TRANSMISSION)
     gl_FragData[0].a = data.opacity;
   #endif
+
+  ${SHADERS.output.assignment}
+
+  #define HOOK_FRAG_END
 }
 `;

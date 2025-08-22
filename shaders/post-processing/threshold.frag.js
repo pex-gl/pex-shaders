@@ -1,38 +1,67 @@
+import * as SHADERS from "../chunks/index.js";
+
+/**
+ * @alias module:postProcessing.threshold.frag
+ * @type {string}
+ */
 export default /* glsl */ `
 precision highp float;
 
-varying vec2 vTexCoord;
+// Optional defines:
+// COLOR_FUNCTION
+// USE_SOURCE_COLOR
+// USE_SOURCE_EMISSIVE
 
-uniform float near;
-uniform float far;
-uniform float fov;
+#ifndef COLOR_FUNCTION
+  #define COLOR_FUNCTION luma
+#endif
 
-uniform sampler2D image;
-uniform sampler2D emissiveTex;
-uniform vec2 imageSize;
+${SHADERS.output.frag}
+
+#ifndef USE_SOURCE_EMISSIVE
+  uniform sampler2D uTexture;
+#endif
+uniform sampler2D uEmissiveTexture;
 
 uniform float uExposure;
-uniform float uBloomThreshold;
+uniform float uThreshold;
 
-float perceivedBrightness(vec3 c) {
-  return (c.r + c.g + c.b) / 3.0;
-  //return 0.299 * c.r + 0.587 * c.g + 0.114 * c.b;
-}
+varying vec2 vTexCoord0;
+
+// Includes
+${SHADERS.luma}
+${SHADERS.luminance}
+${SHADERS.average}
 
 void main() {
-  vec2 vUV = vec2(gl_FragCoord.x / imageSize.x, gl_FragCoord.y / imageSize.y);
-  vec4 color = texture2D(image, vUV);
+  // Glare naturally occurs for anything bright enough.
+  #ifdef USE_SOURCE_EMISSIVE
+    // For artistic control, perform threshold only on emissive.
+    vec4 color = texture2D(uEmissiveTexture, vTexCoord0);
+  #else
+    // Or use color where, for a threshold value of 1, only HDR colors are filtered
+    vec4 color = texture2D(uTexture, vTexCoord0);
+  #endif
+
   color.rgb *= uExposure;
-  float brightness = perceivedBrightness(color.rgb);
+
+  float brightness = COLOR_FUNCTION(color.rgb);
   float smoothRange = 0.1;
-  float t1 = uBloomThreshold * (1.0 - smoothRange);
-  float t2 = uBloomThreshold * (1.0 + smoothRange);
+  float t1 = uThreshold * (1.0 - smoothRange);
+
   if (brightness > t1) {
-    gl_FragColor = color * smoothstep(t1, t2, brightness);
+    color *= smoothstep(t1, uThreshold * (1.0 + smoothRange), brightness);
   } else {
-    gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+    color = vec4(0.0);
   }
 
-  gl_FragColor += texture2D(emissiveTex, vUV);
+  // Emissive is added on top if not performing threshold on a specific source
+  #if !defined(USE_SOURCE_COLOR) && !defined(USE_SOURCE_EMISSIVE)
+    color += texture2D(uEmissiveTexture, vTexCoord0);
+  #endif
+
+  gl_FragColor = color;
+
+  ${SHADERS.output.assignment}
 }
 `;

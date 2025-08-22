@@ -1,6 +1,12 @@
-import SHADERS from "../chunks/index.js";
+import * as SHADERS from "../chunks/index.js";
 
+/**
+ * @alias module:pipeline.depthPass.vert
+ * @type {string}
+ */
 export default /* glsl */ `
+${SHADERS.output.vert}
+
 // Variables
 attribute vec3 aPosition;
 
@@ -46,8 +52,8 @@ attribute vec4 aWeight;
 uniform mat4 uJointMat[NUM_JOINTS];
 #endif
 
-#ifdef USE_DISPLACEMENT_MAP
-uniform sampler2D uDisplacementMap;
+#ifdef USE_DISPLACEMENT_TEXTURE
+uniform sampler2D uDisplacementTexture;
 uniform float uDisplacement;
 #endif
 
@@ -68,8 +74,9 @@ varying vec2 vTexCoord1;
 varying vec3 vPositionView;
 
 // Includes
-${SHADERS.math.transposeMat4}
 ${SHADERS.math.quatToMat4}
+
+#define HOOK_VERT_DECLARATIONS_END
 
 void main() {
   vec4 position = vec4(aPosition, 1.0);
@@ -91,34 +98,56 @@ void main() {
     vTexCoord1 = aTexCoord1;
   #endif
 
-  #ifdef USE_DISPLACEMENT_MAP
-    float h = texture2D(uDisplacementMap, aTexCoord0).r;
+  #ifdef USE_INSTANCED_OFFSET
+    vec3 offset = aOffset;
+  #endif
+
+  #ifdef USE_INSTANCED_SCALE
+    vec3 scale = aScale;
+  #endif
+
+  #ifdef USE_INSTANCED_ROTATION
+    vec4 rotation = aRotation;
+  #endif
+
+  #ifdef USE_INSTANCED_COLOR
+    vec4 color = aColor;
+  #endif
+
+  #ifdef USE_VERTEX_COLORS
+    vec4 vertexColor = aVertexColor;
+  #endif
+
+  #define HOOK_VERT_BEFORE_TRANSFORM
+
+  #ifdef USE_DISPLACEMENT_TEXTURE
+    float h = texture2D(uDisplacementTexture, aTexCoord0).r;
     position.xyz += uDisplacement * h * normal * uDisplacementShadowStretch;
   #endif
 
   #ifdef USE_INSTANCED_SCALE
-    position.xyz *= aScale;
+    position.xyz *= scale;
   #endif
 
   #ifdef USE_INSTANCED_ROTATION
-    mat4 rotationMat = quatToMat4(aRotation);
+    mat4 rotationMat = quatToMat4(rotation);
     position = rotationMat * position;
     normal = vec3(rotationMat * vec4(normal, 0.0));
   #endif
 
   #ifdef USE_INSTANCED_OFFSET
-    position.xyz += aOffset;
+    position.xyz += offset;
   #endif
 
   #if defined(USE_VERTEX_COLORS) && defined(USE_INSTANCED_COLOR)
-    vColor = aVertexColor * aColor;
+    vColor = vertexColor * color;
   #else
     #ifdef USE_INSTANCED_COLOR
-      vColor = aColor;
+      vColor = color;
     #endif
 
     #ifdef USE_VERTEX_COLORS
-      vColor = aVertexColor;
+      vColor = vertexColor;
     #endif
   #endif
 
@@ -139,5 +168,7 @@ void main() {
 
   vPositionView = positionView.xyz;
   vNormalView = normalize(uNormalMatrix * normal);
+
+  #define HOOK_VERT_END
 }
 `;

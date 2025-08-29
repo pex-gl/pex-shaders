@@ -183,3 +183,8 @@ export {
   /** @member {string} */
   default as vignette,
 } from "./vignette.glsl.js";
+
+export {
+  /** @member {string} */
+  default as reversibleToneMap,
+} from "./reversible-tone-map.glsl.js";

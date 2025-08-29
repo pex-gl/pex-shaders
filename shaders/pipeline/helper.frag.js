@@ -25,6 +25,8 @@ varying vec4 vColor;
 // Includes
 ${SHADERS.encodeDecode}
 ${Object.values(glslToneMap).join("\n")}
+${SHADERS.math.max3}
+${SHADERS.reversibleToneMap}
 
 #define HOOK_FRAG_DECLARATIONS_END
 

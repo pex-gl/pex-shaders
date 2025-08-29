@@ -7,8 +7,6 @@
 // The energy reduction from sheen only varies between 0.13 and 0.18 across  roughness, so we approximate  it as a constant value  of 0.157.
 // https://drive.google.com/file/d/1T0D1VSyR4AllqIJTQAraEIzjlb5h4FKH/view?usp=sharing
 const getSheenAlbedoScaling = /* glsl */ `
-float max3(vec3 v) { return max(max(v.x, v.y), v.z); }
-
 void getSheenAlbedoScaling(inout PBRData data) {
   data.sheenAlbedoScaling = 1.0 - 0.157 * max3(data.sheenColor);
 }

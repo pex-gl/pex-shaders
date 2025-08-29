@@ -115,6 +115,8 @@ ${SHADERS.baseColor}
 ${SHADERS.alpha}
 ${SHADERS.ambientOcclusion}
 ${Object.values(glslToneMap).join("\n")}
+${SHADERS.math.max3}
+${SHADERS.reversibleToneMap}
 
 #ifndef USE_UNLIT_WORKFLOW
   // Lighting

@@ -203,6 +203,12 @@ float rand(vec2 seed) {
 }
 `;
 
+const max3 = /* glsl */ `
+float max3(vec3 v) {
+  return max(max(v.x, v.y), v.z);
+}
+`;
+
 export {
   HALF_PI,
   PI,
@@ -214,4 +220,5 @@ export {
   transposeMat3,
   inverseMat4,
   random,
+  max3,
 };

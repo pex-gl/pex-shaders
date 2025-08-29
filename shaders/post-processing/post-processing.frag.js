@@ -35,6 +35,8 @@ ${SHADERS.math.saturate}
 ${SHADERS.encodeDecode}
 ${SHADERS.depthRead}
 ${Object.values(glslToneMap).join("\n")}
+${SHADERS.math.max3}
+${SHADERS.reversibleToneMap}
 
 #if defined(USE_AA) || defined(USE_FILM_GRAIN)
   ${SHADERS.luma}

@@ -51,12 +51,8 @@ float fxaaRgbToLuma(vec3 rgb){
   return sqrt(luma(rgb));
 }
 
-// Read texture as LDR
-vec3 fxaaTexture(sampler2D tex, vec2 uv) {
-  return reinhard(texture2D(tex, uv).xyz);
-}
 float fxaaGetLuma(sampler2D tex, vec2 uv) {
-  return fxaaRgbToLuma(fxaaTexture(tex, uv));
+  return fxaaRgbToLuma(texture2D(tex, uv).xyz);
 }
 
 // Performs FXAA post-process anti-aliasing as described in the Nvidia FXAA white paper and the associated shader code.
@@ -77,7 +73,7 @@ vec4 fxaa(
   vec4 colorCenter = texture2D(screenTexture, uv);
 
   // Luma at the current fragment
-  float lumaCenter = fxaaRgbToLuma(reinhard(colorCenter.xyz));
+  float lumaCenter = fxaaRgbToLuma(colorCenter.xyz);
 
   // Luma at the four direct neighbours of the current fragment.
   float lumaDown = fxaaGetLuma(screenTexture, uvDown);

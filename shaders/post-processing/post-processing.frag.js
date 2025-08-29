@@ -182,6 +182,10 @@ void main() {
   color = encode(color, uOutputEncoding);
 
   // LDR effects
+  #ifdef USE_VIGNETTE
+    color.rgb = vignette(color.rgb, uv, uVignetteRadius, uVignetteIntensity);
+  #endif
+
   #ifdef USE_FILM_GRAIN
     color.rgb = filmGrain(
       color.rgb,
@@ -203,10 +207,6 @@ void main() {
     color.rgb = brightnessContrast(color.rgb, uBrightness, uContrast);
     color.rgb = saturation(color.rgb, uSaturation);
     color.rgb = hue(color.rgb, uHue / 180.0 * PI);
-  #endif
-
-  #ifdef USE_VIGNETTE
-    color.rgb = vignette(color.rgb, uv, uVignetteRadius, uVignetteIntensity);
   #endif
 
   gl_FragColor = color;

@@ -142,7 +142,7 @@ export default /* glsl */ `
       #else
         vec2 texCoordDiffuseTransmissionColor = getTextureCoordinates(data, DIFFUSE_TRANSMISSION_COLOR_TEXTURE_TEX_COORD);
       #endif
-      diffuseTransmissionColor *= decode(texture2D(uDiffuseTransmissionColorTexture, texCoordDiffuseTransmissionColor), SRGB).rgb;
+      diffuseTransmissionColor *= texture2D(uDiffuseTransmissionColorTexture, texCoordDiffuseTransmissionColor).rgb;
     #endif
 
     data.diffuseTransmission = diffuseTransmissionStrength;

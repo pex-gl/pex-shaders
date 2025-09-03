@@ -3,7 +3,7 @@ import * as glslToneMap from "glsl-tone-map";
 import * as SHADERS from "../chunks/index.js";
 
 /**
- * @alias module:postProcessing.postProcessing.frag
+ * @alias module:postProcessing.combine.frag
  * @type {string}
  */
 export default /* glsl */ `precision highp float;

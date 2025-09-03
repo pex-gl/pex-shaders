@@ -1,5 +1,3 @@
-import * as glslToneMap from "glsl-tone-map";
-
 import * as SHADERS from "../chunks/index.js";
 
 /**
@@ -31,6 +29,7 @@ ${SHADERS.math.saturate}
   // - 0.25: almost off
   // - 0.00: completely off
   uniform float uSubPixelQuality;
+  ${SHADERS.encodeDecode}
   ${SHADERS.fxaa}
 #endif
 

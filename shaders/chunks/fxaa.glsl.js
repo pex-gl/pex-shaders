@@ -46,18 +46,21 @@ export default /* glsl */ `
 
 #define FXAA_ONE_OVER_TWELVE 1.0 / 12.0
 
-// Approximation for linear color
+vec4 fxaaReadTexture(sampler2D tex, vec2 uv) {
+  return toGamma(texture2D(tex, uv));
+}
+
 float fxaaRgbToLuma(vec3 rgb){
-  return sqrt(luma(rgb));
+  return luma(rgb);
 }
 
 float fxaaGetLuma(sampler2D tex, vec2 uv) {
-  return fxaaRgbToLuma(texture2D(tex, uv).xyz);
+  return fxaaRgbToLuma(fxaaReadTexture(tex, uv).xyz);
 }
 
 // Performs FXAA post-process anti-aliasing as described in the Nvidia FXAA white paper and the associated shader code.
 vec4 fxaa(
-  sampler2D screenTexture, // HDR
+  sampler2D screenTexture, // LinearSRGB
   vec2 uv,
   vec2 uvLeftUp,
   vec2 uvRightUp,
@@ -70,7 +73,7 @@ vec4 fxaa(
   vec2 texelSize,
   float subPixelQuality
 ) {
-  vec4 colorCenter = texture2D(screenTexture, uv);
+  vec4 colorCenter = fxaaReadTexture(screenTexture, uv);
 
   // Luma at the current fragment
   float lumaCenter = fxaaRgbToLuma(colorCenter.xyz);
@@ -90,7 +93,7 @@ vec4 fxaa(
 
   // If the luma variation is lower that a threshold (or if we are in a really dark area), we are not on an edge, don't perform any AA.
   if (lumaRange < max(FXAA_EDGE_THRESHOLD_MIN, lumaMax * FXAA_EDGE_THRESHOLD_MAX)) {
-    return colorCenter;
+    return toLinear(colorCenter);
   }
 
   // Query the 4 remaining corners lumas.
@@ -263,6 +266,6 @@ vec4 fxaa(
   }
 
   // Read the color at the new UV coordinates, and use it.
-  return texture2D(screenTexture, finalUv);
+  return toLinear(fxaaReadTexture(screenTexture, finalUv));
 }
 `;

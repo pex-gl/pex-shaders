@@ -22,6 +22,7 @@ ${SHADERS.math.saturate}
 #endif
 
 #ifdef USE_AA
+  uniform sampler2D uLumaTexture;
   // FXAA blends anything that has high enough contrast. It helps mitigate fireflies but will blur small details.
   // - 1.00: upper limit (softer)
   // - 0.75: default amount of filtering
@@ -65,12 +66,12 @@ varying vec2 vTexCoord0;
 void main() {
   vec4 color = vec4(0.0);
 
-  vec2 uv = vTexCoord0;
+  vec2 uv;
 
   #ifdef USE_AA
-    color = fxaa(
-      uTexture,
-      uv,
+    uv = fxaa(
+      uLumaTexture,
+      vTexCoord0,
       vTexCoord0LeftUp,
       vTexCoord0RightUp,
       vTexCoord0LeftDown,
@@ -83,8 +84,10 @@ void main() {
       uSubPixelQuality
     );
   #else
-    color = texture2D(uTexture, uv);
+    uv = vTexCoord0;
   #endif
+
+  color = texture2D(uTexture, uv);
 
   #ifdef USE_FILM_GRAIN
     color.rgb = filmGrain(

@@ -13,6 +13,7 @@ import upsampleFrag from "./upsample.frag.js";
 
 import ssaoMixFrag from "./ssao-mix.frag.js";
 import combineFrag from "./combine.frag.js";
+import lumaFrag from "./luma.frag.js";
 import finalFrag from "./final.frag.js";
 
 /**
@@ -69,6 +70,11 @@ export const ssaoMix = { frag: ssaoMixFrag };
  * @static
  */
 export const combine = { frag: combineFrag };
+/**
+ * @member {object}
+ * @static
+ */
+export const luma = { frag: lumaFrag };
 /**
  * @member {object}
  * @static

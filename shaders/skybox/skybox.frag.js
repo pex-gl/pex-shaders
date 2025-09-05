@@ -41,6 +41,8 @@ ${SHADERS.envMapEquirect}
 ${SHADERS.octMap}
 ${SHADERS.irradiance}
 ${Object.values(glslToneMap).join("\n")}
+${SHADERS.math.max3}
+${SHADERS.reversibleToneMap}
 
 void main() {
   vec3 N = normalize(wcNormal);

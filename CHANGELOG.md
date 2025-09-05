@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [2.0.0-alpha.0](https://github.com/pex-gl/pex-shaders/compare/v1.0.0...v2.0.0-alpha.0) (2025-09-05)
+
+
+### Features
+
+* add post-processing luma + use it in fxaa ([bb3ed8d](https://github.com/pex-gl/pex-shaders/commit/bb3ed8d05bb74359ad1ee98ee31182b20f0905ba))
+* add reversible tone map ([09032b7](https://github.com/pex-gl/pex-shaders/commit/09032b7e83df19ad3a54da3c3a6f0d49fb9e3832))
+* assume colors in perceptual space for FXAA ([21d17f5](https://github.com/pex-gl/pex-shaders/commit/21d17f5e00a85972aef0c61500c2b2db3a767d19))
+* assume LinearSRGB input texture for fxaa in final ([b30f7a8](https://github.com/pex-gl/pex-shaders/commit/b30f7a8e3a6b8c050d2d28b0af199db5353337a4))
+* move vignette before LUT/Color Correction ([91e854d](https://github.com/pex-gl/pex-shaders/commit/91e854d261db3f45057e99a31276abe02d9ff10b))
+* remove SRGB textures decoding ([3c31dd9](https://github.com/pex-gl/pex-shaders/commit/3c31dd92eee156017ea4e8c286992ed8006ee442)), closes [#27](https://github.com/pex-gl/pex-shaders/issues/27)
+* split post-processing combine and final ([c0a98f6](https://github.com/pex-gl/pex-shaders/commit/c0a98f628573e57de4f31e33461d15cff159c534))
+
+
+
 # [1.0.0](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.34...v1.0.0) (2025-08-22)
 
 

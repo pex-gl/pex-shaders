@@ -45,6 +45,8 @@ ${SHADERS.math.TWO_PI}
 ${SHADERS.math.saturate}
 ${SHADERS.encodeDecode}
 ${Object.values(glslToneMap).join("\n")}
+${SHADERS.math.max3}
+${SHADERS.reversibleToneMap}
 #ifndef TONE_MAP
   #define TONE_MAP aces
 #endif

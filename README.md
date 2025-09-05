@@ -283,15 +283,13 @@ Get a formatted error pointing at the issue line
   - [.depthPosition](#module_chunks.depthPosition) : <code>string</code>
   - [.depthUnpack](#module_chunks.depthUnpack) : <code>string</code>
   - [.depthPack](#module_chunks.depthPack) : <code>string</code>
-  - [.fog](#module_chunks.fog) : <code>string</code>
-  - [.fxaa](#module_chunks.fxaa) : <code>string</code>
-  - [.filmGrain](#module_chunks.filmGrain) : <code>string</code>
   - [.lut](#module_chunks.lut) : <code>string</code>
   - [.vignette](#module_chunks.vignette) : <code>string</code>
   - [.colorCorrection](#module_chunks.colorCorrection) : <code>string</code>
   - [.filmGrain](#module_chunks.filmGrain) : <code>string</code>
   - [.fog](#module_chunks.fog) : <code>string</code>
   - [.fxaa](#module_chunks.fxaa) : <code>string</code>
+  - [.reversibleToneMap](#module_chunks.reversibleToneMap) : <code>string</code>
   - [.noise](#module_chunks.noise) : <code>object</code>
 
 <a name="module_chunks.output"></a>
@@ -484,21 +482,6 @@ Get a formatted error pointing at the issue line
 ### chunks.depthPack : <code>string</code>
 
 **Kind**: static property of [<code>chunks</code>](#module_chunks)
-<a name="module_chunks.fog"></a>
-
-### chunks.fog : <code>string</code>
-
-**Kind**: static property of [<code>chunks</code>](#module_chunks)
-<a name="module_chunks.fxaa"></a>
-
-### chunks.fxaa : <code>string</code>
-
-**Kind**: static property of [<code>chunks</code>](#module_chunks)
-<a name="module_chunks.filmGrain"></a>
-
-### chunks.filmGrain : <code>string</code>
-
-**Kind**: static property of [<code>chunks</code>](#module_chunks)
 <a name="module_chunks.lut"></a>
 
 ### chunks.lut : <code>string</code>
@@ -555,6 +538,17 @@ Reference Implementations:
 - https://gist.github.com/kosua20/0c506b81b3812ac900048059d2383126
 
 Updates: Damien Seguin (2023-10)
+
+**Kind**: static property of [<code>chunks</code>](#module_chunks)
+<a name="module_chunks.reversibleToneMap"></a>
+
+### chunks.reversibleToneMap : <code>string</code>
+
+Reversible Tone Map
+
+Reference Implementations:
+
+- "Optimized Reversible Tonemapper for Resolve", Timothy Lottes: https://gpuopen.com/learn/optimized-reversible-tonemapper-for-resolve/
 
 **Kind**: static property of [<code>chunks</code>](#module_chunks)
 <a name="module_chunks.noise"></a>
@@ -774,26 +768,78 @@ Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)
 ## postProcessing
 
 - [postProcessing](#module_postProcessing)
+  - [.postProcessing](#module_postProcessing.postProcessing) : <code>object</code>
+    - [.vert](#module_postProcessing.postProcessing.vert) : <code>string</code>
+  - [.gtao](#module_postProcessing.gtao) : <code>object</code>
+    - [.frag](#module_postProcessing.gtao.frag) : <code>string</code>
+  - [.sao](#module_postProcessing.sao) : <code>object</code>
+    - [.frag](#module_postProcessing.sao.frag) : <code>string</code>
   - [.bilateralBlur](#module_postProcessing.bilateralBlur) : <code>object</code>
     - [.frag](#module_postProcessing.bilateralBlur.frag) : <code>string</code>
   - [.dof](#module_postProcessing.dof) : <code>object</code>
     - [.frag](#module_postProcessing.dof.frag) : <code>string</code>
-  - [.downsample](#module_postProcessing.downsample) : <code>object</code>
-    - [.frag](#module_postProcessing.downsample.frag) : <code>string</code>
-  - [.postProcessing](#module_postProcessing.postProcessing) : <code>object</code>
-    - [.frag](#module_postProcessing.postProcessing.frag) : <code>string</code>
-    - [.vert](#module_postProcessing.postProcessing.vert) : <code>string</code>
-  - [.sao](#module_postProcessing.sao) : <code>object</code>
-    - [.frag](#module_postProcessing.sao.frag) : <code>string</code>
-  - [.gtao](#module_postProcessing.gtao) : <code>object</code>
-    - [.frag](#module_postProcessing.gtao.frag) : <code>string</code>
-  - [.ssaoMix](#module_postProcessing.ssaoMix) : <code>object</code>
-    - [.frag](#module_postProcessing.ssaoMix.frag) : <code>string</code>
   - [.threshold](#module_postProcessing.threshold) : <code>object</code>
     - [.frag](#module_postProcessing.threshold.frag) : <code>string</code>
+  - [.downsample](#module_postProcessing.downsample) : <code>object</code>
+    - [.frag](#module_postProcessing.downsample.frag) : <code>string</code>
   - [.upsample](#module_postProcessing.upsample) : <code>object</code>
     - [.frag](#module_postProcessing.upsample.frag) : <code>string</code>
+  - [.ssaoMix](#module_postProcessing.ssaoMix) : <code>object</code>
+    - [.frag](#module_postProcessing.ssaoMix.frag) : <code>string</code>
+  - [.combine](#module_postProcessing.combine) : <code>object</code>
+    - [.frag](#module_postProcessing.combine.frag) : <code>string</code>
+  - [.luma](#module_postProcessing.luma) : <code>object</code>
+    - [.frag](#module_postProcessing.luma.frag) : <code>string</code>
+  - [.final](#module_postProcessing.final) : <code>object</code>
+    - [.frag](#module_postProcessing.final.frag) : <code>string</code>
 
+<a name="module_postProcessing.postProcessing"></a>
+
+### postProcessing.postProcessing : <code>object</code>
+
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
+<a name="module_postProcessing.postProcessing.vert"></a>
+
+#### postProcessing.vert : <code>string</code>
+
+**Kind**: static property of [<code>postProcessing</code>](#module_postProcessing.postProcessing)
+<a name="module_postProcessing.gtao"></a>
+
+### postProcessing.gtao : <code>object</code>
+
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
+<a name="module_postProcessing.gtao.frag"></a>
+
+#### gtao.frag : <code>string</code>
+
+GTAO (Ground Truth)
+
+Paper: https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf
+
+Reference Implementation: https://github.com/GameTechDev/XeGTAO/blob/master/Source/Rendering/Shaders/XeGTAO.hlsli
+
+Updates: Damien Seguin (2023-10)
+
+**Kind**: static property of [<code>gtao</code>](#module_postProcessing.gtao)
+<a name="module_postProcessing.sao"></a>
+
+### postProcessing.sao : <code>object</code>
+
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
+<a name="module_postProcessing.sao.frag"></a>
+
+#### sao.frag : <code>string</code>
+
+SAO (Scalable Ambient Obscurance)
+
+Paper: https://research.nvidia.com/sites/default/files/pubs/2012-06_Scalable-Ambient-Obscurance/McGuire12SAO.pdf
+(https://casual-effects.com/research/McGuire2012SAO/index.html)
+
+Reference Implementation: https://gist.github.com/transitive-bullshit/6770311
+
+Updates: Marcin Ignac (2017-05-08) and Damien Seguin (2023-10)
+
+**Kind**: static property of [<code>sao</code>](#module_postProcessing.sao)
 <a name="module_postProcessing.bilateralBlur"></a>
 
 ### postProcessing.bilateralBlur : <code>object</code>
@@ -821,6 +867,16 @@ Based on:
 - "GLSL depth of field with bokeh v2.4", Martins Upitis: https://devlog-martinsh.blogspot.com/2011/12/glsl-depth-of-field-with-bokeh-v24.html
 
 **Kind**: static property of [<code>dof</code>](#module_postProcessing.dof)
+<a name="module_postProcessing.threshold"></a>
+
+### postProcessing.threshold : <code>object</code>
+
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
+<a name="module_postProcessing.threshold.frag"></a>
+
+#### threshold.frag : <code>string</code>
+
+**Kind**: static property of [<code>threshold</code>](#module_postProcessing.threshold)
 <a name="module_postProcessing.downsample"></a>
 
 ### postProcessing.downsample : <code>object</code>
@@ -835,85 +891,6 @@ Downsample
 Reference Implementation: https://github.com/keijiro/KinoBloom
 
 **Kind**: static property of [<code>downsample</code>](#module_postProcessing.downsample)
-<a name="module_postProcessing.postProcessing"></a>
-
-### postProcessing.postProcessing : <code>object</code>
-
-**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
-
-- [.postProcessing](#module_postProcessing.postProcessing) : <code>object</code>
-  - [.frag](#module_postProcessing.postProcessing.frag) : <code>string</code>
-  - [.vert](#module_postProcessing.postProcessing.vert) : <code>string</code>
-
-<a name="module_postProcessing.postProcessing.frag"></a>
-
-#### postProcessing.frag : <code>string</code>
-
-**Kind**: static property of [<code>postProcessing</code>](#module_postProcessing.postProcessing)
-<a name="module_postProcessing.postProcessing.vert"></a>
-
-#### postProcessing.vert : <code>string</code>
-
-**Kind**: static property of [<code>postProcessing</code>](#module_postProcessing.postProcessing)
-<a name="module_postProcessing.sao"></a>
-
-### postProcessing.sao : <code>object</code>
-
-**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
-<a name="module_postProcessing.sao.frag"></a>
-
-#### sao.frag : <code>string</code>
-
-SAO (Scalable Ambient Obscurance)
-
-Paper: https://research.nvidia.com/sites/default/files/pubs/2012-06_Scalable-Ambient-Obscurance/McGuire12SAO.pdf
-(https://casual-effects.com/research/McGuire2012SAO/index.html)
-
-Reference Implementation: https://gist.github.com/transitive-bullshit/6770311
-
-Updates: Marcin Ignac (2017-05-08) and Damien Seguin (2023-10)
-
-**Kind**: static property of [<code>sao</code>](#module_postProcessing.sao)
-<a name="module_postProcessing.gtao"></a>
-
-### postProcessing.gtao : <code>object</code>
-
-**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
-<a name="module_postProcessing.gtao.frag"></a>
-
-#### gtao.frag : <code>string</code>
-
-GTAO (Ground Truth)
-
-Paper: https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf
-
-Reference Implementation: https://github.com/GameTechDev/XeGTAO/blob/master/Source/Rendering/Shaders/XeGTAO.hlsli
-
-Updates: Damien Seguin (2023-10)
-
-**Kind**: static property of [<code>gtao</code>](#module_postProcessing.gtao)
-<a name="module_postProcessing.ssaoMix"></a>
-
-### postProcessing.ssaoMix : <code>object</code>
-
-**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
-<a name="module_postProcessing.ssaoMix.frag"></a>
-
-#### ssaoMix.frag : <code>string</code>
-
-SSAO mix
-
-**Kind**: static property of [<code>ssaoMix</code>](#module_postProcessing.ssaoMix)
-<a name="module_postProcessing.threshold"></a>
-
-### postProcessing.threshold : <code>object</code>
-
-**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
-<a name="module_postProcessing.threshold.frag"></a>
-
-#### threshold.frag : <code>string</code>
-
-**Kind**: static property of [<code>threshold</code>](#module_postProcessing.threshold)
 <a name="module_postProcessing.upsample"></a>
 
 ### postProcessing.upsample : <code>object</code>
@@ -928,6 +905,48 @@ Upsample
 Reference Implementation: https://github.com/keijiro/KinoBloom
 
 **Kind**: static property of [<code>upsample</code>](#module_postProcessing.upsample)
+<a name="module_postProcessing.ssaoMix"></a>
+
+### postProcessing.ssaoMix : <code>object</code>
+
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
+<a name="module_postProcessing.ssaoMix.frag"></a>
+
+#### ssaoMix.frag : <code>string</code>
+
+SSAO mix
+
+**Kind**: static property of [<code>ssaoMix</code>](#module_postProcessing.ssaoMix)
+<a name="module_postProcessing.combine"></a>
+
+### postProcessing.combine : <code>object</code>
+
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
+<a name="module_postProcessing.combine.frag"></a>
+
+#### combine.frag : <code>string</code>
+
+**Kind**: static property of [<code>combine</code>](#module_postProcessing.combine)
+<a name="module_postProcessing.luma"></a>
+
+### postProcessing.luma : <code>object</code>
+
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
+<a name="module_postProcessing.luma.frag"></a>
+
+#### luma.frag : <code>string</code>
+
+**Kind**: static property of [<code>luma</code>](#module_postProcessing.luma)
+<a name="module_postProcessing.final"></a>
+
+### postProcessing.final : <code>object</code>
+
+**Kind**: static constant of [<code>postProcessing</code>](#module_postProcessing)
+<a name="module_postProcessing.final.frag"></a>
+
+#### final.frag : <code>string</code>
+
+**Kind**: static property of [<code>final</code>](#module_postProcessing.final)
 <a name="module_reflectionProbe"></a>
 
 ## reflectionProbe

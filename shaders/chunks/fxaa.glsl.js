@@ -46,22 +46,13 @@ export default /* glsl */ `
 
 #define FXAA_ONE_OVER_TWELVE 1.0 / 12.0
 
-// Approximation for linear color
-float fxaaRgbToLuma(vec3 rgb){
-  return sqrt(luma(rgb));
-}
-
-// Read texture as LDR
-vec3 fxaaTexture(sampler2D tex, vec2 uv) {
-  return reinhard(texture2D(tex, uv).xyz);
-}
 float fxaaGetLuma(sampler2D tex, vec2 uv) {
-  return fxaaRgbToLuma(fxaaTexture(tex, uv));
+  return texture2D(uLumaTexture, uv).r;
 }
 
 // Performs FXAA post-process anti-aliasing as described in the Nvidia FXAA white paper and the associated shader code.
-vec4 fxaa(
-  sampler2D screenTexture, // HDR
+vec2 fxaa(
+  sampler2D lumaTexture,
   vec2 uv,
   vec2 uvLeftUp,
   vec2 uvRightUp,
@@ -74,16 +65,14 @@ vec4 fxaa(
   vec2 texelSize,
   float subPixelQuality
 ) {
-  vec4 colorCenter = texture2D(screenTexture, uv);
-
   // Luma at the current fragment
-  float lumaCenter = fxaaRgbToLuma(reinhard(colorCenter.xyz));
+  float lumaCenter = fxaaGetLuma(lumaTexture, uv);
 
   // Luma at the four direct neighbours of the current fragment.
-  float lumaDown = fxaaGetLuma(screenTexture, uvDown);
-  float lumaUp = fxaaGetLuma(screenTexture, uvUp);
-  float lumaLeft = fxaaGetLuma(screenTexture, uvLeft);
-  float lumaRight = fxaaGetLuma(screenTexture, uvRight);
+  float lumaDown = fxaaGetLuma(lumaTexture, uvDown);
+  float lumaUp = fxaaGetLuma(lumaTexture, uvUp);
+  float lumaLeft = fxaaGetLuma(lumaTexture, uvLeft);
+  float lumaRight = fxaaGetLuma(lumaTexture, uvRight);
 
   // Find the maximum and minimum luma around the current fragment.
   float lumaMin = min(lumaCenter, min(min(lumaDown, lumaUp), min(lumaLeft, lumaRight)));
@@ -94,14 +83,14 @@ vec4 fxaa(
 
   // If the luma variation is lower that a threshold (or if we are in a really dark area), we are not on an edge, don't perform any AA.
   if (lumaRange < max(FXAA_EDGE_THRESHOLD_MIN, lumaMax * FXAA_EDGE_THRESHOLD_MAX)) {
-    return colorCenter;
+    return uv;
   }
 
   // Query the 4 remaining corners lumas.
-  float lumaDownLeft = fxaaGetLuma(screenTexture, uvLeftDown);
-  float lumaUpRight = fxaaGetLuma(screenTexture, uvRightUp);
-  float lumaUpLeft = fxaaGetLuma(screenTexture, uvLeftUp);
-  float lumaDownRight = fxaaGetLuma(screenTexture, uvRightDown);
+  float lumaDownLeft = fxaaGetLuma(lumaTexture, uvLeftDown);
+  float lumaUpRight = fxaaGetLuma(lumaTexture, uvRightUp);
+  float lumaUpLeft = fxaaGetLuma(lumaTexture, uvLeftUp);
+  float lumaDownRight = fxaaGetLuma(lumaTexture, uvRightDown);
 
   // Combine the four edges lumas (using intermediary variables for future computations with the same values).
   float lumaDownUp = lumaDown + lumaUp;
@@ -169,8 +158,8 @@ vec4 fxaa(
   vec2 uv2 = currentUv + offset; // * QUALITY(0); // (quality 0 is 1.0)
 
   // Read the lumas at both current extremities of the exploration segment, and compute the delta wrt to the local average luma.
-  float lumaEnd1 = fxaaGetLuma(screenTexture, uv1);
-  float lumaEnd2 = fxaaGetLuma(screenTexture, uv2);
+  float lumaEnd1 = fxaaGetLuma(lumaTexture, uv1);
+  float lumaEnd2 = fxaaGetLuma(lumaTexture, uv2);
   lumaEnd1 -= lumaLocalAverage;
   lumaEnd2 -= lumaLocalAverage;
 
@@ -194,12 +183,12 @@ vec4 fxaa(
     {
       // If needed, read luma in 1st direction, compute delta.
       if (!reached1) {
-        lumaEnd1 = fxaaGetLuma(screenTexture, uv1);
+        lumaEnd1 = fxaaGetLuma(lumaTexture, uv1);
         lumaEnd1 = lumaEnd1 - lumaLocalAverage;
       }
       // If needed, read luma in opposite direction, compute delta.
       if (!reached2) {
-        lumaEnd2 = fxaaGetLuma(screenTexture, uv2);
+        lumaEnd2 = fxaaGetLuma(lumaTexture, uv2);
         lumaEnd2 = lumaEnd2 - lumaLocalAverage;
       }
       // If the luma deltas at the current extremities is larger than the local gradient, we have reached the side of the edge.
@@ -266,7 +255,6 @@ vec4 fxaa(
     finalUv.x += finalOffset * stepLength;
   }
 
-  // Read the color at the new UV coordinates, and use it.
-  return texture2D(screenTexture, finalUv);
+  return finalUv;
 }
 `;

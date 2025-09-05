@@ -3,7 +3,7 @@
  *
  * Reference Implementations:
  * - "Optimized Reversible Tonemapper for Resolve", Timothy Lottes: https://gpuopen.com/learn/optimized-reversible-tonemapper-for-resolve/
- * @alias module:chunks.reversible-tone-map
+ * @alias module:chunks.reversibleToneMap
  * @type {string}
  */
 export default /* glsl */ `

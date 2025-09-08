@@ -29,7 +29,6 @@ precision highp float;
 
 ${SHADERS.output.frag}
 
-uniform int uOutputEncoding;
 uniform vec4 uParameters; // turbidity, rayleigh, mieCoefficient, mieDirectionalG
 
 varying vec3 vSunDirection;
@@ -45,8 +44,6 @@ ${SHADERS.math.TWO_PI}
 ${SHADERS.math.saturate}
 ${SHADERS.encodeDecode}
 ${Object.values(glslToneMap).join("\n")}
-${SHADERS.math.max3}
-${SHADERS.reversibleToneMap}
 #ifndef TONE_MAP
   #define TONE_MAP aces
 #endif
@@ -145,7 +142,7 @@ void main() {
 
   color.a = 1.0;
 
-  gl_FragData[0] = encode(color, uOutputEncoding);
+  gl_FragData[0] = color;
 
   #ifdef USE_DRAW_BUFFERS
     #if LOCATION_NORMAL >= 0

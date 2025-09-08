@@ -13,14 +13,12 @@ ${SHADERS.output.frag}
 uniform float uTextureSize;
 uniform sampler2D uOctMapAtlas;
 uniform float uOctMapAtlasSize;
-uniform int uOctMapAtlasEncoding;
 uniform sampler2D uHammersleyPointSetMap;
 uniform int uNumSamples;
 uniform float uLevel;
 uniform float uSourceMipmapLevel;
 uniform float uSourceRoughnessLevel;
 uniform float uRoughnessLevel;
-uniform int uOutputEncoding;
 
 varying vec2 vTexCoord0;
 
@@ -105,7 +103,7 @@ vec3 PrefilterEnvMap( float roughness, vec3 R, vec2 uv ) {
     float NoL = saturate( dot( N, L ) );
     if( NoL > 0.0 ) {
       vec4 color = textureOctMapLod(uOctMapAtlas, envMapOctahedral(L));
-      PrefilteredColor += NoL * decode(color, uOctMapAtlasEncoding).rgb;
+      PrefilteredColor += NoL * color.rgb;
       TotalWeight += NoL;
     }
   }
@@ -115,7 +113,7 @@ vec3 PrefilterEnvMap( float roughness, vec3 R, vec2 uv ) {
 void main() {
   vec3 normal = octMapUVToDir(vTexCoord0);
   vec3 color = PrefilterEnvMap(uRoughnessLevel / 5.0, normal, vTexCoord0);
-  gl_FragColor = encode(vec4(color, 1.0), uOutputEncoding);
+  gl_FragColor = vec4(color, 1.0);
 
   ${SHADERS.output.assignment}
 }

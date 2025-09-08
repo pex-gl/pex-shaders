@@ -1,5 +1,3 @@
-import * as glslToneMap from "glsl-tone-map";
-
 import * as SHADERS from "../chunks/index.js";
 
 /**
@@ -30,9 +28,6 @@ uniform highp mat3 uNormalMatrix;
 uniform highp mat4 uModelMatrix;
 
 uniform vec3 uCameraPosition;
-
-uniform float uExposure;
-uniform int uOutputEncoding;
 
 varying vec3 vNormalWorld;
 varying vec3 vNormalView;
@@ -114,7 +109,6 @@ ${SHADERS.textureCoordinates}
 ${SHADERS.baseColor}
 ${SHADERS.alpha}
 ${SHADERS.ambientOcclusion}
-${Object.values(glslToneMap).join("\n")}
 ${SHADERS.math.max3}
 ${SHADERS.reversibleToneMap}
 
@@ -321,20 +315,18 @@ void main() {
     color = data.emissiveColor + data.indirectDiffuse + data.indirectSpecular + data.directColor + data.transmitted;
   #endif // USE_UNLIT_WORKFLOW
 
-  color.rgb *= uExposure;
-
-  #if defined(TONE_MAP)
-    color.rgb = TONE_MAP(color.rgb);
+  #ifdef USE_MSAA
+    color.rgb = reversibleToneMap(color.rgb);
   #endif
 
-  gl_FragData[0] = encode(vec4(color, 1.0), uOutputEncoding);
+  gl_FragData[0] = vec4(color, 1.0);
 
   #ifdef USE_DRAW_BUFFERS
     #if LOCATION_NORMAL >= 0
       gl_FragData[LOCATION_NORMAL] = vec4(data.normalView * 0.5 + 0.5, 1.0);
     #endif
     #if LOCATION_EMISSIVE >= 0
-      gl_FragData[LOCATION_EMISSIVE] = encode(vec4(data.emissiveColor, 1.0), uOutputEncoding);
+      gl_FragData[LOCATION_EMISSIVE] = vec4(data.emissiveColor, 1.0);
     #endif
   #endif
   #if defined(USE_BLEND) || defined(USE_TRANSMISSION)

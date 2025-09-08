@@ -11,9 +11,7 @@ ${SHADERS.output.frag}
 
 uniform sampler2D uOctMapAtlas;
 uniform float uOctMapAtlasSize;
-uniform int uOctMapAtlasEncoding;
 uniform float uIrradianceOctMapSize;
-uniform int uOutputEncoding;
 
 varying vec2 vTexCoord0;
 
@@ -41,14 +39,14 @@ void main() {
       // in theory this should be sample from mipmap level e.g. 2.0, 0.0
       // but sampling from prefiltered roughness gives much smoother results
       vec2 sampleUV = envMapOctahedral(sampleVector, 0.0, 2.0, uOctMapAtlasSize);
-      vec4 color = texture2D( uOctMapAtlas, sampleUV);
-      sampledColor += decode(color, uOctMapAtlasEncoding).rgb * cos(theta) * sin(theta);
+      vec4 color = texture2D(uOctMapAtlas, sampleUV);
+      sampledColor += color.rgb * cos(theta) * sin(theta);
       index += 1.0;
     }
   }
 
   sampledColor = PI * sampledColor / index;
-  gl_FragColor = encode(vec4(sampledColor, 1.0), uOutputEncoding);
+  gl_FragColor = vec4(sampledColor, 1.0);
 
   ${SHADERS.output.assignment}
 }

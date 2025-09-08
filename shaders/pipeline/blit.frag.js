@@ -1,5 +1,3 @@
-import * as glslToneMap from "glsl-tone-map";
-
 import * as SHADERS from "../chunks/index.js";
 
 /**
@@ -12,15 +10,9 @@ ${SHADERS.output.frag}
 
 uniform sampler2D uTexture;
 
-uniform float uExposure;
-uniform int uOutputEncoding;
-
 varying vec2 vTexCoord0;
 
 // Includes
-${SHADERS.math.PI}
-${SHADERS.encodeDecode}
-${Object.values(glslToneMap).join("\n")}
 ${SHADERS.math.max3}
 ${SHADERS.reversibleToneMap}
 
@@ -29,13 +21,11 @@ ${SHADERS.reversibleToneMap}
 void main() {
   vec4 color = texture2D(uTexture, vTexCoord0);
 
-  color.rgb *= uExposure;
-
-  #if defined(TONE_MAP)
-    color.rgb = TONE_MAP(color.rgb);
+  #ifdef USE_MSAA
+    color.rgb = reversibleToneMapInverse(color.rgb);
   #endif
 
-  gl_FragColor = encode(color, uOutputEncoding);
+  gl_FragColor = color;
 
   ${SHADERS.output.assignment}
 

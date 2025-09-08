@@ -1,5 +1,3 @@
-import * as glslToneMap from "glsl-tone-map";
-
 import * as SHADERS from "../chunks/index.js";
 
 /**
@@ -18,19 +16,12 @@ precision highp float;
 ${SHADERS.output.frag}
 
 // Variables
-uniform int uOutputEncoding;
-
-// assuming texture in Linear Space
-// most likely HDR or Texture2D with sRGB Ext
-uniform sampler2D uEnvMap;
-uniform int uEnvMapEncoding;
+uniform sampler2D uEnvMap; // Linear (eg. HDR in RGBA32F or sky in SRGB8_ALPHA8)
 uniform float uEnvMapSize;
 uniform float uEnvMapExposure;
 uniform float uBackgroundBlur;
 
 varying vec3 wcNormal;
-
-uniform float uExposure;
 
 // Includes
 ${SHADERS.math.PI}
@@ -40,7 +31,6 @@ ${SHADERS.encodeDecode}
 ${SHADERS.envMapEquirect}
 ${SHADERS.octMap}
 ${SHADERS.irradiance}
-${Object.values(glslToneMap).join("\n")}
 ${SHADERS.math.max3}
 ${SHADERS.reversibleToneMap}
 
@@ -50,20 +40,18 @@ void main() {
   vec4 color = vec4(0.0);
 
   if (uBackgroundBlur <= 0.0) {
-    color = decode(texture2D(uEnvMap, envMapEquirect(N)), uEnvMapEncoding);
+    color = texture2D(uEnvMap, envMapEquirect(N));
   } else {
-    color = vec4(getIrradiance(N, uEnvMap, uEnvMapSize, uEnvMapEncoding), 1.0);
+    color = vec4(getIrradiance(N, uEnvMap, uEnvMapSize, LINEAR), 1.0);
   }
 
   color.rgb *= uEnvMapExposure;
 
-  color.rgb *= uExposure;
-
-  #if defined(TONE_MAP)
-    color.rgb = TONE_MAP(color.rgb);
+  #ifdef USE_MSAA
+    color.rgb = reversibleToneMap(color.rgb);
   #endif
 
-  gl_FragData[0] = encode(color, uOutputEncoding);
+  gl_FragData[0] = color;
 
   #ifdef USE_DRAW_BUFFERS
     #if LOCATION_NORMAL >= 0

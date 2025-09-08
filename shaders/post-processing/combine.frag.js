@@ -18,8 +18,6 @@ uniform vec2 uViewportSize;
 uniform vec2 uTexelSize;
 uniform float uTime;
 
-// uniform int uTextureEncoding;
-
 // Camera
 uniform mat4 uViewMatrix;
 // TODO: group in vec4
@@ -27,7 +25,6 @@ uniform float uNear;
 uniform float uFar;
 uniform float uFov;
 uniform float uExposure;
-uniform int uOutputEncoding;
 
 // Includes
 ${SHADERS.math.PI}
@@ -116,7 +113,7 @@ void main() {
     color.rgb = saturate(color.rgb);
   #endif
 
-  color = encode(color, uOutputEncoding);
+  color = encode(color, GAMMA);
 
   // LDR effects
   #ifdef USE_VIGNETTE

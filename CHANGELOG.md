@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [2.0.0-alpha.1](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.0...v2.0.0-alpha.1) (2025-09-08)
+
+
+### Features
+
+* remove encoding/decoding + remove exposure/toneMap + add msaa define instead ([8c53609](https://github.com/pex-gl/pex-shaders/commit/8c53609fcc934dda0950d1f5d1594da57f4dbd39))
+
+
+
 # [2.0.0-alpha.0](https://github.com/pex-gl/pex-shaders/compare/v1.0.0...v2.0.0-alpha.0) (2025-09-05)
 
 

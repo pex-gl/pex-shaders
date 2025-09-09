@@ -15,11 +15,13 @@ varying vec2 vTexCoord0;
 // Includes
 ${SHADERS.math.max3}
 ${SHADERS.reversibleToneMap}
+${SHADERS.encodeDecode}
 
 #define HOOK_FRAG_DECLARATIONS_END
 
 void main() {
   vec4 color = texture2D(uTexture, vTexCoord0);
+  color = encode(color, SRGB);
 
   gl_FragColor = color;
 

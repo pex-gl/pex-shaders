@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [2.0.0-alpha.2](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.1...v2.0.0-alpha.2) (2025-09-09)
+
+
+### Features
+
+* **main:** make post-processing combine and final decode SRGB ([fe2f4cc](https://github.com/pex-gl/pex-shaders/commit/fe2f4cc07482a200909130a5da48ae3950299698))
+* make blit encode to SRGB ([3ee1afa](https://github.com/pex-gl/pex-shaders/commit/3ee1afa5f64cd00e6c07dae372a7036fa26212aa))
+* remove RGBM from encode decode ([15b8d40](https://github.com/pex-gl/pex-shaders/commit/15b8d4027db17e46d57c88ac2ee6ce33bd06a799))
+* split blit and reversible tone map passes ([1732e0f](https://github.com/pex-gl/pex-shaders/commit/1732e0f8f0596ec502a39a93ed4f9da23c6baa7d))
+
+
+
 # [2.0.0-alpha.1](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.0...v2.0.0-alpha.1) (2025-09-08)
 
 

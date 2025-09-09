@@ -569,6 +569,8 @@ Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)
   - [.blit](#module_pipeline.blit) : <code>object</code>
     - [.frag](#module_pipeline.blit.frag) : <code>string</code>
     - [.vert](#module_pipeline.blit.vert) : <code>string</code>
+  - [.reversibleToneMap](#module_pipeline.reversibleToneMap) : <code>object</code>
+    - [.frag](#module_pipeline.reversibleToneMap.frag) : <code>string</code>
   - [.depthPass](#module_pipeline.depthPass) : <code>object</code>
     - [.frag](#module_pipeline.depthPass.frag) : <code>string</code>
     - [.vert](#module_pipeline.depthPass.vert) : <code>string</code>
@@ -613,6 +615,16 @@ Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)
 #### blit.vert : <code>string</code>
 
 **Kind**: static property of [<code>blit</code>](#module_pipeline.blit)
+<a name="module_pipeline.reversibleToneMap"></a>
+
+### pipeline.reversibleToneMap : <code>object</code>
+
+**Kind**: static constant of [<code>pipeline</code>](#module_pipeline)
+<a name="module_pipeline.reversibleToneMap.frag"></a>
+
+#### reversibleToneMap.frag : <code>string</code>
+
+**Kind**: static property of [<code>reversibleToneMap</code>](#module_pipeline.reversibleToneMap)
 <a name="module_pipeline.depthPass"></a>
 
 ### pipeline.depthPass : <code>object</code>

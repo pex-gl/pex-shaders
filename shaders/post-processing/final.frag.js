@@ -16,10 +16,7 @@ uniform float uTime;
 
 // Includes
 ${SHADERS.math.saturate}
-
-#if defined(USE_AA) || defined(USE_FILM_GRAIN)
-  ${SHADERS.luma}
-#endif
+${SHADERS.encodeDecode}
 
 #ifdef USE_AA
   uniform sampler2D uLumaTexture;
@@ -30,7 +27,6 @@ ${SHADERS.math.saturate}
   // - 0.25: almost off
   // - 0.00: completely off
   uniform float uSubPixelQuality;
-  ${SHADERS.encodeDecode}
   ${SHADERS.fxaa}
 #endif
 
@@ -45,6 +41,7 @@ ${SHADERS.math.saturate}
   ${SHADERS.noise.simplex}
   ${SHADERS.noise.perlin}
   ${SHADERS.math.random}
+  ${SHADERS.luma}
   ${SHADERS.filmGrain}
 #endif
 
@@ -64,8 +61,6 @@ varying vec2 vTexCoord0;
 #endif
 
 void main() {
-  vec4 color = vec4(0.0);
-
   vec2 uv;
 
   #ifdef USE_AA
@@ -87,11 +82,13 @@ void main() {
     uv = vTexCoord0;
   #endif
 
-  color = texture2D(uTexture, uv);
+  vec4 color = texture2D(uTexture, uv);
+
+  vec4 colorSRGB = encode(color, SRGB);
 
   #ifdef USE_FILM_GRAIN
-    color.rgb = filmGrain(
-      color.rgb,
+    colorSRGB.rgb = filmGrain(
+      colorSRGB.rgb,
       uv,
       uViewportSize,
       uFilmGrainSize,
@@ -102,7 +99,7 @@ void main() {
     );
   #endif
 
-  gl_FragColor = color;
+  gl_FragColor = decode(colorSRGB, SRGB);
   gl_FragColor.a *= uOpacity;
 
   ${SHADERS.output.assignment}

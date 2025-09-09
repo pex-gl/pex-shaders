@@ -113,24 +113,24 @@ void main() {
     color.rgb = saturate(color.rgb);
   #endif
 
-  color = encode(color, GAMMA);
+  vec4 colorSRGB = encode(color, SRGB);
 
   // LDR effects
   #ifdef USE_VIGNETTE
-    color.rgb = vignette(color.rgb, uv, uVignetteRadius, uVignetteIntensity);
+    colorSRGB.rgb = vignette(colorSRGB.rgb, uv, uVignetteRadius, uVignetteIntensity);
   #endif
 
   #ifdef USE_LUT
-    color.rgb = lut(vec4(color.rgb, 1.0), uLUTTexture, uLUTTextureSize).rgb;
+    colorSRGB.rgb = lut(vec4(colorSRGB.rgb, 1.0), uLUTTexture, uLUTTextureSize).rgb;
   #endif
 
   #ifdef USE_COLOR_CORRECTION
-    color.rgb = brightnessContrast(color.rgb, uBrightness, uContrast);
-    color.rgb = saturation(color.rgb, uSaturation);
-    color.rgb = hue(color.rgb, uHue / 180.0 * PI);
+    colorSRGB.rgb = brightnessContrast(colorSRGB.rgb, uBrightness, uContrast);
+    colorSRGB.rgb = saturation(colorSRGB.rgb, uSaturation);
+    colorSRGB.rgb = hue(colorSRGB.rgb, uHue / 180.0 * PI);
   #endif
 
-  gl_FragColor = color;
+  gl_FragColor = decode(colorSRGB, SRGB);
 
   ${SHADERS.output.assignment}
 }

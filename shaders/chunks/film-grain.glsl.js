@@ -121,7 +121,7 @@ vec3 filmGrain(
     vec3 noise = filmGrainUpitis(uv, time, size, colorIntensity, viewportSize);
   #endif
 
-  float luminance = mix(0.0, luma(color), luminanceIntensity);
+  float luminance = mix(0.0, luma(color), luminanceIntensity); // TODO: use lumaTexture
   return saturate(color + mix(noise, vec3(0.0), pow(luminance + smoothstep(0.2, 0.0, luminance), 4.0)) * intensity);
 }
 `;

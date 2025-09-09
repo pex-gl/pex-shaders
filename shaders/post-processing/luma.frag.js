@@ -20,7 +20,7 @@ varying vec2 vTexCoord0;
 void main() {
   vec4 color = texture2D(uTexture, vTexCoord0);
 
-  gl_FragData[0].r = luma(toGamma(color.rgb));
+  gl_FragData[0].r = luma(encode(color, SRGB).rgb);
 
   ${SHADERS.output.assignment}
 }

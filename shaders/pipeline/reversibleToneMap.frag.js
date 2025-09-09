@@ -1,7 +1,7 @@
 import * as SHADERS from "../chunks/index.js";
 
 /**
- * @alias module:pipeline.blit.frag
+ * @alias module:pipeline.reversibleToneMap.frag
  * @type {string}
  */
 export default /* glsl */ `precision highp float;
@@ -20,6 +20,7 @@ ${SHADERS.reversibleToneMap}
 
 void main() {
   vec4 color = texture2D(uTexture, vTexCoord0);
+  color.rgb = reversibleToneMapInverse(color.rgb);
 
   gl_FragColor = color;
 

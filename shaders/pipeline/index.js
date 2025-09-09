@@ -2,6 +2,7 @@
 
 import blitVert from "./blit.vert.js";
 import blitFrag from "./blit.frag.js";
+import reversibleToneMapFrag from "./reversibleToneMap.frag.js";
 import depthPassVert from "./depth-pass.vert.js";
 import depthPassFrag from "./depth-pass.frag.js";
 import depthPrePassFrag from "./depth-pre-pass.frag.js";
@@ -22,6 +23,10 @@ import errorVert from "./error.vert.js";
  * @member {object}
  * @static
  */ export const blit = { vert: blitVert, frag: blitFrag };
+/**
+ * @member {object}
+ * @static
+ */ export const reversibleToneMap = { frag: reversibleToneMapFrag };
 /**
  * @member {object}
  * @static

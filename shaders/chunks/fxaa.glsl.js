@@ -46,10 +46,6 @@ export default /* glsl */ `
 
 #define FXAA_ONE_OVER_TWELVE 1.0 / 12.0
 
-float fxaaGetLuma(sampler2D tex, vec2 uv) {
-  return texture2D(uLumaTexture, uv).r;
-}
-
 // Performs FXAA post-process anti-aliasing as described in the Nvidia FXAA white paper and the associated shader code.
 vec2 fxaa(
   sampler2D lumaTexture,
@@ -66,13 +62,13 @@ vec2 fxaa(
   float subPixelQuality
 ) {
   // Luma at the current fragment
-  float lumaCenter = fxaaGetLuma(lumaTexture, uv);
+  float lumaCenter = readLumaTexture(lumaTexture, uv);
 
   // Luma at the four direct neighbours of the current fragment.
-  float lumaDown = fxaaGetLuma(lumaTexture, uvDown);
-  float lumaUp = fxaaGetLuma(lumaTexture, uvUp);
-  float lumaLeft = fxaaGetLuma(lumaTexture, uvLeft);
-  float lumaRight = fxaaGetLuma(lumaTexture, uvRight);
+  float lumaDown = readLumaTexture(lumaTexture, uvDown);
+  float lumaUp = readLumaTexture(lumaTexture, uvUp);
+  float lumaLeft = readLumaTexture(lumaTexture, uvLeft);
+  float lumaRight = readLumaTexture(lumaTexture, uvRight);
 
   // Find the maximum and minimum luma around the current fragment.
   float lumaMin = min(lumaCenter, min(min(lumaDown, lumaUp), min(lumaLeft, lumaRight)));
@@ -87,10 +83,10 @@ vec2 fxaa(
   }
 
   // Query the 4 remaining corners lumas.
-  float lumaDownLeft = fxaaGetLuma(lumaTexture, uvLeftDown);
-  float lumaUpRight = fxaaGetLuma(lumaTexture, uvRightUp);
-  float lumaUpLeft = fxaaGetLuma(lumaTexture, uvLeftUp);
-  float lumaDownRight = fxaaGetLuma(lumaTexture, uvRightDown);
+  float lumaDownLeft = readLumaTexture(lumaTexture, uvLeftDown);
+  float lumaUpRight = readLumaTexture(lumaTexture, uvRightUp);
+  float lumaUpLeft = readLumaTexture(lumaTexture, uvLeftUp);
+  float lumaDownRight = readLumaTexture(lumaTexture, uvRightDown);
 
   // Combine the four edges lumas (using intermediary variables for future computations with the same values).
   float lumaDownUp = lumaDown + lumaUp;
@@ -158,8 +154,8 @@ vec2 fxaa(
   vec2 uv2 = currentUv + offset; // * QUALITY(0); // (quality 0 is 1.0)
 
   // Read the lumas at both current extremities of the exploration segment, and compute the delta wrt to the local average luma.
-  float lumaEnd1 = fxaaGetLuma(lumaTexture, uv1);
-  float lumaEnd2 = fxaaGetLuma(lumaTexture, uv2);
+  float lumaEnd1 = readLumaTexture(lumaTexture, uv1);
+  float lumaEnd2 = readLumaTexture(lumaTexture, uv2);
   lumaEnd1 -= lumaLocalAverage;
   lumaEnd2 -= lumaLocalAverage;
 
@@ -183,12 +179,12 @@ vec2 fxaa(
     {
       // If needed, read luma in 1st direction, compute delta.
       if (!reached1) {
-        lumaEnd1 = fxaaGetLuma(lumaTexture, uv1);
+        lumaEnd1 = readLumaTexture(lumaTexture, uv1);
         lumaEnd1 = lumaEnd1 - lumaLocalAverage;
       }
       // If needed, read luma in opposite direction, compute delta.
       if (!reached2) {
-        lumaEnd2 = fxaaGetLuma(lumaTexture, uv2);
+        lumaEnd2 = readLumaTexture(lumaTexture, uv2);
         lumaEnd2 = lumaEnd2 - lumaLocalAverage;
       }
       // If the luma deltas at the current extremities is larger than the local gradient, we have reached the side of the edge.

@@ -18,8 +18,15 @@ uniform float uTime;
 ${SHADERS.math.saturate}
 ${SHADERS.encodeDecode}
 
-#ifdef USE_AA
+#if defined(USE_AA) || defined(USE_FILM_GRAIN)
   uniform sampler2D uLumaTexture;
+
+  float readLumaTexture(sampler2D tex, vec2 uv) {
+    return texture2D(tex, uv).r;
+  }
+#endif
+
+#ifdef USE_AA
   // FXAA blends anything that has high enough contrast. It helps mitigate fireflies but will blur small details.
   // - 1.00: upper limit (softer)
   // - 0.75: default amount of filtering
@@ -41,7 +48,6 @@ ${SHADERS.encodeDecode}
   ${SHADERS.noise.simplex}
   ${SHADERS.noise.perlin}
   ${SHADERS.math.random}
-  ${SHADERS.luma}
   ${SHADERS.filmGrain}
 #endif
 
@@ -49,7 +55,7 @@ uniform float uOpacity;
 
 varying vec2 vTexCoord0;
 
-#if defined(USE_AA)
+#ifdef USE_AA
   varying vec2 vTexCoord0LeftUp;
   varying vec2 vTexCoord0RightUp;
   varying vec2 vTexCoord0LeftDown;
@@ -89,6 +95,7 @@ void main() {
   #ifdef USE_FILM_GRAIN
     colorSRGB.rgb = filmGrain(
       colorSRGB.rgb,
+      readLumaTexture(uLumaTexture, vTexCoord0),
       uv,
       uViewportSize,
       uFilmGrainSize,

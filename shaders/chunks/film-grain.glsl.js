@@ -105,6 +105,7 @@ const vec2 FILM_GRAIN_CHANNEL_OFFSET = vec2(1.1, 1.2);
 
 vec3 filmGrain(
   vec3 color,
+  float luma,
   vec2 uv,
   vec2 viewportSize,
   float size,
@@ -121,7 +122,7 @@ vec3 filmGrain(
     vec3 noise = filmGrainUpitis(uv, time, size, colorIntensity, viewportSize);
   #endif
 
-  float luminance = mix(0.0, luma(color), luminanceIntensity); // TODO: use lumaTexture
+  float luminance = mix(0.0, luma, luminanceIntensity);
   return saturate(color + mix(noise, vec3(0.0), pow(luminance + smoothstep(0.2, 0.0, luminance), 4.0)) * intensity);
 }
 `;

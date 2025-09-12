@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [2.0.0-alpha.3](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.2...v2.0.0-alpha.3) (2025-09-12)
+
+
+### Features
+
+* add glsl-smaa ([4086984](https://github.com/pex-gl/pex-shaders/commit/4086984207a5e5af05fba897488e128f7072c263))
+* read luma texture in film grain ([2744881](https://github.com/pex-gl/pex-shaders/commit/2744881bce63cf6d3e32d3d826fa0ecca248bf47))
+
+
+
 # [2.0.0-alpha.2](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.1...v2.0.0-alpha.2) (2025-09-09)
 
 

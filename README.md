@@ -91,6 +91,7 @@ const program = {
   - [.skybox](#module_pex-shaders.skybox) : [<code>skybox</code>](#module_skybox)
   - [.parser](#module_pex-shaders.parser) : [<code>parser</code>](#module_parser)
   - [.toneMap](#module_pex-shaders.toneMap) : <code>object</code>
+  - [.smaa](#module_pex-shaders.smaa) : <code>object</code>
 
 <a name="module_pex-shaders.chunks"></a>
 
@@ -142,6 +143,14 @@ Re-export tone mapping functions
 
 **Kind**: static property of [<code>pex-shaders</code>](#module_pex-shaders)
 **See**: [https://github.com/dmnsgn/glsl-tone-map](https://github.com/dmnsgn/glsl-tone-map)
+<a name="module_pex-shaders.smaa"></a>
+
+### pex-shaders.smaa : <code>object</code>
+
+Re-export smaa
+
+**Kind**: static property of [<code>pex-shaders</code>](#module_pex-shaders)
+**See**: [https://github.com/dmnsgn/glsl-smaa](https://github.com/dmnsgn/glsl-smaa)
 <a name="module_parser"></a>
 
 ## parser

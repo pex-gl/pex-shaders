@@ -57,3 +57,13 @@ export * as parser from "./parser.js";
  * @see {@link https://github.com/dmnsgn/glsl-tone-map}
  */
 export * as toneMap from "glsl-tone-map";
+
+/**
+ * Re-export smaa
+ * @type {object}
+ * @name smaa
+ * @static
+ * @memberof module:pex-shaders
+ * @see {@link https://github.com/dmnsgn/glsl-smaa}
+ */
+export * as smaa from "glsl-smaa";

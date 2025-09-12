@@ -37,6 +37,7 @@
     "release": "snowdev release"
   },
   "dependencies": {
+    "glsl-smaa": "^3.0.0",
     "glsl-tone-map": "^2.2.0"
   },
   "engines": {

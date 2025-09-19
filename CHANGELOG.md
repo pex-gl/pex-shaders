@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [2.0.0-alpha.4](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.3...v2.0.0-alpha.4) (2025-09-19)
+
+
+
 # [2.0.0-alpha.3](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.2...v2.0.0-alpha.3) (2025-09-12)
 
 

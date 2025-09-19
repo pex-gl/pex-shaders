@@ -32,8 +32,6 @@ ${SHADERS.math.saturate}
 ${SHADERS.encodeDecode}
 ${SHADERS.depthRead}
 ${Object.values(glslToneMap).join("\n")}
-${SHADERS.math.max3}
-${SHADERS.reversibleToneMap}
 
 #ifdef USE_FOG
   uniform float uFogStart;

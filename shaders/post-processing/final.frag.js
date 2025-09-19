@@ -18,7 +18,7 @@ uniform float uTime;
 ${SHADERS.math.saturate}
 ${SHADERS.encodeDecode}
 
-#if defined(USE_AA) || defined(USE_FILM_GRAIN)
+#if defined(USE_FXAA) || defined(USE_FILM_GRAIN)
   uniform sampler2D uLumaTexture;
 
   float readLumaTexture(sampler2D tex, vec2 uv) {
@@ -26,7 +26,7 @@ ${SHADERS.encodeDecode}
   }
 #endif
 
-#ifdef USE_AA
+#ifdef USE_FXAA
   // FXAA blends anything that has high enough contrast. It helps mitigate fireflies but will blur small details.
   // - 1.00: upper limit (softer)
   // - 0.75: default amount of filtering
@@ -55,7 +55,7 @@ uniform float uOpacity;
 
 varying vec2 vTexCoord0;
 
-#ifdef USE_AA
+#ifdef USE_FXAA
   varying vec2 vTexCoord0LeftUp;
   varying vec2 vTexCoord0RightUp;
   varying vec2 vTexCoord0LeftDown;
@@ -69,7 +69,7 @@ varying vec2 vTexCoord0;
 void main() {
   vec2 uv;
 
-  #ifdef USE_AA
+  #ifdef USE_FXAA
     uv = fxaa(
       uLumaTexture,
       vTexCoord0,

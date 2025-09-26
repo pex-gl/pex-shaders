@@ -82,7 +82,6 @@ struct PBRData {
   vec3 sheenColor;
   float sheenRoughness;
   float sheenLinearRoughness;
-  vec3 sheen;
   float sheenAlbedoScaling;
   vec3 transmitted;
   float transmission;
@@ -185,7 +184,6 @@ void main() {
     data.eyeDirWorld = vec3(uInverseViewMatrix * vec4(data.eyeDirView, 0.0));
     data.indirectDiffuse = vec3(0.0);
     data.indirectSpecular = vec3(0.0);
-    data.sheen = vec3(0.0);
     data.ao = 1.0;
     data.opacity = 1.0;
 

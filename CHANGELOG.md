@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [2.0.0-alpha.5](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.4...v2.0.0-alpha.5) (2026-02-26)
+
+
+### Bug Fixes
+
+* use ortho projection for reading depth only for directional light ([25c4df6](https://github.com/pex-gl/pex-shaders/commit/25c4df64c17f6495afdd64a4927a961294f99d1c))
+
+
+
 # [2.0.0-alpha.4](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.3...v2.0.0-alpha.4) (2025-09-19)
 
 

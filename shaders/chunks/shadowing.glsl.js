@@ -11,7 +11,7 @@ export default /* glsl */ `
   ${PCF}
   ${PCSS}
 
-  float getShadow(sampler2D depths, vec2 size, vec2 uv, float compare, float near, float far, float ndcLightZ, vec2 radiusUV) {
+  float getShadow(sampler2D depths, vec2 size, vec2 uv, float compare, float near, float far, float ndcLightZ, vec2 radiusUV, bool ortho) {
     if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) {
       return 1.0;
     }
@@ -19,19 +19,19 @@ export default /* glsl */ `
       return 1.0;
     #endif
     #if SHADOW_QUALITY == 1
-      return texture2DCompare(depths, uv, compare, near, far);
+      return texture2DCompare(depths, uv, compare, near, far, ortho);
     #endif
     #if SHADOW_QUALITY == 2
-      return texture2DShadowLerp(depths, size, uv, compare, near, far);
+      return texture2DShadowLerp(depths, size, uv, compare, near, far, ortho);
     #endif
     #if SHADOW_QUALITY == 3
-      return PCF3x3(depths, size, uv, compare, near, far);
+      return PCF3x3(depths, size, uv, compare, near, far, ortho);
     #endif
     #if SHADOW_QUALITY == 4
-      return PCF5x5(depths, size, uv, compare, near, far);
+      return PCF5x5(depths, size, uv, compare, near, far, ortho);
     #endif
     #if SHADOW_QUALITY == 5
-      return PCSS(depths, size, uv, compare, near, far, ndcLightZ, radiusUV);
+      return PCSS(depths, size, uv, compare, near, far, ndcLightZ, radiusUV, ortho);
     #endif
   }
 #endif

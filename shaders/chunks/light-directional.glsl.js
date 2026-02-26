@@ -33,7 +33,8 @@ void EvaluateDirectionalLight(inout PBRData data, DirectionalLight light, sample
         light.near,
         light.far,
         lightDeviceCoordsPositionNormalized.z,
-        light.radiusUV
+        light.radiusUV,
+        true
       )
     : 1.0;
 

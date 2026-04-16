@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [2.0.0-alpha.6](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.5...v2.0.0-alpha.6) (2026-04-16)
+
+
+### Bug Fixes
+
+* prevent negative, NaN or Infinity color in basic and line shader ([ce23d2b](https://github.com/pex-gl/pex-shaders/commit/ce23d2b68e3ed8b92baaf3e828d1191d06fec755))
+* prevent negative, NaN or Infinity color in standard shader ([c0bf772](https://github.com/pex-gl/pex-shaders/commit/c0bf772b172c86e0725fe5190cc1299d1fc7c641))
+
+
+### Features
+
+* **main:** use the correct srgb transfer function ([3bac8ee](https://github.com/pex-gl/pex-shaders/commit/3bac8ee156083ae170c3702e22ec7957ac869a92)), closes [#29](https://github.com/pex-gl/pex-shaders/issues/29)
+
+
+
 # [2.0.0-alpha.5](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.4...v2.0.0-alpha.5) (2026-02-26)
 
 

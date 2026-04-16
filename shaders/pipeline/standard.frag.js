@@ -317,6 +317,8 @@ void main() {
     color.rgb = reversibleToneMap(color.rgb);
   #endif
 
+  color.rgb = max(color.rgb, vec3(0.0));
+
   gl_FragData[0] = vec4(color, 1.0);
 
   #ifdef USE_DRAW_BUFFERS

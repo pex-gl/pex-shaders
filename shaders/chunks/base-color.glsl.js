@@ -19,7 +19,7 @@ uniform vec4 uBaseColor;
     vec4 texelColor = texture2D(uBaseColorTexture, texCoord);
 
     #if !defined(DEPTH_PASS_ONLY) && !defined(DEPTH_PRE_PASS_ONLY)
-      data.baseColor = decode(uBaseColor, SRGB).rgb * decode(texelColor, SRGB).rgb;
+      data.baseColor = decode(uBaseColor, SRGB).rgb * texelColor.rgb;
     #endif
 
     #if defined(USE_VERTEX_COLORS) || defined(USE_INSTANCED_COLOR)

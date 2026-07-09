@@ -1,5 +1,3 @@
-import * as glslToneMap from "glsl-tone-map";
-
 import * as SHADERS from "../chunks/index.js";
 
 /**
@@ -17,9 +15,6 @@ precision highp float;
 
 ${SHADERS.output.frag}
 
-uniform float uExposure;
-uniform int uOutputEncoding;
-
 uniform vec4 uBaseColor;
 
 #ifdef USE_VERTEX_COLORS
@@ -28,7 +23,8 @@ varying vec4 vColor;
 
 // Includes
 ${SHADERS.encodeDecode}
-${Object.values(glslToneMap).join("\n")}
+${SHADERS.math.max3}
+${SHADERS.reversibleToneMap}
 
 #define HOOK_FRAG_DECLARATIONS_END
 
@@ -39,13 +35,13 @@ void main() {
     color *= decode(vColor, SRGB);
   #endif
 
-  color.rgb *= uExposure;
-
-  #if defined(TONE_MAP)
-    color.rgb = TONE_MAP(color.rgb);
+  #ifdef USE_MSAA
+    color.rgb = reversibleToneMap(color.rgb);
   #endif
 
-  gl_FragData[0] = encode(color, uOutputEncoding);
+  color.rgb = max(color.rgb, vec3(0.0));
+
+  gl_FragData[0] = color;
 
   #ifdef USE_DRAW_BUFFERS
     #if LOCATION_NORMAL >= 0

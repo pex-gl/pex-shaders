@@ -20,7 +20,7 @@ export default /* glsl */ `
       vec2 texCoord = getTextureCoordinates(data, EMISSIVE_COLOR_TEXTURE_TEX_COORD);
     #endif
 
-    data.emissiveColor = decode(texture2D(uEmissiveColorTexture, texCoord), SRGB).rgb;
+    data.emissiveColor = texture2D(uEmissiveColorTexture, texCoord).rgb;
 
     #ifdef USE_EMISSIVE_COLOR
       data.emissiveColor *= uEmissiveIntensity * decode(uEmissiveColor, SRGB).rgb;

@@ -7,8 +7,6 @@
 // The energy reduction from sheen only varies between 0.13 and 0.18 across  roughness, so we approximate  it as a constant value  of 0.157.
 // https://drive.google.com/file/d/1T0D1VSyR4AllqIJTQAraEIzjlb5h4FKH/view?usp=sharing
 const getSheenAlbedoScaling = /* glsl */ `
-float max3(vec3 v) { return max(max(v.x, v.y), v.z); }
-
 void getSheenAlbedoScaling(inout PBRData data) {
   data.sheenAlbedoScaling = 1.0 - 0.157 * max3(data.sheenColor);
 }
@@ -37,7 +35,7 @@ export default /* glsl */ `
       vec4 texelColor = texture2D(uSheenColorTexture, texCoord);
 
       #if !defined(DEPTH_PASS_ONLY) && !defined(DEPTH_PRE_PASS_ONLY)
-      data.sheenColor = decode(uSheenColor, SRGB).rgb * decode(texelColor, SRGB).rgb;
+      data.sheenColor = decode(uSheenColor, SRGB).rgb * texelColor.rgb;
       #endif
 
       #ifdef USE_SHEEN_ROUGHNESS_FROM_MAIN_TEXTURE

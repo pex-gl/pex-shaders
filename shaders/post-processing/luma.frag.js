@@ -1,31 +1,27 @@
 import * as SHADERS from "../chunks/index.js";
 
 /**
- * @alias module:pipeline.blit.frag
+ * @alias module:postProcessing.luma.frag
  * @type {string}
  */
 export default /* glsl */ `precision highp float;
 
 ${SHADERS.output.frag}
 
+// Variables
 uniform sampler2D uTexture;
+
+// Includes
+${SHADERS.luma}
+${SHADERS.encodeDecode}
 
 varying vec2 vTexCoord0;
 
-// Includes
-${SHADERS.math.max3}
-${SHADERS.reversibleToneMap}
-${SHADERS.encodeDecode}
-
-#define HOOK_FRAG_DECLARATIONS_END
-
 void main() {
   vec4 color = texture2D(uTexture, vTexCoord0);
-  color = encode(color, SRGB);
 
-  gl_FragColor = color;
+  gl_FragData[0].r = luma(encode(color, SRGB).rgb);
 
   ${SHADERS.output.assignment}
-
-  #define HOOK_FRAG_END
-}`;
+}
+`;

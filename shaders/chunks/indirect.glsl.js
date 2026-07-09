@@ -2,7 +2,6 @@ export default /* glsl */ `
 #ifdef USE_REFLECTION_PROBES
   uniform sampler2D uReflectionMap;
   uniform float uReflectionMapSize;
-  uniform int uReflectionMapEncoding;
 
   #define MAX_MIPMAP_LEVEL 5.0
 
@@ -12,8 +11,8 @@ export default /* glsl */ `
     float upLod = floor(lod);
     float downLod = ceil(lod);
 
-    vec3 a = decode(texture2D(uReflectionMap, envMapOctahedral(reflected, 0.0, upLod, uReflectionMapSize)), uReflectionMapEncoding).rgb;
-    vec3 b = decode(texture2D(uReflectionMap, envMapOctahedral(reflected, 0.0, downLod, uReflectionMapSize)), uReflectionMapEncoding).rgb;
+    vec3 a = texture2D(uReflectionMap, envMapOctahedral(reflected, 0.0, upLod, uReflectionMapSize)).rgb;
+    vec3 b = texture2D(uReflectionMap, envMapOctahedral(reflected, 0.0, downLod, uReflectionMapSize)).rgb;
 
     return mix(a, b, lod - upLod);
   }
@@ -131,11 +130,11 @@ export default /* glsl */ `
     float energyCompensation = 1.0;
 
     // diffuse layer
-    vec3 diffuseIrradiance = getIrradiance(data.normalWorld, uReflectionMap, uReflectionMapSize, uReflectionMapEncoding);
+    vec3 diffuseIrradiance = getIrradiance(data.normalWorld, uReflectionMap, uReflectionMapSize, LINEAR);
     vec3 Fd = data.diffuseColor * diffuseIrradiance * ao;
 
     #ifdef USE_DIFFUSE_TRANSMISSION
-      vec3 diffuseTransmissionIBL = getIrradiance(-data.normalWorld, uReflectionMap, uReflectionMapSize, uReflectionMapEncoding) * data.diffuseTransmissionColor;
+      vec3 diffuseTransmissionIBL = getIrradiance(-data.normalWorld, uReflectionMap, uReflectionMapSize, LINEAR) * data.diffuseTransmissionColor;
       #ifdef USE_VOLUME
         diffuseTransmissionIBL = applyVolumeAttenuation(diffuseTransmissionIBL, data.diffuseTransmissionThickness, data.attenuationColor, data.attenuationDistance);
       #endif

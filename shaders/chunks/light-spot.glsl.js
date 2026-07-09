@@ -37,7 +37,8 @@ void EvaluateSpotLight(inout PBRData data, SpotLight light, sampler2D shadowMap)
         light.near,
         light.far,
         lightDeviceCoordsPositionNormalized.z,
-        light.radiusUV
+        light.radiusUV,
+        false
       )
     : 1.0;
 

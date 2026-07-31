@@ -4,8 +4,9 @@ import * as SHADERS from "../chunks/index.js";
  * Upsample
  *
  * Reference Implementation: https://github.com/keijiro/KinoBloom
- * @alias module:postProcessing.upsample.frag
+ *
  * @type {string}
+ * @alias module:postProcessing.upsample.frag
  */
 export default /* glsl */ `
 precision highp float;

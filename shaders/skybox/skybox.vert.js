@@ -3,9 +3,11 @@ import * as SHADERS from "../chunks/index.js";
 /**
  * Skybox
  *
- * Based on http://gamedev.stackexchange.com/questions/60313/implementing-a-skybox-with-glsl-version-330
- * @alias module:skybox.skybox.vert
+ * Based on
+ * http://gamedev.stackexchange.com/questions/60313/implementing-a-skybox-with-glsl-version-330
+ *
  * @type {string}
+ * @alias module:skybox.skybox.vert
  */
 export default /* glsl */ `
 ${SHADERS.output.vert}

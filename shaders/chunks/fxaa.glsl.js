@@ -5,15 +5,18 @@
  * FXAA
  *
  * Paper:
+ *
  * - https://developer.download.nvidia.com/assets/gamedev/files/sdk/11/FXAA_WhitePaper.pdf
  *
  * Reference Implementations:
+ *
  * - https://blog.simonrodriguez.fr/articles/2016/07/implementing_fxaa.html
  * - https://gist.github.com/kosua20/0c506b81b3812ac900048059d2383126
  *
  * Updates: Damien Seguin (2023-10)
- * @alias module:chunks.fxaa
+ *
  * @type {string}
+ * @alias module:chunks.fxaa
  */
 export default /* glsl */ `
 #ifndef AA_QUALITY

@@ -5,18 +5,25 @@ import * as SHADERS from "../chunks/index.js";
 /**
  * Sky
  *
- * Based on "A Practical Analytic Model for Daylight" aka The Preetham Model, the de facto standard analytic skydome model
+ * Based on "A Practical Analytic Model for Daylight" aka The Preetham Model,
+ * the de facto standard analytic skydome model
  *
- * Paper: https://www.researchgate.net/publication/220720443_A_Practical_Analytic_Model_for_Daylight
+ * Paper:
+ * https://www.researchgate.net/publication/220720443_A_Practical_Analytic_Model_for_Daylight
  *
  * Reference Implementation:
- * - First implemented by Simon Wallner http://www.simonwallner.at/projects/atmospheric-scattering
- * - Improved by Martins Upitis http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR
+ *
+ * - First implemented by Simon Wallner
+ *   http://www.simonwallner.at/projects/atmospheric-scattering
+ * - Improved by Martins Upitis
+ *   http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR
  * - Three.js integration by zz85 http://twitter.com/blurspline
  *
- * Updates: Marcin Ignac http://twitter.com/marcinignac (2015-09) and Damien Seguin (2023-10)
- * @alias module:skybox.skyEnvMap.frag
+ * Updates: Marcin Ignac http://twitter.com/marcinignac (2015-09) and Damien
+ * Seguin (2023-10)
+ *
  * @type {string}
+ * @alias module:skybox.skyEnvMap.frag
  */
 export default /* glsl */ `
 #if (__VERSION__ < 300)

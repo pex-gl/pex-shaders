@@ -1,8 +1,8 @@
 import * as SHADERS from "../chunks/index.js";
 
 /**
- * @alias module:reflectionProbe.downsampleFromOctMapAtlas.frag
  * @type {string}
+ * @alias module:reflectionProbe.downsampleFromOctMapAtlas.frag
  */
 export default /* glsl */ `
 precision highp float;

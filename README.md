@@ -175,7 +175,8 @@ GLSL 3 preprocessor version string
 
 ### parser.formatExtensions([extensions]) ⇒ <code>string</code>
 
-Format an object of extension names as key and extension behaviosr (enable/require/warn/disable) as value
+Format an object of extension names as key and extension behaviosr
+(enable/require/warn/disable) as value
 
 **Kind**: static method of [<code>parser</code>](#module_parser)
 
@@ -214,7 +215,8 @@ Add version string and format a list of defines for a shader source
 
 ### parser.patchES300(src, stage) ⇒ <code>string</code>
 
-Monkey patch a shader string for ES300 by replacing builtin keywords and un-necessary extensions, and adding the version preprocessor string
+Monkey patch a shader string for ES300 by replacing builtin keywords and
+un-necessary extensions, and adding the version preprocessor string
 
 **Kind**: static method of [<code>parser</code>](#module_parser)
 
@@ -227,7 +229,8 @@ Monkey patch a shader string for ES300 by replacing builtin keywords and un-nece
 
 ### parser.replaceStrings(src, options) ⇒ <code>string</code>
 
-Unroll loops (looped preceded by "#pragma unroll_loop") for lights and replace their constant iterators
+Unroll loops (looped preceded by "#pragma unroll_loop") for lights and
+replace their constant iterators
 
 **Kind**: static method of [<code>parser</code>](#module_parser)
 
@@ -244,10 +247,13 @@ Get a formatted error pointing at the issue line
 
 **Kind**: static method of [<code>parser</code>](#module_parser)
 
-| Param   | Type                |
-| ------- | ------------------- |
-| error   | <code>Error</code>  |
-| options | <code>Object</code> |
+| Param           | Type                | Default        |
+| --------------- | ------------------- | -------------- |
+| error           | <code>Error</code>  |                |
+| options         | <code>object</code> |                |
+| options.vert    | <code>string</code> |                |
+| options.frag    | <code>string</code> |                |
+| [options.count] | <code>number</code> | <code>5</code> |
 
 <a name="module_chunks"></a>
 
@@ -557,7 +563,8 @@ Reversible Tone Map
 
 Reference Implementations:
 
-- "Optimized Reversible Tonemapper for Resolve", Timothy Lottes: https://gpuopen.com/learn/optimized-reversible-tonemapper-for-resolve/
+- "Optimized Reversible Tonemapper for Resolve", Timothy Lottes:
+  https://gpuopen.com/learn/optimized-reversible-tonemapper-for-resolve/
 
 **Kind**: static property of [<code>chunks</code>](#module_chunks)
 <a name="module_chunks.noise"></a>
@@ -566,8 +573,8 @@ Reference Implementations:
 
 Reference Implementation: https://github.com/stegu/webgl-noise
 
-Copyright (C) 2011 by Ashima Arts (Simplex noise)
-Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)
+Copyright (C) 2011 by Ashima Arts (Simplex noise) Copyright (C) 2011-2016 by
+Stefan Gustavson (Classic noise and others)
 
 **Kind**: static constant of [<code>chunks</code>](#module_chunks)
 <a name="module_pipeline"></a>
@@ -835,9 +842,11 @@ Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)
 
 GTAO (Ground Truth)
 
-Paper: https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf
+Paper:
+https://www.activision.com/cdn/research/Practical_Real_Time_Strategies_for_Accurate_Indirect_Occlusion_NEW%20VERSION_COLOR.pdf
 
-Reference Implementation: https://github.com/GameTechDev/XeGTAO/blob/master/Source/Rendering/Shaders/XeGTAO.hlsli
+Reference Implementation:
+https://github.com/GameTechDev/XeGTAO/blob/master/Source/Rendering/Shaders/XeGTAO.hlsli
 
 Updates: Damien Seguin (2023-10)
 
@@ -853,7 +862,8 @@ Updates: Damien Seguin (2023-10)
 
 SAO (Scalable Ambient Obscurance)
 
-Paper: https://research.nvidia.com/sites/default/files/pubs/2012-06_Scalable-Ambient-Obscurance/McGuire12SAO.pdf
+Paper:
+https://research.nvidia.com/sites/default/files/pubs/2012-06_Scalable-Ambient-Obscurance/McGuire12SAO.pdf
 (https://casual-effects.com/research/McGuire2012SAO/index.html)
 
 Reference Implementation: https://gist.github.com/transitive-bullshit/6770311
@@ -884,8 +894,10 @@ DoF (Depth of Field)
 
 Based on:
 
-- "Bokeh depth of field in a single pass", Dennis Gustafsson: https://blog.voxagon.se/2018/05/04/bokeh-depth-of-field-in-single-pass.html
-- "GLSL depth of field with bokeh v2.4", Martins Upitis: https://devlog-martinsh.blogspot.com/2011/12/glsl-depth-of-field-with-bokeh-v24.html
+- "Bokeh depth of field in a single pass", Dennis Gustafsson:
+  https://blog.voxagon.se/2018/05/04/bokeh-depth-of-field-in-single-pass.html
+- "GLSL depth of field with bokeh v2.4", Martins Upitis:
+  https://devlog-martinsh.blogspot.com/2011/12/glsl-depth-of-field-with-bokeh-v24.html
 
 **Kind**: static property of [<code>dof</code>](#module_postProcessing.dof)
 <a name="module_postProcessing.threshold"></a>
@@ -1067,7 +1079,8 @@ SSAO mix
 
 Skybox
 
-Based on http://gamedev.stackexchange.com/questions/60313/implementing-a-skybox-with-glsl-version-330
+Based on
+http://gamedev.stackexchange.com/questions/60313/implementing-a-skybox-with-glsl-version-330
 
 **Kind**: static property of [<code>skybox</code>](#module_skybox.skybox)
 <a name="module_skybox.skyEnvMap"></a>
@@ -1086,17 +1099,22 @@ Based on http://gamedev.stackexchange.com/questions/60313/implementing-a-skybox-
 
 Sky
 
-Based on "A Practical Analytic Model for Daylight" aka The Preetham Model, the de facto standard analytic skydome model
+Based on "A Practical Analytic Model for Daylight" aka The Preetham Model,
+the de facto standard analytic skydome model
 
-Paper: https://www.researchgate.net/publication/220720443_A_Practical_Analytic_Model_for_Daylight
+Paper:
+https://www.researchgate.net/publication/220720443_A_Practical_Analytic_Model_for_Daylight
 
 Reference Implementation:
 
-- First implemented by Simon Wallner http://www.simonwallner.at/projects/atmospheric-scattering
-- Improved by Martins Upitis http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR
+- First implemented by Simon Wallner
+  http://www.simonwallner.at/projects/atmospheric-scattering
+- Improved by Martins Upitis
+  http://blenderartists.org/forum/showthread.php?245954-preethams-sky-impementation-HDR
 - Three.js integration by zz85 http://twitter.com/blurspline
 
-Updates: Marcin Ignac http://twitter.com/marcinignac (2015-09) and Damien Seguin (2023-10)
+Updates: Marcin Ignac http://twitter.com/marcinignac (2015-09) and Damien
+Seguin (2023-10)
 
 **Kind**: static property of [<code>skyEnvMap</code>](#module_skybox.skyEnvMap)
 <a name="module_skybox.skyEnvMap.vert"></a>

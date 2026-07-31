@@ -2,8 +2,9 @@
  * Color Correction
  *
  * https://github.com/CesiumGS/cesium/blob/master/Source/Shaders/Builtin/Functions
- * @alias module:chunks.colorCorrection
+ *
  * @type {string}
+ * @alias module:chunks.colorCorrection
  */
 export default /* glsl */ `
 float brightnessContrast(float value, float brightness, float contrast) {

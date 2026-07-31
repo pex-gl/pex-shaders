@@ -1,8 +1,8 @@
 import * as SHADERS from "../chunks/index.js";
 
 /**
- * @alias module:skybox.skybox.frag
  * @type {string}
+ * @alias module:skybox.skybox.frag
  */
 export default /* glsl */ `
 #if (__VERSION__ < 300)

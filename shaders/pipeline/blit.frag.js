@@ -1,8 +1,8 @@
 import * as SHADERS from "../chunks/index.js";
 
 /**
- * @alias module:pipeline.blit.frag
  * @type {string}
+ * @alias module:pipeline.blit.frag
  */
 export default /* glsl */ `precision highp float;
 

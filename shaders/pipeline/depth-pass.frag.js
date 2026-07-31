@@ -1,8 +1,8 @@
 import * as SHADERS from "../chunks/index.js";
 
 /**
- * @alias module:pipeline.depthPass.frag
  * @type {string}
+ * @alias module:pipeline.depthPass.frag
  */
 export default /* glsl */ `
 precision highp float;

@@ -2,8 +2,9 @@
  * Fog
  *
  * Adapted from from Iñigo Quilez article: https://iquilezles.org/articles/fog/
- * @alias module:chunks.fog
+ *
  * @type {string}
+ * @alias module:chunks.fog
  */
 export default /* glsl */ `
 uniform float uFogDensity;

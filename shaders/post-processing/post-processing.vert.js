@@ -1,8 +1,8 @@
 import * as SHADERS from "../chunks/index.js";
 
 /**
- * @alias module:postProcessing.postProcessing.vert
  * @type {string}
+ * @alias module:postProcessing.postProcessing.vert
  */
 export default /* glsl */ `
 ${SHADERS.output.vert}

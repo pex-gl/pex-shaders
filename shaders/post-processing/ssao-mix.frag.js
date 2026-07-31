@@ -3,8 +3,8 @@ import * as SHADERS from "../chunks/index.js";
 /**
  * SSAO mix
  *
- * @alias module:postProcessing.ssaoMix.frag
  * @type {string}
+ * @alias module:postProcessing.ssaoMix.frag
  */
 export default /* glsl */ `
 precision highp float;

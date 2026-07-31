@@ -1,8 +1,8 @@
 import * as SHADERS from "../chunks/index.js";
 
 /**
- * @alias module:pipeline.standard.frag
  * @type {string}
+ * @alias module:pipeline.standard.frag
  */
 export default /* glsl */ `
 #if (__VERSION__ < 300)

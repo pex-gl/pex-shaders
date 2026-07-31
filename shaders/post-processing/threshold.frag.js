@@ -1,8 +1,8 @@
 import * as SHADERS from "../chunks/index.js";
 
 /**
- * @alias module:postProcessing.threshold.frag
  * @type {string}
+ * @alias module:postProcessing.threshold.frag
  */
 export default /* glsl */ `
 precision highp float;

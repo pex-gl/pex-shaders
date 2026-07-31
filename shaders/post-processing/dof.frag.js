@@ -4,10 +4,14 @@ import * as SHADERS from "../chunks/index.js";
  * DoF (Depth of Field)
  *
  * Based on:
- * - "Bokeh depth of field in a single pass", Dennis Gustafsson: https://blog.voxagon.se/2018/05/04/bokeh-depth-of-field-in-single-pass.html
- * - "GLSL depth of field with bokeh v2.4", Martins Upitis: https://devlog-martinsh.blogspot.com/2011/12/glsl-depth-of-field-with-bokeh-v24.html
- * @alias module:postProcessing.dof.frag
+ *
+ * - "Bokeh depth of field in a single pass", Dennis Gustafsson:
+ *   https://blog.voxagon.se/2018/05/04/bokeh-depth-of-field-in-single-pass.html
+ * - "GLSL depth of field with bokeh v2.4", Martins Upitis:
+ *   https://devlog-martinsh.blogspot.com/2011/12/glsl-depth-of-field-with-bokeh-v24.html
+ *
  * @type {string}
+ * @alias module:postProcessing.dof.frag
  */
 export default /* glsl */ `
 precision highp float;

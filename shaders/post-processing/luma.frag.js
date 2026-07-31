@@ -1,8 +1,8 @@
 import * as SHADERS from "../chunks/index.js";
 
 /**
- * @alias module:postProcessing.luma.frag
  * @type {string}
+ * @alias module:postProcessing.luma.frag
  */
 export default /* glsl */ `precision highp float;
 

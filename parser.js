@@ -1,12 +1,12 @@
 /** @module parser */
 
-/**
- * GLSL 3 preprocessor version string
- */
+/** GLSL 3 preprocessor version string */
 export const GLSL3 = "#version 300 es";
 
 /**
- * Format an object of extension names as key and extension behaviosr (enable/require/warn/disable) as value
+ * Format an object of extension names as key and extension behaviosr
+ * (enable/require/warn/disable) as value
+ *
  * @param {object} [extensions={}]
  * @returns {string}
  */
@@ -18,6 +18,7 @@ export function formatExtensions(extensions = {}) {
 
 /**
  * Format an array of define keys
+ *
  * @param {string[]} [defines=[]]
  * @returns {string}
  */
@@ -27,6 +28,7 @@ export function formatDefines(defines = []) {
 
 /**
  * Add version string and format a list of defines for a shader source
+ *
  * @param {ctx} ctx
  * @param {string} src
  * @param {string[]} [defines=[]]
@@ -41,7 +43,9 @@ ${src}`;
 }
 
 /**
- * Monkey patch a shader string for ES300 by replacing builtin keywords and un-necessary extensions, and adding the version preprocessor string
+ * Monkey patch a shader string for ES300 by replacing builtin keywords and
+ * un-necessary extensions, and adding the version preprocessor string
+ *
  * @param {string} src
  * @param {"vertex" | "fragment"} stage
  * @returns {string}
@@ -102,7 +106,9 @@ layout (location = 2) out vec4 outEmissive;`,
 }
 
 /**
- * Unroll loops (looped preceded by "#pragma unroll_loop") for lights and replace their constant iterators
+ * Unroll loops (looped preceded by "#pragma unroll_loop") for lights and
+ * replace their constant iterators
+ *
  * @param {string} src
  * @param {object} options
  * @returns {string}

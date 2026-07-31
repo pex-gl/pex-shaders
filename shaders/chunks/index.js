@@ -1,14 +1,14 @@
 /** @module chunks */
 
 /**
- * @name output
  * @type {object}
+ * @name output
  * @static
  */
 export * as output from "./output.glsl.js";
 /**
- * @name math
  * @type {object}
+ * @name math
  * @static
  */
 export * as math from "./math.glsl.js";
@@ -56,14 +56,14 @@ export {
   default as shadowing,
 } from "./shadowing.glsl.js";
 /**
- * @name pcf
  * @type {object}
+ * @name pcf
  * @static
  */
 export * as pcf from "./pcf.glsl.js";
 /**
- * @name pcss
  * @type {object}
+ * @name pcss
  * @static
  */
 export * as pcss from "./pcss.glsl.js";

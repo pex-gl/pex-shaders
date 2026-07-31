@@ -2,9 +2,12 @@
  * Reversible Tone Map
  *
  * Reference Implementations:
- * - "Optimized Reversible Tonemapper for Resolve", Timothy Lottes: https://gpuopen.com/learn/optimized-reversible-tonemapper-for-resolve/
- * @alias module:chunks.reversibleToneMap
+ *
+ * - "Optimized Reversible Tonemapper for Resolve", Timothy Lottes:
+ *   https://gpuopen.com/learn/optimized-reversible-tonemapper-for-resolve/
+ *
  * @type {string}
+ * @alias module:chunks.reversibleToneMap
  */
 export default /* glsl */ `
 vec3 reversibleToneMap(vec3 c) {

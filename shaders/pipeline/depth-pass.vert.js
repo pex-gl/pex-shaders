@@ -1,8 +1,8 @@
 import * as SHADERS from "../chunks/index.js";
 
 /**
- * @alias module:pipeline.depthPass.vert
  * @type {string}
+ * @alias module:pipeline.depthPass.vert
  */
 export default /* glsl */ `
 ${SHADERS.output.vert}

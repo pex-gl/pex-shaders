@@ -1,19 +1,19 @@
 const PCF = /* glsl */ `
-float texture2DCompare(sampler2D depths, vec2 uv, float compare, float near, float far) {
-  float depth = readDepthOrtho(depths, uv, near, far);
+float texture2DCompare(sampler2D depths, vec2 uv, float compare, float near, float far, bool ortho) {
+  float depth = ortho ? readDepthOrtho(depths, uv, near, far) : readDepth(depths, uv, near, far);
   if (depth >= far - DEPTH_TOLERANCE) return 1.0;
   return step(compare, depth);
 }
 
-float texture2DShadowLerp(sampler2D depths, vec2 size, vec2 uv, float compare, float near, float far) {
+float texture2DShadowLerp(sampler2D depths, vec2 size, vec2 uv, float compare, float near, float far, bool ortho) {
   vec2 texelSize = vec2(1.0) / size;
   vec2 f = fract(uv * size + 0.5);
   vec2 centroidUV = floor(uv * size + 0.5) / size;
 
-  float lb = texture2DCompare(depths, centroidUV + texelSize * vec2(0.0, 0.0), compare, near, far);
-  float lt = texture2DCompare(depths, centroidUV + texelSize * vec2(0.0, 1.0), compare, near, far);
-  float rb = texture2DCompare(depths, centroidUV + texelSize * vec2(1.0, 0.0), compare, near, far);
-  float rt = texture2DCompare(depths, centroidUV + texelSize * vec2(1.0, 1.0), compare, near, far);
+  float lb = texture2DCompare(depths, centroidUV + texelSize * vec2(0.0, 0.0), compare, near, far, ortho);
+  float lt = texture2DCompare(depths, centroidUV + texelSize * vec2(0.0, 1.0), compare, near, far, ortho);
+  float rb = texture2DCompare(depths, centroidUV + texelSize * vec2(1.0, 0.0), compare, near, far, ortho);
+  float rt = texture2DCompare(depths, centroidUV + texelSize * vec2(1.0, 1.0), compare, near, far, ortho);
   float a = mix(lb, lt, f.y);
   float b = mix(rb, rt, f.y);
   float c = mix(a, b, f.x);
@@ -21,23 +21,23 @@ float texture2DShadowLerp(sampler2D depths, vec2 size, vec2 uv, float compare, f
   return c;
 }
 
-float PCF3x3(sampler2D depths, vec2 size, vec2 uv, float compare, float near, float far) {
+float PCF3x3(sampler2D depths, vec2 size, vec2 uv, float compare, float near, float far, bool ortho) {
   float result = 0.0;
   for (int x = -1; x <= 1; x++) {
     for (int y = -1; y <= 1; y++) {
       vec2 off = vec2(x, y) / float(size);
-      result += texture2DShadowLerp(depths, size, uv + off, compare, near, far);
+      result += texture2DShadowLerp(depths, size, uv + off, compare, near, far, ortho);
     }
   }
   return result / 9.0;
 }
 
-float PCF5x5(sampler2D depths, vec2 size, vec2 uv, float compare, float near, float far) {
+float PCF5x5(sampler2D depths, vec2 size, vec2 uv, float compare, float near, float far, bool ortho) {
   float result = 0.0;
   for (int x = -2; x <= 2; x++) {
     for (int y = -2; y <= 2; y++) {
       vec2 off = vec2(x, y) / float(size);
-      result += texture2DShadowLerp(depths, size, uv + off, compare, near, far);
+      result += texture2DShadowLerp(depths, size, uv + off, compare, near, far, ortho);
     }
   }
   return result / 25.0;

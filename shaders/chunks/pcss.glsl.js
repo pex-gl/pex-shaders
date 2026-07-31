@@ -98,7 +98,7 @@ void PCSSFindBlocker(
   }
 }
 
-float PCSSPCFFilter(sampler2D depths, vec2 size, vec2 uv, float compare, float near, float far, vec2 dz_duv, mat2 R, vec2 filterRadiusUV) {
+float PCSSPCFFilter(sampler2D depths, vec2 size, vec2 uv, float compare, float near, float far, vec2 dz_duv, mat2 R, vec2 filterRadiusUV, bool ortho) {
   float result = 0.0;
 
   for (int i = 0; i < PCSS_PCF_NUM_SAMPLES; ++i) {
@@ -111,12 +111,12 @@ float PCSSPCFFilter(sampler2D depths, vec2 size, vec2 uv, float compare, float n
 
     float z = BiasedZ(compare, dz_duv, offset);
 
-    result += texture2DCompare(depths, uv + offset, z, near, far);
+    result += texture2DCompare(depths, uv + offset, z, near, far, ortho);
   }
   return result / float(PCSS_PCF_NUM_SAMPLES);
 }
 
-float PCSS(sampler2D depths, vec2 size, vec2 uv, float compare, float near, float far, float ndcLightZ, vec2 radiusUV) {
+float PCSS(sampler2D depths, vec2 size, vec2 uv, float compare, float near, float far, float ndcLightZ, vec2 radiusUV, bool ortho) {
   vec2 shadowMapSizeInverse = 1.0 / size;
   mat2 R = getRandomRotationMatrix(gl_FragCoord.xy);
   vec2 dz_duv = DepthGradient(vec3(uv.xy, ndcLightZ));
@@ -152,7 +152,7 @@ float PCSS(sampler2D depths, vec2 size, vec2 uv, float compare, float near, floa
   vec2 filterRadiusUV = penumbraRatio * radiusUV * shadowMapSizeInverse;
 
   // STEP 3: filtering
-  return PCSSPCFFilter(depths, size, uv, compare, near, far, dz_duv, R, filterRadiusUV);
+  return PCSSPCFFilter(depths, size, uv, compare, near, far, dz_duv, R, filterRadiusUV, ortho);
 }
 `;
 
@@ -174,8 +174,7 @@ void PCSSFindBlockerCube(
     #endif
     highp vec3 offset = vec3(r.x, float(i / PCSS_BLOCKER_SEARCH_NUM_SAMPLES), r.y) * searchWidth;
 
-    float depth = textureCube(depths, normalize(direction + offset)).r;
-    // float depth = unpackDepth(textureCube(depths, normalize(direction + offset))) * DEPTH_PACK_FAR;
+    float depth = unpackDepth(textureCube(depths, normalize(direction + offset))) * DEPTH_PACK_FAR;
 
     if (depth < compare) {
       blockerSum += depth;

@@ -52,7 +52,7 @@ void getIor(inout PBRData data) {
       #else
         vec2 texCoordSpecularColor = getTextureCoordinates(data, SPECULAR_COLOR_TEXTURE_TEX_COORD);
       #endif
-      specularColor *= decode(texture2D(uSpecularColorTexture, texCoordSpecularColor), SRGB).rgb;
+      specularColor *= texture2D(uSpecularColorTexture, texCoordSpecularColor).rgb;
     #endif
 
     data.f0 = mix(

@@ -13,7 +13,7 @@ uniform vec2 uViewportSize;
 
 varying vec2 vTexCoord0;
 
-#if defined(USE_AA) || defined(USE_UPSAMPLE) || defined(USE_DOWN_SAMPLE)
+#if defined(USE_FXAA) || defined(USE_UPSAMPLE) || defined(USE_DOWN_SAMPLE)
   uniform vec2 uTexelSize;
 
   varying vec2 vTexCoord0LeftUp;
@@ -21,7 +21,7 @@ varying vec2 vTexCoord0;
   varying vec2 vTexCoord0LeftDown;
   varying vec2 vTexCoord0RightDown;
 
-  #if defined(USE_AA) || defined(USE_UPSAMPLE)
+  #if defined(USE_FXAA) || defined(USE_UPSAMPLE)
     varying vec2 vTexCoord0Down;
     varying vec2 vTexCoord0Up;
     varying vec2 vTexCoord0Left;
@@ -33,7 +33,7 @@ void main() {
   gl_Position = vec4(aPosition, 0.0, 1.0);
   vTexCoord0 = aPosition * 0.5 + 0.5;
 
-  #if defined(USE_AA) || defined(USE_UPSAMPLE) || defined(USE_DOWN_SAMPLE)
+  #if defined(USE_FXAA) || defined(USE_UPSAMPLE) || defined(USE_DOWN_SAMPLE)
     #if defined(USE_UPSAMPLE) && defined(QUALITY) && QUALITY == 0
       float offset = 0.5;
     #else
@@ -45,7 +45,7 @@ void main() {
     vTexCoord0LeftDown = vTexCoord0 + uTexelSize * offset * vec2(-1.0, -1.0);
     vTexCoord0RightDown = vTexCoord0 + uTexelSize * offset * vec2(1.0, -1.0);
 
-    #if defined(USE_AA) || defined(USE_UPSAMPLE)
+    #if defined(USE_FXAA) || defined(USE_UPSAMPLE)
       vTexCoord0Down = vTexCoord0 + uTexelSize * vec2(0.0, -1.0);
       vTexCoord0Up = vTexCoord0 + uTexelSize * vec2(0.0, 1.0);
       vTexCoord0Left = vTexCoord0 + uTexelSize * vec2(-1.0, 0.0);

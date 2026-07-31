@@ -2,6 +2,80 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [2.0.0-alpha.6](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.5...v2.0.0-alpha.6) (2026-04-16)
+
+
+### Bug Fixes
+
+* prevent negative, NaN or Infinity color in basic and line shader ([ce23d2b](https://github.com/pex-gl/pex-shaders/commit/ce23d2b68e3ed8b92baaf3e828d1191d06fec755))
+* prevent negative, NaN or Infinity color in standard shader ([c0bf772](https://github.com/pex-gl/pex-shaders/commit/c0bf772b172c86e0725fe5190cc1299d1fc7c641))
+
+
+### Features
+
+* **main:** use the correct srgb transfer function ([3bac8ee](https://github.com/pex-gl/pex-shaders/commit/3bac8ee156083ae170c3702e22ec7957ac869a92)), closes [#29](https://github.com/pex-gl/pex-shaders/issues/29)
+
+
+
+# [2.0.0-alpha.5](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.4...v2.0.0-alpha.5) (2026-02-26)
+
+
+### Bug Fixes
+
+* use ortho projection for reading depth only for directional light ([25c4df6](https://github.com/pex-gl/pex-shaders/commit/25c4df64c17f6495afdd64a4927a961294f99d1c))
+
+
+
+# [2.0.0-alpha.4](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.3...v2.0.0-alpha.4) (2025-09-19)
+
+
+
+# [2.0.0-alpha.3](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.2...v2.0.0-alpha.3) (2025-09-12)
+
+
+### Features
+
+* add glsl-smaa ([4086984](https://github.com/pex-gl/pex-shaders/commit/4086984207a5e5af05fba897488e128f7072c263))
+* read luma texture in film grain ([2744881](https://github.com/pex-gl/pex-shaders/commit/2744881bce63cf6d3e32d3d826fa0ecca248bf47))
+
+
+
+# [2.0.0-alpha.2](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.1...v2.0.0-alpha.2) (2025-09-09)
+
+
+### Features
+
+* **main:** make post-processing combine and final decode SRGB ([fe2f4cc](https://github.com/pex-gl/pex-shaders/commit/fe2f4cc07482a200909130a5da48ae3950299698))
+* make blit encode to SRGB ([3ee1afa](https://github.com/pex-gl/pex-shaders/commit/3ee1afa5f64cd00e6c07dae372a7036fa26212aa))
+* remove RGBM from encode decode ([15b8d40](https://github.com/pex-gl/pex-shaders/commit/15b8d4027db17e46d57c88ac2ee6ce33bd06a799))
+* split blit and reversible tone map passes ([1732e0f](https://github.com/pex-gl/pex-shaders/commit/1732e0f8f0596ec502a39a93ed4f9da23c6baa7d))
+
+
+
+# [2.0.0-alpha.1](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.0...v2.0.0-alpha.1) (2025-09-08)
+
+
+### Features
+
+* remove encoding/decoding + remove exposure/toneMap + add msaa define instead ([8c53609](https://github.com/pex-gl/pex-shaders/commit/8c53609fcc934dda0950d1f5d1594da57f4dbd39))
+
+
+
+# [2.0.0-alpha.0](https://github.com/pex-gl/pex-shaders/compare/v1.0.0...v2.0.0-alpha.0) (2025-09-05)
+
+
+### Features
+
+* add post-processing luma + use it in fxaa ([bb3ed8d](https://github.com/pex-gl/pex-shaders/commit/bb3ed8d05bb74359ad1ee98ee31182b20f0905ba))
+* add reversible tone map ([09032b7](https://github.com/pex-gl/pex-shaders/commit/09032b7e83df19ad3a54da3c3a6f0d49fb9e3832))
+* assume colors in perceptual space for FXAA ([21d17f5](https://github.com/pex-gl/pex-shaders/commit/21d17f5e00a85972aef0c61500c2b2db3a767d19))
+* assume LinearSRGB input texture for fxaa in final ([b30f7a8](https://github.com/pex-gl/pex-shaders/commit/b30f7a8e3a6b8c050d2d28b0af199db5353337a4))
+* move vignette before LUT/Color Correction ([91e854d](https://github.com/pex-gl/pex-shaders/commit/91e854d261db3f45057e99a31276abe02d9ff10b))
+* remove SRGB textures decoding ([3c31dd9](https://github.com/pex-gl/pex-shaders/commit/3c31dd92eee156017ea4e8c286992ed8006ee442)), closes [#27](https://github.com/pex-gl/pex-shaders/issues/27)
+* split post-processing combine and final ([c0a98f6](https://github.com/pex-gl/pex-shaders/commit/c0a98f628573e57de4f31e33461d15cff159c534))
+
+
+
 # [1.0.0](https://github.com/pex-gl/pex-shaders/compare/v1.0.0-alpha.34...v1.0.0) (2025-08-22)
 
 

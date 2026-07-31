@@ -135,8 +135,12 @@ export function replaceStrings(src, options) {
 
 /**
  * Get a formatted error pointing at the issue line
+ *
  * @param {Error} error
- * @param {{ vert: string, frag: string, count: number }} options
+ * @param {object} options
+ * @param {string} options.vert
+ * @param {string} options.frag
+ * @param {number} [options.count=5]
  * @returns {string}
  */
 export function getFormattedError(error, { vert, frag, count = 5 }) {

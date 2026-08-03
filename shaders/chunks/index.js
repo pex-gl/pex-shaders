@@ -2,184 +2,166 @@
 
 /**
  * @type {object}
- * @name output
- * @static
- */
-export * as output from "./output.glsl.js";
-/**
- * @type {object}
  * @name math
  * @static
  */
-export * as math from "./math.glsl.js";
-export * as noise from "./noise.glsl.js";
+export * as math from "./math.js";
+export * as noise from "./noise.js";
 
 export {
   /** @member {string} */
   default as encodeDecode,
-} from "./encode-decode.glsl.js";
+} from "./encode-decode.js";
 export {
   /** @member {string} */
   default as luma,
-} from "./luma.glsl.js";
+} from "./luma.js";
 export {
   /** @member {string} */
   default as luminance,
-} from "./luminance.glsl.js";
+} from "./luminance.js";
 export {
   /** @member {string} */
   default as average,
-} from "./average.glsl.js";
+} from "./average.js";
 
 export {
   /** @member {string} */
   default as lightAmbient,
-} from "./light-ambient.glsl.js";
+} from "./light-ambient.js";
 export {
   /** @member {string} */
   default as lightDirectional,
-} from "./light-directional.glsl.js";
+} from "./light-directional.js";
 export {
   /** @member {string} */
   default as lightPoint,
-} from "./light-point.glsl.js";
+} from "./light-point.js";
 export {
   /** @member {string} */
   default as lightSpot,
-} from "./light-spot.glsl.js";
+} from "./light-spot.js";
 export {
   /** @member {string} */
   default as lightArea,
-} from "./light-area.glsl.js";
+} from "./light-area.js";
 export {
   /** @member {string} */
   default as shadowing,
-} from "./shadowing.glsl.js";
-/**
- * @type {object}
- * @name pcf
- * @static
- */
-export * as pcf from "./pcf.glsl.js";
-/**
- * @type {object}
- * @name pcss
- * @static
- */
-export * as pcss from "./pcss.glsl.js";
+} from "./shadowing.js";
 
 export {
   /** @member {string} */
   default as brdf,
-} from "./brdf.glsl.js";
+} from "./brdf.js";
 export {
   /** @member {string} */
   default as direct,
-} from "./direct.glsl.js";
+} from "./direct.js";
 export {
   /** @member {string} */
   default as indirect,
-} from "./indirect.glsl.js";
+} from "./indirect.js";
 
 export {
   /** @member {string} */
   default as envMapEquirect,
-} from "./env-map-equirect.glsl.js";
+} from "./env-map-equirect.js";
 export {
   /** @member {string} */
   default as octMap,
-} from "./oct-map.glsl.js";
+} from "./oct-map.js";
 export {
   /** @member {string} */
   default as octMapUvToDir,
-} from "./oct-map-uv-to-dir.glsl.js";
+} from "./oct-map-uv-to-dir.js";
 export {
   /** @member {string} */
   default as irradiance,
-} from "./irradiance.glsl.js";
+} from "./irradiance.js";
 
 export {
   /** @member {string} */
   default as textureCoordinates,
-} from "./texture-coordinates.glsl.js";
+} from "./texture-coordinates.js";
 
 export {
   /** @member {string} */
   default as baseColor,
-} from "./base-color.glsl.js";
+} from "./base-color.js";
 export {
   /** @member {string} */
   default as emissiveColor,
-} from "./emissive-color.glsl.js";
+} from "./emissive-color.js";
 export {
   /** @member {string} */
   default as normal,
-} from "./normal.glsl.js";
+} from "./normal.js";
 export {
   /** @member {string} */
   default as normalPerturb,
-} from "./normal-perturb.glsl.js";
+} from "./normal-perturb.js";
 export {
   /** @member {string} */
   default as metallicRoughness,
-} from "./metallic-roughness.glsl.js";
+} from "./metallic-roughness.js";
 export {
   /** @member {string} */
   default as specular,
-} from "./specular.glsl.js";
+} from "./specular.js";
 export {
   /** @member {string} */
   default as specularGlossiness,
-} from "./specular-glossiness.glsl.js";
+} from "./specular-glossiness.js";
 export {
   /** @member {string} */
   default as clearCoat,
-} from "./clear-coat.glsl.js";
+} from "./clear-coat.js";
 export {
   /** @member {string} */
   default as sheenColor,
-} from "./sheen-color.glsl.js";
+} from "./sheen-color.js";
 export {
   /** @member {string} */
   default as transmission,
-} from "./transmission.glsl.js";
+} from "./transmission.js";
 export {
   /** @member {string} */
   default as alpha,
-} from "./alpha.glsl.js";
+} from "./alpha.js";
 export {
   /** @member {string} */
   default as ambientOcclusion,
-} from "./ambient-occlusion.glsl.js";
+} from "./ambient-occlusion.js";
 
 export {
   /** @member {string} */
   default as depthRead,
-} from "./depth-read.glsl.js";
+} from "./depth-read.js";
 export {
   /** @member {string} */
   default as depthPosition,
-} from "./depth-position.glsl.js";
+} from "./depth-position.js";
 export {
   /** @member {string} */
   default as depthUnpack,
-} from "./depth-unpack.glsl.js";
+} from "./depth-unpack.js";
 export {
   /** @member {string} */
   default as depthPack,
-} from "./depth-pack.glsl.js";
+} from "./depth-pack.js";
 
-export { default as fog } from "./fog.glsl.js";
-export { default as fxaa } from "./fxaa.glsl.js";
-export { default as filmGrain } from "./film-grain.glsl.js";
+export { default as fog } from "./fog.js";
+export { default as fxaa } from "./fxaa.js";
+export { default as filmGrain } from "./film-grain.js";
 export {
   /** @member {string} */
   default as lut,
-} from "./lut.glsl.js";
-export { default as colorCorrection } from "./color-correction.glsl.js";
+} from "./lut.js";
+export { default as colorCorrection } from "./color-correction.js";
 export {
   /** @member {string} */
   default as vignette,
-} from "./vignette.glsl.js";
+} from "./vignette.js";
 
-export { default as reversibleToneMap } from "./reversible-tone-map.glsl.js";
+export { default as reversibleToneMap } from "./reversible-tone-map.js";

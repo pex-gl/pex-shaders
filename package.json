@@ -35,7 +35,8 @@
     "build": "snowdev build",
     "dev": "snowdev dev",
     "release": "snowdev release",
-    "release:alpha": "snowdev release --release-as minor --prerelease alpha"
+    "release:alpha": "snowdev release --release-as minor --prerelease alpha",
+    "test": "node test/validate-wgsl.js && node test/validate-pipeline-wgsl.js"
   },
   "dependencies": {
     "glsl-smaa": "^3.0.0",
@@ -48,5 +49,11 @@
   },
   "snowdev": {
     "files": "{*.js,shaders/**/*.js}"
+  },
+  "devDependencies": {
+    "webgpu": "^0.4.0"
+  },
+  "allowScripts": {
+    "webgpu@0.4.0": true
   }
 }

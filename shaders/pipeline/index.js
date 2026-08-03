@@ -1,69 +1,73 @@
 /** @module pipeline */
 
-import blitVert from "./blit.vert.js";
-import blitFrag from "./blit.frag.js";
-import reversibleToneMapFrag from "./reversibleToneMap.frag.js";
-import depthPassVert from "./depth-pass.vert.js";
-import depthPassFrag from "./depth-pass.frag.js";
-import depthPrePassFrag from "./depth-pre-pass.frag.js";
-import standardFrag from "./standard.frag.js";
-import standardVert from "./standard.vert.js";
-import basicFrag from "./basic.frag.js";
-import basicVert from "./basic.vert.js";
-import lineFrag from "./line.frag.js";
-import lineVert from "./line.vert.js";
-import overlayFrag from "./overlay.frag.js";
-import overlayVert from "./overlay.vert.js";
-import helperFrag from "./helper.frag.js";
-import helperVert from "./helper.vert.js";
-import errorFrag from "./error.frag.js";
-import errorVert from "./error.vert.js";
+import blit from "./blit.js";
+import reversibleToneMap from "./reversibleToneMap.js";
+import depthPass from "./depth-pass.js";
+import depthPrePass from "./depth-pre-pass.js";
+import standard from "./standard.js";
+import basic from "./basic.js";
+import line from "./line.js";
+import overlay from "./overlay.js";
+import helper from "./helper.js";
+import error from "./error.js";
 
 /**
- * @member {object}
- * @static
- */ export const blit = { vert: blitVert, frag: blitFrag };
-/**
- * @member {object}
- * @static
- */ export const reversibleToneMap = { frag: reversibleToneMapFrag };
-/**
- * @member {object}
+ * (defines, options) => wgslString, containing both @vertex and @fragment entry points.
+ * @member {Function}
  * @static
  */
-export const depthPass = { vert: depthPassVert, frag: depthPassFrag };
+export { blit };
 /**
- * @member {object}
+ * (defines, options) => wgslString, containing both @vertex and @fragment entry points.
+ * @member {Function}
  * @static
  */
-export const depthPrePass = { frag: depthPrePassFrag };
+export { reversibleToneMap };
 /**
- * @member {object}
+ * (defines, options) => wgslString, containing both @vertex and @fragment entry points.
+ * @member {Function}
  * @static
  */
-export const standard = { vert: standardVert, frag: standardFrag };
+export { depthPass };
 /**
- * @member {object}
+ * (defines, options) => wgslString, containing both @vertex and @fragment entry points.
+ * @member {Function}
  * @static
  */
-export const basic = { vert: basicVert, frag: basicFrag };
+export { depthPrePass };
 /**
- * @member {object}
+ * (defines, options) => wgslString, containing both @vertex and @fragment entry points.
+ * @member {Function}
  * @static
  */
-export const line = { vert: lineVert, frag: lineFrag };
+export { standard };
 /**
- * @member {object}
+ * (defines, options) => wgslString, containing both @vertex and @fragment entry points.
+ * @member {Function}
  * @static
  */
-export const overlay = { vert: overlayVert, frag: overlayFrag };
+export { basic };
 /**
- * @member {object}
+ * (defines, options) => wgslString, containing both @vertex and @fragment entry points.
+ * @member {Function}
  * @static
  */
-export const helper = { vert: helperVert, frag: helperFrag };
+export { line };
 /**
- * @member {object}
+ * (defines, options) => wgslString, containing both @vertex and @fragment entry points.
+ * @member {Function}
  * @static
  */
-export const error = { vert: errorVert, frag: errorFrag };
+export { overlay };
+/**
+ * (defines, options) => wgslString, containing both @vertex and @fragment entry points.
+ * @member {Function}
+ * @static
+ */
+export { helper };
+/**
+ * (defines, options) => wgslString, containing both @vertex and @fragment entry points.
+ * @member {Function}
+ * @static
+ */
+export { error };

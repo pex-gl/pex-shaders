@@ -79,6 +79,10 @@ export {
   /** @member {string} */
   default as irradiance,
 } from "./irradiance.js";
+export {
+  /** @member {string} */
+  default as sky,
+} from "./sky.js";
 
 export {
   /** @member {string} */

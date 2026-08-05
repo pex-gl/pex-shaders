@@ -11,7 +11,6 @@ struct SpotLight {
   castShadows: u32,
   near: f32,
   far: f32,
-  bias: f32,
   radiusUV: vec2f,
   shadowMapSize: vec2f,
 };
@@ -19,16 +18,31 @@ struct SpotLight {
 fn EvaluateSpotLight(
   data: ptr<function, PBRData>,
   light: SpotLight,
-  shadowMap: texture_2d<f32>,
-  shadowMapSampler: sampler,
+  shadowMap: texture_depth_2d,
+  shadowMapSampler: sampler_comparison,
   positionWorld: vec3f,
   fragCoord: vec2f
 ) {
-  let lightViewPosition = light.viewMatrix * vec4f(positionWorld, 1.0);
-  let lightDistView = -lightViewPosition.z;
+  // Camera-independent normal-offset bias before projection. texelWorldSize is
+  // the perspective frustum width at the receiver over the map size:
+  // 2·dist·tan(halfFovY)/size, with tan(halfFovY) = 1/projection[1][1].
+  let L = normalize(light.position - positionWorld);
+  let NdotL = dot(data.normalWorld, L);
+  let receiverDist = -(light.viewMatrix * vec4f(positionWorld, 1.0)).z;
+  let texelWorldSize = 2.0 * max(receiverDist, 0.0) / (abs(light.projectionMatrix[1][1]) * light.shadowMapSize.y);
+  let shadowPos = normalOffsetBias(positionWorld, data.normalWorld, NdotL, texelWorldSize);
+
+  let lightViewPosition = light.viewMatrix * vec4f(shadowPos, 1.0);
   let lightDeviceCoordsPosition = light.projectionMatrix * lightViewPosition;
   let lightDeviceCoordsPositionNormalized = lightDeviceCoordsPosition.xyz / lightDeviceCoordsPosition.w;
-  let lightUV = lightDeviceCoordsPositionNormalized.xy * 0.5 + 0.5;
+  // WebGPU texture origin is top-left, so flip v relative to clip space.
+  let lightUV = vec2f(
+    lightDeviceCoordsPositionNormalized.x * 0.5 + 0.5,
+    0.5 - lightDeviceCoordsPositionNormalized.y * 0.5,
+  );
+  // Computed here (uniform control flow) so the receiver-plane bias can use
+  // screen-space derivatives; the shadow lookup below is behind a branch.
+  let dzDuv = depthGradient(lightUV, lightDeviceCoordsPositionNormalized.z);
 
   var illuminated = 1.0;
   if (light.castShadows != 0u) {
@@ -37,11 +51,11 @@ fn EvaluateSpotLight(
       shadowMapSampler,
       light.shadowMapSize,
       lightUV,
-      lightDistView - light.bias,
+      lightDeviceCoordsPositionNormalized.z,
       light.near,
       light.far,
-      lightDeviceCoordsPositionNormalized.z,
       light.radiusUV,
+      dzDuv,
       false,
       fragCoord
     );

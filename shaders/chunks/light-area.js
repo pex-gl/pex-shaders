@@ -16,7 +16,6 @@ struct AreaLight {
   castShadows: u32,
   near: f32,
   far: f32,
-  bias: f32,
   radiusUV: vec2f,
   shadowMapSize: vec2f,
 };
@@ -587,8 +586,8 @@ fn LTC_EvaluateQuad(
 fn EvaluateAreaLight(
   data: ptr<function, PBRData>,
   light: AreaLight,
-  shadowMap: texture_2d<f32>,
-  shadowMapSampler: sampler,
+  shadowMap: texture_depth_2d,
+  shadowMapSampler: sampler_comparison,
   ltc1: texture_2d<f32>,
   ltc1Sampler: sampler,
   ltc2: texture_2d<f32>,
@@ -599,10 +598,16 @@ fn EvaluateAreaLight(
   fragCoord: vec2f
 ) {
   let lightViewPosition = light.viewMatrix * vec4f(positionWorld, 1.0);
-  let lightDistView = -lightViewPosition.z;
   let lightDeviceCoordsPosition = light.projectionMatrix * lightViewPosition;
   let lightDeviceCoordsPositionNormalized = lightDeviceCoordsPosition.xyz / lightDeviceCoordsPosition.w;
-  let lightUV = lightDeviceCoordsPositionNormalized.xy * 0.5 + 0.5;
+  // WebGPU texture origin is top-left, so flip v relative to clip space.
+  let lightUV = vec2f(
+    lightDeviceCoordsPositionNormalized.x * 0.5 + 0.5,
+    0.5 - lightDeviceCoordsPositionNormalized.y * 0.5,
+  );
+  // Computed here (uniform control flow) so the receiver-plane bias can use
+  // screen-space derivatives; the shadow lookup below is behind a branch.
+  let dzDuv = depthGradient(lightUV, lightDeviceCoordsPositionNormalized.z);
 
   var illuminated = 1.0;
   if (light.castShadows != 0u) {
@@ -611,11 +616,11 @@ fn EvaluateAreaLight(
       shadowMapSampler,
       light.shadowMapSize,
       lightUV,
-      lightDistView - light.bias,
+      lightDeviceCoordsPositionNormalized.z,
       light.near,
       light.far,
-      lightDeviceCoordsPositionNormalized.z,
       light.radiusUV,
+      dzDuv,
       false,
       fragCoord
     );

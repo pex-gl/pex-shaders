@@ -7,27 +7,33 @@ struct PointLight {
   bias: f32,
   radius: f32,
   shadowMapSize: vec2f,
+  far: f32,
 };
 
 fn EvaluatePointLight(
   data: ptr<function, PBRData>,
   light: PointLight,
-  shadowMap: texture_cube<f32>,
+  shadowMap: texture_depth_cube,
   shadowMapSampler: sampler,
   fragCoord: vec2f
 ) {
   let positionToLightWorld = data.positionWorld - light.position;
-  let lightDistWorld = length(positionToLightWorld);
 
   var illuminated = 1.0;
   if (light.castShadows != 0u) {
+    // The cube stores normalized radial distance from the light; compare the
+    // receiver's own normalized distance. bias is a relative epsilon (scales
+    // with far), so it stays scene-adaptive.
+    let compare = length(positionToLightWorld) / light.far - light.bias;
+
     illuminated = getPunctualShadow(
       shadowMap,
       shadowMapSampler,
       light.shadowMapSize,
       positionToLightWorld,
-      lightDistWorld - light.bias,
+      compare,
       light.radius,
+      light.far,
       fragCoord
     );
   }

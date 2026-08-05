@@ -130,8 +130,6 @@ fn skyFrag(directionIn: vec3f, sky: SkyData) -> vec3f {
   let sundisk = smoothstep(sunAngularDiameterCos, sunAngularDiameterCos + 0.00002, cosTheta);
   let L0Sun = L0 + (sky.sunE * 19000.0 * Fex) * sundisk;
 
-  let texColor = (Lin + L0Sun) * 0.04 + vec3f(0.0, 0.0003, 0.00075);
-
-  return pow(texColor, vec3f(1.0 / (1.2 + (1.2 * sky.sunfade))));
+  return (Lin + L0Sun) * 0.04 + vec3f(0.0, 0.0003, 0.00075);
 }
 `;

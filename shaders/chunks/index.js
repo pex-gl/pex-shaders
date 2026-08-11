@@ -69,18 +69,6 @@ export {
 } from "./env-map-equirect.js";
 export {
   /** @member {string} */
-  default as octMap,
-} from "./oct-map.js";
-export {
-  /** @member {string} */
-  default as octMapUvToDir,
-} from "./oct-map-uv-to-dir.js";
-export {
-  /** @member {string} */
-  default as irradiance,
-} from "./irradiance.js";
-export {
-  /** @member {string} */
   default as sky,
 } from "./sky.js";
 

@@ -3,24 +3,38 @@ export default /* wgsl */ `
 // USE_SHEEN, USE_TRANSMISSION, USE_DISPERSION, USE_DIFFUSE_TRANSMISSION and USE_VOLUME
 // are expected to be declared as \`override\` bool by the composing pipeline shader.
 
-const MAX_MIPMAP_LEVEL: f32 = 5.0;
-
+// Prefiltered specular radiance from the native cubemap. Perceptual roughness
+// maps linearly to lod because each mip was prefiltered at roughness =
+// mip / (numMipLevels - 1); trilinear filtering interpolates between levels.
 fn getPrefilteredReflection(
   reflected: vec3f,
   roughness: f32,
-  reflectionMap: texture_2d<f32>,
-  reflectionMapSampler: sampler,
-  reflectionMapSize: f32
+  prefilteredMap: texture_cube<f32>,
+  prefilteredMapSampler: sampler,
+  numMipLevels: f32
 ) -> vec3f {
-  let lod = pow(roughness, 2.0) * MAX_MIPMAP_LEVEL; // TODO: verify reflection probe blurring code
-  // let lod = pow(roughness, 1.5) * MAX_MIPMAP_LEVEL;
-  let upLod = floor(lod);
-  let downLod = ceil(lod);
+  let lod = roughness * (numMipLevels - 1.0);
+  return textureSampleLevel(prefilteredMap, prefilteredMapSampler, reflected, lod).rgb;
+}
 
-  let a = textureSample(reflectionMap, reflectionMapSampler, envMapOctahedralAtlas(reflected, 0.0, upLod, reflectionMapSize)).xyz;
-  let b = textureSample(reflectionMap, reflectionMapSampler, envMapOctahedralAtlas(reflected, 0.0, downLod, reflectionMapSize)).xyz;
-
-  return mix(a, b, lod - upLod);
+// Diffuse irradiance reconstructed from L2 SH. The coefficients already fold in
+// the cosine-lobe convolution and 1/π (see shaders/reflection-probe.ts), so this
+// returns diffuse radiance directly. Basis/index order must match the projection.
+fn shIrradiance(sh: array<vec4f, 9>, n: vec3f) -> vec3f {
+  let b = array<f32, 9>(
+    0.282095,
+    0.488603 * n.y,
+    0.488603 * n.z,
+    0.488603 * n.x,
+    1.092548 * n.x * n.y,
+    1.092548 * n.y * n.z,
+    0.315392 * (3.0 * n.z * n.z - 1.0),
+    1.092548 * n.x * n.z,
+    0.546274 * (n.x * n.x - n.y * n.y)
+  );
+  var result = vec3f(0.0);
+  for (var k = 0; k < 9; k++) { result += sh[k].rgb * b[k]; }
+  return max(result, vec3f(0.0));
 }
 
 // Analytic environment BRDF (DFG) fit, returning the split-sum scale/bias so
@@ -40,9 +54,9 @@ fn evaluateClearCoatIBL(
   ao: f32,
   Fd: ptr<function, vec3f>,
   Fr: ptr<function, vec3f>,
-  reflectionMap: texture_2d<f32>,
-  reflectionMapSampler: sampler,
-  reflectionMapSize: f32
+  prefilteredMap: texture_cube<f32>,
+  prefilteredMapSampler: sampler,
+  numMipLevels: f32
 ) {
   var clearCoatNoV = data.NdotV;
   var clearCoatR = data.reflectionWorld;
@@ -56,7 +70,7 @@ fn evaluateClearCoatIBL(
   // https://github.com/google/filament/commit/6a8e6d45b5c57280898ad064426bc197978e71c5
   // *Fr *= (attenuation * attenuation);
   *Fr *= attenuation;
-  *Fr += getPrefilteredReflection(clearCoatR, data.clearCoatRoughness, reflectionMap, reflectionMapSampler, reflectionMapSize) * (ao * Fc);
+  *Fr += getPrefilteredReflection(clearCoatR, data.clearCoatRoughness, prefilteredMap, prefilteredMapSampler, numMipLevels) * (ao * Fc);
   *Fd *= attenuation;
 }
 
@@ -75,9 +89,9 @@ fn evaluateSheenIBL(
   ao: f32,
   Fd: ptr<function, vec3f>,
   Fr: ptr<function, vec3f>,
-  reflectionMap: texture_2d<f32>,
-  reflectionMapSampler: sampler,
-  reflectionMapSize: f32
+  prefilteredMap: texture_cube<f32>,
+  prefilteredMapSampler: sampler,
+  numMipLevels: f32
 ) {
   // Albedo scaling of the base layer before we layer sheen on top
   *Fd *= data.sheenAlbedoScaling;
@@ -85,7 +99,7 @@ fn evaluateSheenIBL(
 
   var reflectance = data.sheenColor * IBLSheenBRDF(data.sheenRoughness, data.sheenLinearRoughness, data.NdotV);
   reflectance *= ao;
-  *Fr += reflectance * getPrefilteredReflection(data.reflectionWorld, data.sheenRoughness, reflectionMap, reflectionMapSampler, reflectionMapSize);
+  *Fr += reflectance * getPrefilteredReflection(data.reflectionWorld, data.sheenRoughness, prefilteredMap, prefilteredMapSampler, numMipLevels);
 }
 
 // https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/6bc1df9c334288fb0d91d2febfddf97ac5dfd045/source/Renderer/shaders/ibl.glsl#L78
@@ -160,9 +174,10 @@ fn getIBLVolumeRefraction(
 fn EvaluateLightProbe(
   data: ptr<function, PBRData>,
   ao: f32,
-  reflectionMap: texture_2d<f32>,
-  reflectionMapSampler: sampler,
-  reflectionMapSize: f32,
+  prefilteredMap: texture_cube<f32>,
+  prefilteredMapSampler: sampler,
+  numMipLevels: f32,
+  sh: array<vec4f, 9>,
   captureTexture: texture_2d<f32>,
   captureTextureSampler: sampler,
   viewportSize: vec2f,
@@ -186,18 +201,18 @@ fn EvaluateLightProbe(
   let kD = data.diffuseColor * (1.0 - FssEss + FmsEms);
 
   // diffuse layer
-  let diffuseIrradiance = getIrradiance(data.normalWorld, reflectionMap, reflectionMapSampler, reflectionMapSize, LINEAR);
+  let diffuseIrradiance = shIrradiance(sh, data.normalWorld);
   var Fd = (FmsEms + kD) * diffuseIrradiance * ao;
 
   if (USE_DIFFUSE_TRANSMISSION) {
-    var diffuseTransmissionIBL = getIrradiance(-data.normalWorld, reflectionMap, reflectionMapSampler, reflectionMapSize, LINEAR) * data.diffuseTransmissionColor;
+    var diffuseTransmissionIBL = shIrradiance(sh, -data.normalWorld) * data.diffuseTransmissionColor;
     if (USE_VOLUME) {
       diffuseTransmissionIBL = applyVolumeAttenuation(diffuseTransmissionIBL, data.diffuseTransmissionThickness, data.attenuationColor, data.attenuationDistance);
     }
     Fd = mix(Fd, diffuseTransmissionIBL, data.diffuseTransmission);
   }
 
-  let prefilteredRadiance = getPrefilteredReflection(data.reflectionWorld, data.roughness, reflectionMap, reflectionMapSampler, reflectionMapSize);
+  let prefilteredRadiance = getPrefilteredReflection(data.reflectionWorld, data.roughness, prefilteredMap, prefilteredMapSampler, numMipLevels);
 
   var Fr = (FssEss + FmsEms) * prefilteredRadiance * ao;
 
@@ -206,11 +221,11 @@ fn EvaluateLightProbe(
   // multiBounceSpecularAO(specularAO, data.f0, &Fr);
 
   if (USE_SHEEN) {
-    evaluateSheenIBL(data, ao, &Fd, &Fr, reflectionMap, reflectionMapSampler, reflectionMapSize);
+    evaluateSheenIBL(data, ao, &Fd, &Fr, prefilteredMap, prefilteredMapSampler, numMipLevels);
   }
 
   if (USE_CLEAR_COAT) {
-    evaluateClearCoatIBL(*data, ao, &Fd, &Fr, reflectionMap, reflectionMapSampler, reflectionMapSize);
+    evaluateClearCoatIBL(*data, ao, &Fd, &Fr, prefilteredMap, prefilteredMapSampler, numMipLevels);
   }
 
   if (USE_TRANSMISSION) {

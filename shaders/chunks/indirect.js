@@ -23,14 +23,15 @@ fn getPrefilteredReflection(
   return mix(a, b, lod - upLod);
 }
 
+// Analytic environment BRDF (DFG) fit, returning the split-sum scale/bias so
+// the caller can reuse it for both the single- and multiple-scattering terms.
 // https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile
-fn EnvBRDFApprox(specularColor: vec3f, specularF90: vec3f, roughness: f32, NoV: f32) -> vec3f {
+fn EnvBRDFApproxAB(roughness: f32, NoV: f32) -> vec2f {
   let c0 = vec4f(-1.0, -0.0275, -0.572, 0.022);
   let c1 = vec4f(1.0, 0.0425, 1.04, -0.04);
   let r = roughness * c0 + c1;
   let a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;
-  let AB = vec2f(-1.04, 1.04) * a004 + r.zw;
-  return specularColor * AB.x + specularF90 * AB.y;
+  return vec2f(-1.04, 1.04) * a004 + r.zw;
 }
 
 // https://google.github.io/filament/Filament.md.html#lighting/imagebasedlights/clearcoat
@@ -169,12 +170,24 @@ fn EvaluateLightProbe(
   projectionMatrix: mat4x4f,
   viewMatrix: mat4x4f
 ) {
-  // TODO: energyCompensation
-  let energyCompensation = 1.0;
+  // Multiple-scattering microfacet IBL (Fdez-Agüera 2019). The single- and
+  // multiple-scattering terms are derived from the same DFG (f_ab) evaluation,
+  // so rough surfaces recover the energy a single-scatter split-sum would lose.
+  // https://www.jcgt.org/published/0008/01/03/paper.pdf
+  let f_ab = EnvBRDFApproxAB(data.roughness, data.NdotV);
+  // Roughness-dependent Fresnel so smooth grazing angles still reach f90.
+  let FrIBL = max(vec3f(1.0 - data.roughness), data.f0) - data.f0;
+  let kS = data.f0 + FrIBL * pow(1.0 - data.NdotV, 5.0);
+  let FssEss = kS * f_ab.x + data.f90 * f_ab.y;
+  let Ems = 1.0 - (f_ab.x + f_ab.y);
+  let Favg = data.f0 + (1.0 - data.f0) / 21.0;
+  let FmsEms = Ems * FssEss * Favg / (1.0 - Favg * Ems);
+  // Energy left for the diffuse lobe after single + multiple specular scattering.
+  let kD = data.diffuseColor * (1.0 - FssEss + FmsEms);
 
   // diffuse layer
   let diffuseIrradiance = getIrradiance(data.normalWorld, reflectionMap, reflectionMapSampler, reflectionMapSize, LINEAR);
-  var Fd = data.diffuseColor * diffuseIrradiance * ao;
+  var Fd = (FmsEms + kD) * diffuseIrradiance * ao;
 
   if (USE_DIFFUSE_TRANSMISSION) {
     var diffuseTransmissionIBL = getIrradiance(-data.normalWorld, reflectionMap, reflectionMapSampler, reflectionMapSize, LINEAR) * data.diffuseTransmissionColor;
@@ -184,11 +197,9 @@ fn EvaluateLightProbe(
     Fd = mix(Fd, diffuseTransmissionIBL, data.diffuseTransmission);
   }
 
-  let specularReflectance = EnvBRDFApprox(data.f0, data.f90, data.roughness, data.NdotV);
   let prefilteredRadiance = getPrefilteredReflection(data.reflectionWorld, data.roughness, reflectionMap, reflectionMapSampler, reflectionMapSize);
 
-  var Fr = specularReflectance * prefilteredRadiance * ao;
-  Fr *= energyCompensation;
+  var Fr = (FssEss + FmsEms) * prefilteredRadiance * ao;
 
   // extra ambient occlusion term for the base and subsurface layers
   multiBounceAO(ao, data.diffuseColor, &Fd);

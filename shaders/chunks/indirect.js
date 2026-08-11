@@ -37,17 +37,6 @@ fn shIrradiance(sh: array<vec4f, 9>, n: vec3f) -> vec3f {
   return max(result, vec3f(0.0));
 }
 
-// Analytic environment BRDF (DFG) fit, returning the split-sum scale/bias so
-// the caller can reuse it for both the single- and multiple-scattering terms.
-// https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile
-fn EnvBRDFApproxAB(roughness: f32, NoV: f32) -> vec2f {
-  let c0 = vec4f(-1.0, -0.0275, -0.572, 0.022);
-  let c1 = vec4f(1.0, 0.0425, 1.04, -0.04);
-  let r = roughness * c0 + c1;
-  let a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;
-  return vec2f(-1.04, 1.04) * a004 + r.zw;
-}
-
 // https://google.github.io/filament/Filament.md.html#lighting/imagebasedlights/clearcoat
 fn evaluateClearCoatIBL(
   data: PBRData,

@@ -127,6 +127,34 @@ fn VisibilityOcclusion(linearRoughness: f32, NdotL: f32, NdotV: f32) -> f32 {
 }
 `;
 
+// Analytic environment BRDF (DFG) fit returning the split-sum scale/bias, so the
+// specular reflectance is f0 * AB.x + f90 * AB.y. Shared by the indirect split-sum
+// specular and the direct/indirect multiscatter energy compensation below.
+// https://www.unrealengine.com/en-US/blog/physically-based-shading-on-mobile
+const EnvBRDFApproxAB = /* wgsl */ `
+fn EnvBRDFApproxAB(roughness: f32, NoV: f32) -> vec2f {
+  let c0 = vec4f(-1.0, -0.0275, -0.572, 0.022);
+  let c1 = vec4f(1.0, 0.0425, 1.04, -0.04);
+  let r = roughness * c0 + c1;
+  let a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;
+  return vec2f(-1.04, 1.04) * a004 + r.zw;
+}
+`;
+
+// Multiple-scattering energy compensation for a single specular lobe (Turquin
+// 2019 / Kulla-Conty). Ess is the single-scattering directional albedo (white
+// furnace, F = 1) from the DFG; the energy it misses is added back scaled by f0.
+// Applied to the specular lobe of direct lighting; the indirect path uses the
+// fuller Fdez-Agüera model but the same DFG, keeping the two consistent.
+// https://blog.selfshadow.com/publications/turquin/ms_comp_final.pdf
+const getEnergyCompensation = /* wgsl */ `
+fn getEnergyCompensation(f0: vec3f, roughness: f32, NoV: f32) -> vec3f {
+  let dfg = EnvBRDFApproxAB(roughness, NoV);
+  let Ess = dfg.x + dfg.y;
+  return 1.0 + f0 * (1.0 / Ess - 1.0);
+}
+`;
+
 export default /* wgsl */ `
 ${D_GGX}
 ${D_Charlie}
@@ -138,4 +166,6 @@ ${DiffuseLambert}
 ${MicrofacetDistribution}
 ${SpecularReflection}
 ${VisibilityOcclusion}
+${EnvBRDFApproxAB}
+${getEnergyCompensation}
 `;

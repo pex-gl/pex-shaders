@@ -74,8 +74,10 @@ fn getSurfaceShading(data: ptr<function, PBRData>, light: Light, illuminated: f3
   var Fd = DiffuseLambert() * data.diffuseColor;
   let Fr = F * Vis * D;
 
-  // TODO: energy compensation
-  let energyCompensation = 1.0;
+  // Multiple-scattering compensation for the base specular lobe: single-scatter
+  // Cook-Torrance loses energy at high roughness, so scale it back up. Uses the
+  // same DFG as the indirect (Fdez-Agüera) path to stay consistent.
+  let energyCompensation = getEnergyCompensation(data.f0, data.roughness, NdotV);
 
   if (USE_DIFFUSE_TRANSMISSION) {
     var diffuse_btdf = light.attenuation * saturateF32(dot(-N, L)) * (DiffuseLambert() * data.diffuseTransmissionColor);

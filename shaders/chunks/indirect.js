@@ -163,19 +163,38 @@ fn getIBLVolumeRefraction(
   return (1.0 - specularColor) * attenuatedColor * data.diffuseColor;
 }
 
-fn EvaluateLightProbe(
+// Refraction through the surface, decoupled from the reflection probe so it runs
+// whether or not a probe is present. The single-scattering specular reflectance
+// (Fdez-Agüera FssEss) is recomputed locally from the DFG rather than taken from
+// the probe's accumulated indirect specular, so the energy split holds either way.
+fn EvaluateTransmission(
   data: ptr<function, PBRData>,
-  ao: f32,
-  prefilteredMap: texture_cube<f32>,
-  prefilteredMapSampler: sampler,
-  numMipLevels: f32,
-  sh: array<vec4f, 9>,
   captureTexture: texture_2d<f32>,
   captureTextureSampler: sampler,
   viewportSize: vec2f,
   modelMatrix: mat4x4f,
   projectionMatrix: mat4x4f,
   viewMatrix: mat4x4f
+) {
+  let f_ab = EnvBRDFApproxAB(data.roughness, data.NdotV);
+  let FrIBL = max(vec3f(1.0 - data.roughness), data.f0) - data.f0;
+  let kS = data.f0 + FrIBL * pow(1.0 - data.NdotV, 5.0);
+  let FssEss = kS * f_ab.x + data.f90 * f_ab.y;
+
+  var Ft = getIBLVolumeRefraction(data, FssEss, captureTexture, captureTextureSampler, viewportSize, modelMatrix, projectionMatrix, viewMatrix);
+  Ft *= data.transmission;
+  // Scale the accumulated indirect diffuse (probe + none) by the opaque fraction.
+  data.indirectDiffuse *= (1.0 - data.transmission);
+  data.transmitted += Ft;
+}
+
+fn EvaluateLightProbe(
+  data: ptr<function, PBRData>,
+  ao: f32,
+  prefilteredMap: texture_cube<f32>,
+  prefilteredMapSampler: sampler,
+  numMipLevels: f32,
+  sh: array<vec4f, 9>
 ) {
   // Multiple-scattering microfacet IBL (Fdez-Agüera 2019). The single- and
   // multiple-scattering terms are derived from the same DFG (f_ab) evaluation,
@@ -218,13 +237,6 @@ fn EvaluateLightProbe(
 
   if (USE_CLEAR_COAT) {
     evaluateClearCoatIBL(*data, ao, &Fd, &Fr, prefilteredMap, prefilteredMapSampler, numMipLevels);
-  }
-
-  if (USE_TRANSMISSION) {
-    var Ft = getIBLVolumeRefraction(data, Fr, captureTexture, captureTextureSampler, viewportSize, modelMatrix, projectionMatrix, viewMatrix);
-    Ft *= data.transmission;
-    Fd *= (1.0 - data.transmission);
-    data.transmitted += Ft;
   }
 
   data.indirectDiffuse += Fd;

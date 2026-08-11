@@ -101,7 +101,10 @@ fn getTransmissionSample(
   viewportSize: vec2f
 ) -> vec3f {
   let framebufferLod = log2(viewportSize.x) * applyIorToRoughness(roughness, ior);
-  return textureBicubic(captureTexture, captureTextureSampler, fragCoord.xy, framebufferLod).xyz;
+  // fragCoord comes from ndc * 0.5 + 0.5 (bottom-origin); the grab texture is
+  // top-origin (written by fragment position), so flip v to sample it.
+  let uv = vec2f(fragCoord.x, 1.0 - fragCoord.y);
+  return textureBicubic(captureTexture, captureTextureSampler, uv, framebufferLod).xyz;
 }
 
 fn getIBLVolumeRefraction(

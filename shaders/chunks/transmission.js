@@ -75,6 +75,15 @@ fn getAttenuation(data: ptr<function, PBRData>, attenuationColor: vec3f, attenua
 }
 
 // USE_VOLUME is expected to be declared as \`override\` bool by the composing pipeline shader.
+fn applyDiffuseTransmissionThickness(data: ptr<function, PBRData>, modelMatrix: mat4x4f) {
+  if (USE_VOLUME) {
+    data.diffuseTransmissionThickness = data.thickness
+      * (length(modelMatrix[0].xyz) + length(modelMatrix[1].xyz) + length(modelMatrix[2].xyz)) / 3.0;
+  } else {
+    data.diffuseTransmissionThickness = 1.0;
+  }
+}
+
 fn getDiffuseTransmission(
   data: ptr<function, PBRData>,
   diffuseTransmission: f32,
@@ -83,13 +92,45 @@ fn getDiffuseTransmission(
 ) {
   data.diffuseTransmission = diffuseTransmission;
   data.diffuseTransmissionColor = diffuseTransmissionColor;
+  applyDiffuseTransmissionThickness(data, modelMatrix);
+}
 
-  if (USE_VOLUME) {
-    data.diffuseTransmissionThickness = data.thickness
-      * (length(modelMatrix[0].xyz) + length(modelMatrix[1].xyz) + length(modelMatrix[2].xyz)) / 3.0;
-  } else {
-    data.diffuseTransmissionThickness = 1.0;
-  }
+// diffuseTransmissionTexture only (no diffuseTransmissionColorTexture): the
+// transmission factor is sampled from its alpha channel, the color stays the
+// raw factor untinted by any texture.
+fn getDiffuseTransmissionFactorTextured(
+  data: ptr<function, PBRData>,
+  diffuseTransmission: f32,
+  diffuseTransmissionColor: vec3f,
+  tex: texture_2d<f32>,
+  texSampler: sampler,
+  texCoordIndex: i32,
+  texCoordTransform: mat3x3f,
+  modelMatrix: mat4x4f
+) {
+  let texCoord = getTextureCoordinatesTransformed(*data, texCoordIndex, texCoordTransform);
+  data.diffuseTransmission = diffuseTransmission * textureSample(tex, texSampler, texCoord).w;
+  data.diffuseTransmissionColor = diffuseTransmissionColor;
+  applyDiffuseTransmissionThickness(data, modelMatrix);
+}
+
+// diffuseTransmissionColorTexture only (no diffuseTransmissionTexture): the
+// color factor is tinted by the texture's RGB, the transmission strength
+// stays the raw factor untouched by any texture.
+fn getDiffuseTransmissionColorTextured(
+  data: ptr<function, PBRData>,
+  diffuseTransmission: f32,
+  diffuseTransmissionColor: vec3f,
+  colorTex: texture_2d<f32>,
+  colorTexSampler: sampler,
+  colorTexCoordIndex: i32,
+  colorTexCoordTransform: mat3x3f,
+  modelMatrix: mat4x4f
+) {
+  let colorTexCoord = getTextureCoordinatesTransformed(*data, colorTexCoordIndex, colorTexCoordTransform);
+  data.diffuseTransmission = diffuseTransmission;
+  data.diffuseTransmissionColor = diffuseTransmissionColor * textureSample(colorTex, colorTexSampler, colorTexCoord).xyz;
+  applyDiffuseTransmissionThickness(data, modelMatrix);
 }
 
 fn getDiffuseTransmissionTextured(
@@ -114,13 +155,7 @@ fn getDiffuseTransmissionTextured(
 
   data.diffuseTransmission = diffuseTransmissionStrength;
   data.diffuseTransmissionColor = tintedDiffuseTransmissionColor;
-
-  if (USE_VOLUME) {
-    data.diffuseTransmissionThickness = data.thickness
-      * (length(modelMatrix[0].xyz) + length(modelMatrix[1].xyz) + length(modelMatrix[2].xyz)) / 3.0;
-  } else {
-    data.diffuseTransmissionThickness = 1.0;
-  }
+  applyDiffuseTransmissionThickness(data, modelMatrix);
 }
 
 // "Mipped Bicubic Texture Filtering" (https://www.shadertoy.com/view/4df3Dn)

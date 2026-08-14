@@ -41,6 +41,7 @@ fn shIrradiance(sh: array<vec4f, 9>, n: vec3f) -> vec3f {
 fn evaluateClearCoatIBL(
   data: PBRData,
   ao: f32,
+  rotation: mat3x3f,
   Fd: ptr<function, vec3f>,
   Fr: ptr<function, vec3f>,
   prefilteredMap: texture_cube<f32>,
@@ -48,10 +49,12 @@ fn evaluateClearCoatIBL(
   numMipLevels: f32
 ) {
   var clearCoatNoV = data.NdotV;
-  var clearCoatR = data.reflectionWorld;
+  // clearCoatNoV is a Fresnel term between two true-world-space vectors, so
+  // it stays unrotated; only the environment sample direction is rotated.
+  var clearCoatR = rotation * data.reflectionWorld;
   if (USE_NORMAL_TEXTURE || USE_CLEAR_COAT_NORMAL_TEXTURE) {
     clearCoatNoV = abs(dot(data.clearCoatNormal, data.viewWorld)) + FLT_EPS;
-    clearCoatR = reflect(-data.viewWorld, data.clearCoatNormal);
+    clearCoatR = rotation * reflect(-data.viewWorld, data.clearCoatNormal);
   }
   // The clear coat layer assumes an IOR of 1.5 (4% reflectance)
   let Fc = F_SchlickClearCoat(clearCoatNoV) * data.clearCoat;
@@ -76,6 +79,7 @@ fn IBLSheenBRDF(roughness: f32, linearRoughness: f32, NdotV: f32) -> f32 {
 fn evaluateSheenIBL(
   data: ptr<function, PBRData>,
   ao: f32,
+  rotation: mat3x3f,
   Fd: ptr<function, vec3f>,
   Fr: ptr<function, vec3f>,
   prefilteredMap: texture_cube<f32>,
@@ -88,7 +92,7 @@ fn evaluateSheenIBL(
 
   var reflectance = data.sheenColor * IBLSheenBRDF(data.sheenRoughness, data.sheenLinearRoughness, data.NdotV);
   reflectance *= ao;
-  *Fr += reflectance * getPrefilteredReflection(data.reflectionWorld, data.sheenRoughness, prefilteredMap, prefilteredMapSampler, numMipLevels);
+  *Fr += reflectance * getPrefilteredReflection(rotation * data.reflectionWorld, data.sheenRoughness, prefilteredMap, prefilteredMapSampler, numMipLevels);
 }
 
 // https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/6bc1df9c334288fb0d91d2febfddf97ac5dfd045/source/Renderer/shaders/ibl.glsl#L78
@@ -188,9 +192,15 @@ fn EvaluateTransmission(
   data.transmitted += Ft;
 }
 
+// rotation orients world-space directions into the probe's baked (unrotated)
+// reference frame — see systems/reflection-probe.ts's getEnvironmentRotation.
+// Applied only at each environment sample site, so data.normalWorld/
+// reflectionWorld/viewWorld stay true world space for every caller.
 fn EvaluateLightProbe(
   data: ptr<function, PBRData>,
   ao: f32,
+  rotation: mat3x3f,
+  intensity: f32,
   prefilteredMap: texture_cube<f32>,
   prefilteredMapSampler: sampler,
   numMipLevels: f32,
@@ -212,18 +222,19 @@ fn EvaluateLightProbe(
   let kD = data.diffuseColor * (1.0 - FssEss + FmsEms);
 
   // diffuse layer
-  let diffuseIrradiance = shIrradiance(sh, data.normalWorld);
+  let rotatedNormalWorld = rotation * data.normalWorld;
+  let diffuseIrradiance = shIrradiance(sh, rotatedNormalWorld);
   var Fd = (FmsEms + kD) * diffuseIrradiance * ao;
 
   if (USE_DIFFUSE_TRANSMISSION) {
-    var diffuseTransmissionIBL = shIrradiance(sh, -data.normalWorld) * data.diffuseTransmissionColor;
+    var diffuseTransmissionIBL = shIrradiance(sh, -rotatedNormalWorld) * data.diffuseTransmissionColor;
     if (USE_VOLUME) {
       diffuseTransmissionIBL = applyVolumeAttenuation(diffuseTransmissionIBL, data.diffuseTransmissionThickness, data.attenuationColor, data.attenuationDistance);
     }
     Fd = mix(Fd, diffuseTransmissionIBL, data.diffuseTransmission);
   }
 
-  let prefilteredRadiance = getPrefilteredReflection(data.reflectionWorld, data.roughness, prefilteredMap, prefilteredMapSampler, numMipLevels);
+  let prefilteredRadiance = getPrefilteredReflection(rotation * data.reflectionWorld, data.roughness, prefilteredMap, prefilteredMapSampler, numMipLevels);
 
   var Fr = (FssEss + FmsEms) * prefilteredRadiance * ao;
 
@@ -232,14 +243,14 @@ fn EvaluateLightProbe(
   // multiBounceSpecularAO(specularAO, data.f0, &Fr);
 
   if (USE_SHEEN) {
-    evaluateSheenIBL(data, ao, &Fd, &Fr, prefilteredMap, prefilteredMapSampler, numMipLevels);
+    evaluateSheenIBL(data, ao, rotation, &Fd, &Fr, prefilteredMap, prefilteredMapSampler, numMipLevels);
   }
 
   if (USE_CLEAR_COAT) {
-    evaluateClearCoatIBL(*data, ao, &Fd, &Fr, prefilteredMap, prefilteredMapSampler, numMipLevels);
+    evaluateClearCoatIBL(*data, ao, rotation, &Fd, &Fr, prefilteredMap, prefilteredMapSampler, numMipLevels);
   }
 
-  data.indirectDiffuse += Fd;
-  data.indirectSpecular += Fr;
+  data.indirectDiffuse += Fd * intensity;
+  data.indirectSpecular += Fr * intensity;
 }
 `;

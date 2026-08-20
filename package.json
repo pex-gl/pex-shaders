@@ -36,7 +36,7 @@
     "dev": "snowdev dev",
     "release": "snowdev release",
     "release:alpha": "snowdev release --release-as minor --prerelease alpha",
-    "test": "node test/validate-wgsl.js"
+    "test": "node test/validate-wgsl.js && node test/furnace.js"
   },
   "dependencies": {
     "glsl-smaa": "^3.0.0",
@@ -49,6 +49,7 @@
   },
   "snowdev": {
     "files": "{*.js,shaders/**/*.js}",
+    "dependencies": [],
     "resolve": {
       "exclude": [
         "**/webgpu/**"

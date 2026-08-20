@@ -236,7 +236,12 @@ fn EvaluateLightProbe(
 
   let prefilteredRadiance = getPrefilteredReflection(rotation * data.reflectionWorld, data.roughness, prefilteredMap, prefilteredMapSampler, numMipLevels);
 
-  var Fr = (FssEss + FmsEms) * prefilteredRadiance * ao;
+  // Single-scattering only: the multiple-scattering energy (FmsEms) is carried
+  // by the irradiance term above, per the paper's composition
+  // (FssEss * radiance + (FmsEms + kD) * irradiance). Adding it here too returns
+  // more energy than the surface received — a furnace test on a metal with
+  // f0 = 1 reads 1.55 at roughness 1 instead of 1.0.
+  var Fr = FssEss * prefilteredRadiance * ao;
 
   // extra ambient occlusion term for the base and subsurface layers
   multiBounceAO(ao, data.diffuseColor, &Fd);

@@ -63,8 +63,7 @@ fn getSurfaceShading(data: ptr<function, PBRData>, light: Light, illuminated: f3
   let LdotH = saturateF32(dot(L, H));
   let HdotV = max(0.0, dot(H, V));
 
-  // let F = F_Schlick(data.f0, LdotH);
-  let F = SpecularReflection(data.f0, HdotV);
+  let F = SpecularReflection(data.f0, data.f90, HdotV);
   let D = MicrofacetDistribution(data.linearRoughness, NdotH);
   let Vis = VisibilityOcclusion(data.linearRoughness, NdotL, NdotV);
 

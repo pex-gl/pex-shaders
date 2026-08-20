@@ -29,8 +29,8 @@
       "default": "./index.js"
     }
   },
-  "main": "index.js",
-  "types": "types/index.d.ts",
+  "main": "./index.js",
+  "types": "./types/index.d.ts",
   "scripts": {
     "build": "snowdev build",
     "dev": "snowdev dev",
@@ -48,7 +48,12 @@
     "snowdev": ">=3.0.0-alpha.1"
   },
   "snowdev": {
-    "files": "{*.js,shaders/**/*.js}"
+    "files": "{*.js,shaders/**/*.js}",
+    "resolve": {
+      "exclude": [
+        "**/webgpu/**"
+      ]
+    }
   },
   "devDependencies": {
     "webgpu": "^0.4.0"

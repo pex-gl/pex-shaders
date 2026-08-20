@@ -100,9 +100,9 @@ fn MicrofacetDistribution(linearRoughness: f32, NdotH: f32) -> f32 {
 // FresnelSchlick
 // Same as glTF2.0 PBR Spec
 const SpecularReflection = /* wgsl */ `
-fn SpecularReflection(specularColor: vec3f, HdotV: f32) -> vec3f {
+fn SpecularReflection(f0: vec3f, f90: vec3f, HdotV: f32) -> vec3f {
   let cosTheta = HdotV;
-  return specularColor + (1.0 - specularColor) * pow(1.0 - cosTheta, 5.0);
+  return f0 + (f90 - f0) * pow(1.0 - cosTheta, 5.0);
 }
 `;
 

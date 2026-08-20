@@ -25,17 +25,18 @@ export * as parser from "./parser.js";
  * @type {object}
  * @name toneMap
  * @static
- * @see {@link https://github.com/dmnsgn/glsl-tone-map}
+ * @see {@link https://www.npmjs.com/package/wgsl-tone-map}
  */
-export * as toneMap from "glsl-tone-map";
+export * as toneMap from "wgsl-tone-map";
 
 /**
- * Re-export smaa
+ * Re-export SMAA's precomputed area and search lookup textures. The algorithm
+ * itself lives in the smaa chunk, as WGSL.
  *
  * @memberof module:pex-shaders
  * @type {object}
- * @name smaa
+ * @name SMAATextures
  * @static
  * @see {@link https://github.com/dmnsgn/glsl-smaa}
  */
-export * as smaa from "glsl-smaa";
+export { SMAATextures } from "glsl-smaa";

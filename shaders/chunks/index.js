@@ -121,10 +121,7 @@ export {
   /** @member {string} */
   default as alpha,
 } from "./alpha.js";
-export {
-  /** @member {string} */
-  default as ambientOcclusion,
-} from "./ambient-occlusion.js";
+export * as ambientOcclusion from "./ambient-occlusion.js";
 
 export {
   /** @member {string} */
@@ -157,3 +154,33 @@ export {
 } from "./vignette.js";
 
 export { default as reversibleToneMap } from "./reversible-tone-map.js";
+
+export {
+  /** @member {string} */
+  default as threshold,
+} from "./threshold.js";
+export {
+  /** @member {string} */
+  default as downsample,
+} from "./downsample.js";
+export {
+  /** @member {string} */
+  default as upsample,
+} from "./upsample.js";
+export {
+  /** @member {string} */
+  default as blur,
+} from "./blur.js";
+export {
+  /** @member {string} */
+  default as depthOfField,
+} from "./depth-of-field.js";
+export {
+  /** @member {string} */
+  default as gtao,
+} from "./gtao.js";
+export {
+  /** @member {string} */
+  default as sao,
+} from "./sao.js";
+export * as smaa from "./smaa.js";

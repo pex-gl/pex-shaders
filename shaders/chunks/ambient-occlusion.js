@@ -39,22 +39,31 @@ fn multiBounceAO(visibility: f32, albedo: vec3f, color: ptr<function, vec3f>) {
  * Mixes a screen-space visibility (and, with color bounce, its indirect color)
  * into an already shaded color. Requires {@link multiBounce}.
  *
- * USE_SSAO_COLORS is expected to be declared as `override` bool by the
- * composing pipeline shader.
+ * The two approximations are independent: USE_SSAO_MULTI_BOUNCE tints the
+ * occlusion analytically from visibility alone, while USE_SSAO_COLORS adds the
+ * indirect color the estimator gathered from neighbouring pixels — and moves
+ * visibility to `.w`, since `.xyz` then carries that color.
+ *
+ * Both are expected to be declared as `override` bool by the composing pipeline
+ * shader.
  *
  * @member {string}
  */
 const mix = /* wgsl */ `
 fn ssao(colorIn: vec4f, aoData: vec4f, intensity: f32) -> vec4f {
-  var color = colorIn;
+  let visibility = select(aoData.x, aoData.w, USE_SSAO_COLORS);
+  let occlusion = select(
+    vec3f(visibility),
+    gtaoMultiBounce(visibility, colorIn.xyz),
+    USE_SSAO_MULTI_BOUNCE
+  );
+
+  var rgb = mix(colorIn.xyz, colorIn.xyz * occlusion, intensity);
   if (USE_SSAO_COLORS) {
-    let rgb = mix(color.xyz, color.xyz * gtaoMultiBounce(aoData.w, color.xyz), intensity);
-    color = vec4f(rgb + aoData.xyz * color.xyz * 2.0, color.w);
-  } else {
-    color = vec4f(color.xyz * mix(vec3f(1.0), vec3f(aoData.x), intensity), color.w);
+    rgb += aoData.xyz * colorIn.xyz * 2.0;
   }
 
-  return color;
+  return vec4f(rgb, colorIn.w);
 }
 `;
 

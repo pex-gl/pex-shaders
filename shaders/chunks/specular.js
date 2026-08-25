@@ -19,18 +19,55 @@ fn getSpecular(data: ptr<function, PBRData>) {
   data.f90 = vec3f(1.0);
 }
 
-// Pass texCoordTransform as the identity matrix when no texture coordinate
-// transform is in use for a given texture slot.
-fn getSpecularFactor(data: ptr<function, PBRData>, specular: f32, specularColor: vec3f) {
+fn applySpecularFactor(data: ptr<function, PBRData>, specularStrength: f32, specularColorTint: vec3f) {
   data.f0 = mix(
     min(
-      vec3f(pow((data.ior - OUTSIDE_IOR) / (data.ior + OUTSIDE_IOR), 2.0)) * specularColor,
+      vec3f(pow((data.ior - OUTSIDE_IOR) / (data.ior + OUTSIDE_IOR), 2.0)) * specularColorTint,
       vec3f(1.0)
-    ) * specular,
+    ) * specularStrength,
     data.baseColor,
     data.metallic
   );
-  data.f90 = mix(vec3f(specular), vec3f(1.0), data.metallic);
+  data.f90 = mix(vec3f(specularStrength), vec3f(1.0), data.metallic);
+}
+
+// Pass texCoordTransform as the identity matrix when no texture coordinate
+// transform is in use for a given texture slot.
+fn getSpecularFactor(data: ptr<function, PBRData>, specular: f32, specularColor: vec3f) {
+  applySpecularFactor(data, specular, specularColor);
+}
+
+// specularTexture only (no specularColorTexture): the strength is sampled from
+// its alpha channel, the color stays the raw factor. Its RGB channels are
+// unused — a pre-ratification draft of the extension stored specular color
+// there, and sampling them tints f0 with data the final spec reserves for
+// specularColorTexture.
+fn getSpecularStrengthTextured(
+  data: ptr<function, PBRData>,
+  specular: f32,
+  specularColor: vec3f,
+  specularTex: texture_2d<f32>,
+  specularTexSampler: sampler,
+  specularTexCoordIndex: i32,
+  specularTexCoordTransform: mat3x3f
+) {
+  let texCoordSpecular = getTextureCoordinatesTransformed(*data, specularTexCoordIndex, specularTexCoordTransform);
+  applySpecularFactor(data, specular * textureSample(specularTex, specularTexSampler, texCoordSpecular).w, specularColor);
+}
+
+// specularColorTexture only (no specularTexture): the color factor is tinted by
+// the texture's RGB, the strength stays the raw factor.
+fn getSpecularColorTextured(
+  data: ptr<function, PBRData>,
+  specular: f32,
+  specularColor: vec3f,
+  specularColorTex: texture_2d<f32>,
+  specularColorTexSampler: sampler,
+  specularColorTexCoordIndex: i32,
+  specularColorTexCoordTransform: mat3x3f
+) {
+  let texCoordSpecularColor = getTextureCoordinatesTransformed(*data, specularColorTexCoordIndex, specularColorTexCoordTransform);
+  applySpecularFactor(data, specular, specularColor * textureSample(specularColorTex, specularColorTexSampler, texCoordSpecularColor).xyz);
 }
 
 fn getSpecularFactorTextured(
@@ -52,14 +89,6 @@ fn getSpecularFactorTextured(
   let texCoordSpecularColor = getTextureCoordinatesTransformed(*data, specularColorTexCoordIndex, specularColorTexCoordTransform);
   let tintedSpecularColor = specularColor * textureSample(specularColorTex, specularColorTexSampler, texCoordSpecularColor).xyz;
 
-  data.f0 = mix(
-    min(
-      vec3f(pow((data.ior - OUTSIDE_IOR) / (data.ior + OUTSIDE_IOR), 2.0)) * tintedSpecularColor,
-      vec3f(1.0)
-    ) * specularStrength,
-    data.baseColor,
-    data.metallic
-  );
-  data.f90 = mix(vec3f(specularStrength), vec3f(1.0), data.metallic);
+  applySpecularFactor(data, specularStrength, tintedSpecularColor);
 }
 `;

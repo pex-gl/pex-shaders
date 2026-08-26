@@ -14,6 +14,8 @@ struct AreaLight {
   projectionMatrix: mat4x4f,
   viewMatrix: mat4x4f,
   castShadows: u32,
+  shadowBucket: u32,
+  shadowLayer: u32,
   near: f32,
   far: f32,
   radiusUV: vec2f,
@@ -586,8 +588,6 @@ fn LTC_EvaluateQuad(
 fn EvaluateAreaLight(
   data: ptr<function, PBRData>,
   light: AreaLight,
-  shadowMap: texture_depth_2d,
-  shadowMapSampler: sampler_comparison,
   ltc1: texture_2d<f32>,
   ltc1Sampler: sampler,
   ltc2: texture_2d<f32>,
@@ -611,9 +611,9 @@ fn EvaluateAreaLight(
 
   var illuminated = 1.0;
   if (light.castShadows != 0u) {
-    illuminated = getShadow(
-      shadowMap,
-      shadowMapSampler,
+    illuminated = sampleShadowMap2D(
+      light.shadowBucket,
+      light.shadowLayer,
       light.shadowMapSize,
       lightUV,
       lightDeviceCoordsPositionNormalized.z,

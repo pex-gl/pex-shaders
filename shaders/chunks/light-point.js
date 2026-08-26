@@ -4,6 +4,8 @@ struct PointLight {
   color: vec4f,
   range: f32,
   castShadows: u32,
+  shadowBucket: u32,
+  shadowLayer: u32,
   bias: f32,
   radius: f32,
   shadowMapSize: vec2f,
@@ -13,8 +15,6 @@ struct PointLight {
 fn EvaluatePointLight(
   data: ptr<function, PBRData>,
   light: PointLight,
-  shadowMap: texture_depth_cube,
-  shadowMapSampler: sampler,
   fragCoord: vec2f
 ) {
   let positionToLightWorld = data.positionWorld - light.position;
@@ -26,9 +26,9 @@ fn EvaluatePointLight(
     // with far), so it stays scene-adaptive.
     let compare = length(positionToLightWorld) / light.far - light.bias;
 
-    illuminated = getPunctualShadow(
-      shadowMap,
-      shadowMapSampler,
+    illuminated = sampleShadowMapCube(
+      light.shadowBucket,
+      light.shadowLayer,
       light.shadowMapSize,
       positionToLightWorld,
       compare,

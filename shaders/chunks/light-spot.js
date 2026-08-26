@@ -9,6 +9,8 @@ struct SpotLight {
   projectionMatrix: mat4x4f,
   viewMatrix: mat4x4f,
   castShadows: u32,
+  shadowBucket: u32,
+  shadowLayer: u32,
   near: f32,
   far: f32,
   radiusUV: vec2f,
@@ -18,8 +20,6 @@ struct SpotLight {
 fn EvaluateSpotLight(
   data: ptr<function, PBRData>,
   light: SpotLight,
-  shadowMap: texture_depth_2d,
-  shadowMapSampler: sampler_comparison,
   positionWorld: vec3f,
   fragCoord: vec2f
 ) {
@@ -46,9 +46,9 @@ fn EvaluateSpotLight(
 
   var illuminated = 1.0;
   if (light.castShadows != 0u) {
-    illuminated = getShadow(
-      shadowMap,
-      shadowMapSampler,
+    illuminated = sampleShadowMap2D(
+      light.shadowBucket,
+      light.shadowLayer,
       light.shadowMapSize,
       lightUV,
       lightDeviceCoordsPositionNormalized.z,

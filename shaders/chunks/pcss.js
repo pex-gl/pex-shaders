@@ -52,7 +52,8 @@ fn depthGradient(uv: vec2f, z: f32) -> vec2f {
 
 const PCSS = /* wgsl */ `
 fn PCSSFindBlocker2D(
-  depths: texture_depth_2d,
+  depths: texture_depth_2d_array,
+  layer: u32,
   size: vec2f,
   uv: vec2f,
   compare: f32,
@@ -69,7 +70,7 @@ fn PCSSFindBlocker2D(
   for (var i = 0; i < PCSS_BLOCKER_SEARCH_NUM_SAMPLES; i++) {
     let offset = vogelDiskSample(i, PCSS_BLOCKER_SEARCH_NUM_SAMPLES, phase) * searchWidthUV;
     let coord = vec2i(clamp((uv + offset) * size, vec2f(0.0), maxCoord));
-    let depth = textureLoad(depths, coord, 0);
+    let depth = textureLoad(depths, coord, layer, 0);
     // Receiver-plane bias, clamped so it can only tighten the test (min(0, ·)): a
     // depth bias must reject self-shadowing, never accept more occluders. The
     // unclamped form runs past the far plane on the down-slope side of a large
@@ -83,8 +84,9 @@ fn PCSSFindBlocker2D(
 }
 
 fn PCSSPCFFilter2D(
-  depths: texture_depth_2d,
+  depths: texture_depth_2d_array,
   depthSampler: sampler_comparison,
+  layer: u32,
   uv: vec2f,
   compare: f32,
   dzDuv: vec2f,
@@ -96,14 +98,15 @@ fn PCSSPCFFilter2D(
     let offset = vogelDiskSample(i, PCSS_PCF_NUM_SAMPLES, phase) * filterRadiusUV;
     // One-sided receiver-plane bias (see PCSSFindBlocker2D): only cancel up-slope
     // self-shadowing, never darken the down-slope side or the background.
-    result += texture2DCompare(depths, depthSampler, uv + offset, compare + min(0.0, dot(dzDuv, offset)));
+    result += texture2DCompare(depths, depthSampler, layer, uv + offset, compare + min(0.0, dot(dzDuv, offset)));
   }
   return result / f32(PCSS_PCF_NUM_SAMPLES);
 }
 
 fn PCSS(
-  depths: texture_depth_2d,
+  depths: texture_depth_2d_array,
   depthSampler: sampler_comparison,
+  layer: u32,
   size: vec2f,
   uv: vec2f,
   compare: f32,
@@ -131,7 +134,7 @@ fn PCSS(
   );
   var blockerSum = 0.0;
   var numBlockers = 0.0;
-  PCSSFindBlocker2D(depths, size, uv, compare, near, far, ortho, searchWidthUV, dzDuv, phase, &blockerSum, &numBlockers);
+  PCSSFindBlocker2D(depths, layer, size, uv, compare, near, far, ortho, searchWidthUV, dzDuv, phase, &blockerSum, &numBlockers);
 
   // No occluders: fully lit (avoids division by zero).
   if (numBlockers == 0.0) {
@@ -156,14 +159,15 @@ fn PCSS(
   }
 
   // STEP 3: PCF filtering (hardware comparison)
-  return PCSSPCFFilter2D(depths, depthSampler, uv, compare, dzDuv, phase, filterRadiusUV);
+  return PCSSPCFFilter2D(depths, depthSampler, layer, uv, compare, dzDuv, phase, filterRadiusUV);
 }
 `;
 
 const PCSSCube = /* wgsl */ `
 fn PCSSFindBlockerCube(
-  depths: texture_depth_cube,
+  depths: texture_depth_cube_array,
   depthSampler: sampler,
+  layer: u32,
   dir: vec3f,
   T: vec3f,
   B: vec3f,
@@ -176,7 +180,7 @@ fn PCSSFindBlockerCube(
   for (var i = 0; i < PCSS_BLOCKER_SEARCH_NUM_SAMPLES; i++) {
     let r = vogelDiskSample(i, PCSS_BLOCKER_SEARCH_NUM_SAMPLES, phase);
     let offset = (r.x * T + r.y * B) * searchWidth;
-    let depth = textureSampleLevel(depths, depthSampler, normalize(dir + offset), 0);
+    let depth = textureSampleLevel(depths, depthSampler, normalize(dir + offset), layer, 0);
     if (depth < compare) {
       *blockerSum += depth;
       *numBlockers += 1.0;
@@ -185,8 +189,9 @@ fn PCSSFindBlockerCube(
 }
 
 fn PCSSPCFFilterCube(
-  depths: texture_depth_cube,
+  depths: texture_depth_cube_array,
   depthSampler: sampler,
+  layer: u32,
   dir: vec3f,
   T: vec3f,
   B: vec3f,
@@ -198,14 +203,15 @@ fn PCSSPCFFilterCube(
   for (var i = 0; i < PCSS_PCF_NUM_SAMPLES; i++) {
     let r = vogelDiskSample(i, PCSS_PCF_NUM_SAMPLES, phase);
     let offset = (r.x * T + r.y * B) * filterRadius;
-    result += textureCubeCompare(depths, depthSampler, normalize(dir + offset), compare);
+    result += textureCubeCompare(depths, depthSampler, layer, normalize(dir + offset), compare);
   }
   return result / f32(PCSS_PCF_NUM_SAMPLES);
 }
 
 fn PCSSCube(
-  depths: texture_depth_cube,
+  depths: texture_depth_cube_array,
   depthSampler: sampler,
+  layer: u32,
   direction: vec3f,
   compare: f32,
   radius: f32,
@@ -228,7 +234,7 @@ fn PCSSCube(
   // STEP 1: blocker search
   var blockerSum = 0.0;
   var numBlockers = 0.0;
-  PCSSFindBlockerCube(depths, depthSampler, dir, T, B, compare, angularLightSize, phase, &blockerSum, &numBlockers);
+  PCSSFindBlockerCube(depths, depthSampler, layer, dir, T, B, compare, angularLightSize, phase, &blockerSum, &numBlockers);
 
   if (numBlockers == 0.0) {
     return 1.0;
@@ -241,7 +247,7 @@ fn PCSSCube(
   let filterRadius = penumbra * angularLightSize;
 
   // STEP 3: filtering (manual compare)
-  return PCSSPCFFilterCube(depths, depthSampler, dir, T, B, compare, phase, filterRadius);
+  return PCSSPCFFilterCube(depths, depthSampler, layer, dir, T, B, compare, phase, filterRadius);
 }
 `;
 

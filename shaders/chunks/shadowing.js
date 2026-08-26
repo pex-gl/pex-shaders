@@ -28,8 +28,9 @@ ${PCF}
 ${PCSS}
 
 fn getShadow(
-  depths: texture_depth_2d,
+  depths: texture_depth_2d_array,
   depthSampler: sampler_comparison,
+  layer: u32,
   size: vec2f,
   uv: vec2f,
   compare: f32,
@@ -44,13 +45,13 @@ fn getShadow(
   // alone keeps derivative-free comparison sampling out of non-uniform flow.
   var result = 1.0;
   if (SHADOW_QUALITY == 1 || SHADOW_QUALITY == 2) {
-    result = texture2DCompare(depths, depthSampler, uv, compare);
+    result = texture2DCompare(depths, depthSampler, layer, uv, compare);
   } else if (SHADOW_QUALITY == 3) {
-    result = PCF3x3(depths, depthSampler, size, uv, compare);
+    result = PCF3x3(depths, depthSampler, layer, size, uv, compare);
   } else if (SHADOW_QUALITY == 4) {
-    result = PCF5x5(depths, depthSampler, size, uv, compare);
+    result = PCF5x5(depths, depthSampler, layer, size, uv, compare);
   } else if (SHADOW_QUALITY == 5) {
-    result = PCSS(depths, depthSampler, size, uv, compare, near, far, radiusUV, dzDuv, ortho, fragCoord);
+    result = PCSS(depths, depthSampler, layer, size, uv, compare, near, far, radiusUV, dzDuv, ortho, fragCoord);
   }
 
   // Outside the shadow frustum (uv or depth beyond [0, 1]) there is no occluder
@@ -65,8 +66,9 @@ ${PCFCube}
 ${PCSSCube}
 
 fn getPunctualShadow(
-  depths: texture_depth_cube,
+  depths: texture_depth_cube_array,
   depthSampler: sampler,
+  layer: u32,
   size: vec2f,
   direction: vec3f,
   compare: f32,
@@ -79,13 +81,13 @@ fn getPunctualShadow(
     return 1.0;
   }
   if (SHADOW_QUALITY == 1 || SHADOW_QUALITY == 2) {
-    return textureCubeCompare(depths, depthSampler, direction, compare);
+    return textureCubeCompare(depths, depthSampler, layer, direction, compare);
   }
   if (SHADOW_QUALITY == 3 || SHADOW_QUALITY == 4) {
-    return PCFCube(depths, depthSampler, size, direction, compare);
+    return PCFCube(depths, depthSampler, layer, size, direction, compare);
   }
   if (SHADOW_QUALITY == 5) {
-    return PCSSCube(depths, depthSampler, direction, compare, radius, far, fragCoord);
+    return PCSSCube(depths, depthSampler, layer, direction, compare, radius, far, fragCoord);
   }
   return 1.0;
 }

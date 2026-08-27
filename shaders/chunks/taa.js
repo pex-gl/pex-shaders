@@ -177,14 +177,27 @@ fn taaReprojectUV(uv: vec2f, depth: f32, params: TAAParams) -> vec3f {
   return vec3f(previousNDC.x * 0.5 + 0.5, 0.5 - previousNDC.y * 0.5, 1.0);
 }
 
+// Where this surface was last frame, from the motion vector written for it.
+// Sampled at the nearest-depth neighbour, for the reason above.
+fn taaVelocityUV(
+  velocityTexture: texture_2d<f32>,
+  velocitySampler: sampler,
+  uv: vec2f,
+  closestOffset: vec2f
+) -> vec2f {
+  return uv + textureSampleLevel(velocityTexture, velocitySampler, uv + closestOffset, 0.0).xy;
+}
+
+// Reprojection is the caller's to compute — from motion vectors where they
+// exist, and from depth where they do not — so this owns only what both share.
 fn taaResolve(
   uv: vec2f,
+  previousUV: vec2f,
+  reprojectionValid: bool,
   colorTexture: texture_2d<f32>,
   colorSampler: sampler,
   historyTexture: texture_2d<f32>,
   historySampler: sampler,
-  depthTexture: texture_depth_2d,
-  depthSampler: sampler,
   params: TAAParams
 ) -> vec4f {
   let center = textureSampleLevel(colorTexture, colorSampler, uv, 0.0);
@@ -209,15 +222,10 @@ fn taaResolve(
   let minimum = mean - params.varianceGamma * sigma;
   let maximum = mean + params.varianceGamma * sigma;
 
-  let closest = taaClosestDepthOffset(depthTexture, depthSampler, uv, params.texelSize);
-  let reprojected = taaReprojectUV(uv + closest.xy, closest.z, params);
-  // The motion measured at the neighbour, applied at this pixel.
-  let previousUV = uv + (reprojected.xy - (uv + closest.xy));
-
   let offscreen =
     any(previousUV < vec2f(0.0)) || any(previousUV > vec2f(1.0));
 
-  if (params.historyValid < 0.5 || reprojected.z < 0.5 || offscreen) {
+  if (params.historyValid < 0.5 || !reprojectionValid || offscreen) {
     return vec4f(center.rgb, center.a);
   }
 

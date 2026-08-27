@@ -35,6 +35,10 @@ struct TAAParams {
   // 0 when there is no history worth blending: the first frame for a camera,
   // and the first after a resize reallocated the history texture.
   historyValid: f32,
+  // How far the depth recorded at a reprojected position may differ from the
+  // one this surface would have had there, as a fraction of that depth, before
+  // the two are taken to be different surfaces. 0 disables the test.
+  disocclusionTolerance: f32,
 }
 
 // Blending in a tonemapped space is what stops a single bright sample from
@@ -190,6 +194,58 @@ fn taaVelocityUV(
 
 // Reprojection is the caller's to compute — from motion vectors where they
 // exist, and from depth where they do not — so this owns only what both share.
+// This surface's depth along the previous view axis.
+//
+// Unprojecting NDC gives a homogeneous point whose w is the reciprocal of the
+// clip w that produced it, so projecting it back through the previous
+// view-projection hands the previous clip w straight back — which for a
+// perspective projection is the view depth, with no near, far or view matrix
+// needed. An orthographic projection has a constant clip w, so this returns a
+// constant and the test that uses it never fires: no rejection rather than a
+// wrong one.
+fn taaPreviousViewDepth(uv: vec2f, depth: f32, params: TAAParams) -> f32 {
+  let ndc = vec3f(uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, depth);
+  var world = params.inverseViewProjectionMatrix * vec4f(ndc, 1.0);
+  world = world / world.w;
+
+  return (params.previousViewProjectionMatrix * world).w;
+}
+
+/**
+ * Whether the history at \`previousUV\` describes a different surface — one that
+ * was in front of, or behind, the one being shaded now.
+ *
+ * This is what neighbourhood clipping cannot do. Clipping asks whether the
+ * history looks plausible next to the pixels around it, and an occluder of
+ * roughly the same colour as what it was hiding passes that test while being
+ * entirely the wrong surface. Depth answers the question clipping is standing
+ * in for: is this the same thing.
+ *
+ * The tolerance is relative because absolute depth error grows with distance,
+ * plus a slope term: on a surface seen at a grazing angle the depth changes
+ * fast across a pixel, so a reprojection landing a fraction of a pixel off
+ * reads as a large depth difference. Without that term a floor would stop
+ * accumulating wherever it recedes.
+ */
+fn taaDisoccluded(
+  previousDepthTexture: texture_2d<f32>,
+  previousDepthSampler: sampler,
+  previousUV: vec2f,
+  expectedViewDepth: f32,
+  depthSlope: f32,
+  params: TAAParams
+) -> bool {
+  if (params.disocclusionTolerance <= 0.0) { return false; }
+
+  let recorded = textureSampleLevel(
+    previousDepthTexture, previousDepthSampler, previousUV, 0.0
+  ).x;
+  let tolerance =
+    params.disocclusionTolerance * abs(expectedViewDepth) + depthSlope;
+
+  return abs(expectedViewDepth - recorded) > tolerance;
+}
+
 fn taaResolve(
   uv: vec2f,
   previousUV: vec2f,

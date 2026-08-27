@@ -180,6 +180,10 @@ export {
   /** @member {string} */
   default as sao,
 } from "./sao.js";
+export {
+  /** @member {string} */
+  default as sharpen,
+} from "./sharpen.js";
 export * as smaa from "./smaa.js";
 export {
   /** @member {string} */

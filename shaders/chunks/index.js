@@ -175,10 +175,7 @@ export {
   /** @member {string} */
   default as depthOfField,
 } from "./depth-of-field.js";
-export {
-  /** @member {string} */
-  default as gtao,
-} from "./gtao.js";
+export * as gtao from "./gtao.js";
 export {
   /** @member {string} */
   default as sao,

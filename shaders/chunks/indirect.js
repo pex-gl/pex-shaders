@@ -222,8 +222,12 @@ fn EvaluateLightProbe(
   let kD = data.diffuseColor * (1.0 - FssEss + FmsEms);
 
   // diffuse layer
+  // Irradiance comes from the bent normal — the average unoccluded direction —
+  // so a surface in a crevice gathers from where light reaches it rather than
+  // from where it happens to point. Equal to the surface normal when nothing
+  // computed one.
   let rotatedNormalWorld = rotation * data.normalWorld;
-  let diffuseIrradiance = shIrradiance(sh, rotatedNormalWorld);
+  let diffuseIrradiance = shIrradiance(sh, rotation * data.bentNormalWorld);
   var Fd = (FmsEms + kD) * diffuseIrradiance * ao;
 
   if (USE_DIFFUSE_TRANSMISSION) {
@@ -236,16 +240,21 @@ fn EvaluateLightProbe(
 
   let prefilteredRadiance = getPrefilteredReflection(rotation * data.reflectionWorld, data.roughness, prefilteredMap, prefilteredMapSampler, numMipLevels);
 
+  // The diffuse visibility term over-occludes a specular lobe narrow enough to
+  // miss the occluder entirely, so the specular one is derived from it rather
+  // than reused as-is. A no-op where nothing is occluded.
+  let specularOcclusion = specularAO(data.NdotV, ao, data.linearRoughness);
+
   // Single-scattering only: the multiple-scattering energy (FmsEms) is carried
   // by the irradiance term above, per the paper's composition
   // (FssEss * radiance + (FmsEms + kD) * irradiance). Adding it here too returns
   // more energy than the surface received — a furnace test on a metal with
   // f0 = 1 reads 1.55 at roughness 1 instead of 1.0.
-  var Fr = FssEss * prefilteredRadiance * ao;
+  var Fr = FssEss * prefilteredRadiance * specularOcclusion;
 
   // extra ambient occlusion term for the base and subsurface layers
   multiBounceAO(ao, data.diffuseColor, &Fd);
-  // multiBounceSpecularAO(specularAO, data.f0, &Fr);
+  multiBounceSpecularAO(specularOcclusion, data.f0, &Fr);
 
   if (USE_SHEEN) {
     evaluateSheenIBL(data, ao, rotation, &Fd, &Fr, prefilteredMap, prefilteredMapSampler, numMipLevels);

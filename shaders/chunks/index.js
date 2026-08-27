@@ -181,3 +181,7 @@ export {
   default as sao,
 } from "./sao.js";
 export * as smaa from "./smaa.js";
+export {
+  /** @member {string} */
+  default as taa,
+} from "./taa.js";

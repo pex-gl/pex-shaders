@@ -25,8 +25,9 @@ struct TAAParams {
   inverseViewProjectionMatrix: mat4x4f,
   previousViewProjectionMatrix: mat4x4f,
   texelSize: vec2f,
-  // Weight given to the current frame. The reciprocal is roughly how many
-  // frames the estimate averages over, so 0.1 converges over ~10.
+  // Weight given to the current frame, before anything raises it per pixel.
+  // The reciprocal is roughly how many frames the estimate averages over, so
+  // 0.1 converges over ~10.
   blendFactor: f32,
   // Half-width of the clipping box, in standard deviations of the neighbourhood.
   // Below ~1 the history is clipped so hard it stops accumulating; above ~1.5
@@ -250,6 +251,7 @@ fn taaResolve(
   uv: vec2f,
   previousUV: vec2f,
   reprojectionValid: bool,
+  blendFactor: f32,
   colorTexture: texture_2d<f32>,
   colorSampler: sampler,
   historyTexture: texture_2d<f32>,
@@ -293,7 +295,7 @@ fn taaResolve(
 
   // Mixing is linear and so is YCoCg, so this is a blend in the tonemapped
   // space and nothing else.
-  let resolved = mix(historyYCoCg, currentYCoCg, params.blendFactor);
+  let resolved = mix(historyYCoCg, currentYCoCg, blendFactor);
 
   return vec4f(
     max(vec3f(0.0), taaTonemapInverse(taaYCoCgToRGB(resolved))),

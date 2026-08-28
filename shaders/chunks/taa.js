@@ -6,10 +6,16 @@
  * camera keeps what it already resolved.
  *
  * Synthesised from the techniques that make it hold up rather than from one
- * reference: Karis' tonemapped blend space and history clipping
- * ("High Quality Temporal Supersampling", SIGGRAPH 2014), Salvi's variance
- * clipping ("An Excursion in Temporal Supersampling", GDC 2016), and bicubic
- * history resampling.
+ * reference: Karis' tonemapped blend space, reconstruction-filtered current
+ * sample, rounded min/max neighbourhood and history clipping ("High Quality
+ * Temporal Supersampling", SIGGRAPH 2014), Salvi's variance clipping ("An
+ * Excursion in Temporal Supersampling", GDC 2016) widening it where the
+ * neighbourhood understates the real range, and bicubic history resampling.
+ *
+ * The two halves of the blend have to describe the same thing for the sequence
+ * to converge: the history is an estimate at the pixel centre, so the current
+ * frame is reconstructed onto the pixel centre before it is mixed in rather
+ * than being taken as the one jittered sample stored there.
  *
  * Requires `luminance`.
  *
@@ -40,6 +46,14 @@ struct TAAParams {
   // one this surface would have had there, as a fraction of that depth, before
   // the two are taken to be different surfaces. 0 disables the test.
   disocclusionTolerance: f32,
+  // Added to every read of what the scene pass wrote — depth, motion vectors.
+  // Those are on the jittered raster grid, where a pixel holds the surface half
+  // a pixel away and a different one each frame; the history and this pass's
+  // output are on pixel centres. Without it the depth this frame recorded and
+  // the depth last frame recorded describe different surfaces, and the
+  // disocclusion test reads that as a disocclusion — every frame, wherever
+  // depth changes fast, which is exactly where the history is worth keeping.
+  depthOffset: vec2f,
 }
 
 // Blending in a tonemapped space is what stops a single bright sample from
@@ -238,19 +252,72 @@ fn taaDisoccluded(
 ) -> bool {
   if (params.disocclusionTolerance <= 0.0) { return false; }
 
-  let recorded = textureSampleLevel(
-    previousDepthTexture, previousDepthSampler, previousUV, 0.0
-  ).x;
+  // The closest recorded depth in the neighbourhood, not the one texel under
+  // previousUV. At a silhouette the reprojected position lands within a texel
+  // of a depth discontinuity and a single tap picks whichever side it rounded
+  // to, so a surface that is plainly still there reads as disoccluded along
+  // every edge — which is precisely where the history is worth most, and where
+  // throwing it away shows as edges that crawl.
+  //
+  // Asking whether *any* neighbour matches is the right question anyway: the
+  // test is "was this surface here last frame", and a surface reprojected to
+  // within a texel of where it was recorded was.
+  var closest = 1e30;
+  for (var y: i32 = -1; y <= 1; y++) {
+    for (var x: i32 = -1; x <= 1; x++) {
+      let recorded = textureSampleLevel(
+        previousDepthTexture,
+        previousDepthSampler,
+        previousUV + vec2f(f32(x), f32(y)) * params.texelSize,
+        0.0
+      ).x;
+      closest = min(closest, abs(expectedViewDepth - recorded));
+    }
+  }
+
   let tolerance =
     params.disocclusionTolerance * abs(expectedViewDepth) + depthSlope;
 
-  return abs(expectedViewDepth - recorded) > tolerance;
+  return closest > tolerance;
+}
+
+// Paints what the resolve decided rather than what it produced, so a frame that
+// will not accumulate says why instead of only looking wrong:
+//
+// - red      no history to blend at all (uniform, so the whole frame goes red)
+// - orange   reprojection rejected: the surface was behind the previous camera
+// - yellow   disoccluded: no depth recorded near where this surface reprojects
+// - magenta  the history for this pixel was off-screen last frame
+// - blue     blended. Green rises as the neighbourhood clip had to pull the
+//            history in — fully green means it was clamped to the box edge,
+//            which is a history the current frame is overruling. Blue itself
+//            rises with the blend factor actually used, so a pixel the
+//            responsive mask has forced to the current frame reads bright
+//            rather than looking like any other blended pixel.
+//
+// Both channels answer the same question the rejection colours do — how much of
+// this pixel is the frame in hand rather than the accumulation — so a pixel
+// that will not settle is never blue-and-dark.
+//
+// Only meaningful from a pass that writes somewhere other than the history:
+// painting these into the accumulator makes the next frame measure the history
+// against an image it no longer resembles, and the clip channel then reads
+// "clamped" everywhere regardless.
+override USE_TAA_DEBUG: bool = false;
+
+fn taaDebug(rejected: f32, clipped: f32, blendFactor: f32) -> vec4f {
+  if (rejected == 1.0) { return vec4f(1.0, 0.0, 0.0, 1.0); }
+  if (rejected == 2.0) { return vec4f(1.0, 0.5, 0.0, 1.0); }
+  if (rejected == 3.0) { return vec4f(1.0, 1.0, 0.0, 1.0); }
+  if (rejected == 4.0) { return vec4f(1.0, 0.0, 1.0, 1.0); }
+  return vec4f(0.0, clipped, 0.25 + 0.75 * blendFactor, 1.0);
 }
 
 fn taaResolve(
   uv: vec2f,
   previousUV: vec2f,
   reprojectionValid: bool,
+  sameSurface: bool,
   blendFactor: f32,
   colorTexture: texture_2d<f32>,
   colorSampler: sampler,
@@ -260,11 +327,23 @@ fn taaResolve(
 ) -> vec4f {
   let center = textureSampleLevel(colorTexture, colorSampler, uv, 0.0);
 
-  // Mean and standard deviation over the 3x3, not its min and max: the extremes
-  // of a noisy neighbourhood describe a box far wider than the image, and
-  // ghosting survives inside it.
+  // Where this frame's samples actually sit, in pixels, relative to the centre
+  // they are stored at: the raster was offset by the jitter, so the value at a
+  // pixel is a sample of the scene up to half a pixel away — and somewhere else
+  // again next frame.
+  let jitterPixels = params.depthOffset / params.texelSize;
+
+  // One pass over the 3x3 gathering three descriptions of it: Karis' rounded
+  // min/max box, the mean and standard deviation Salvi's variance box needs,
+  // and the current frame resampled onto the pixel centre.
   var m1 = vec3f(0.0);
   var m2 = vec3f(0.0);
+  var boxMin = vec3f(1e30);
+  var boxMax = vec3f(-1e30);
+  var crossMin = vec3f(1e30);
+  var crossMax = vec3f(-1e30);
+  var filtered = vec3f(0.0);
+  var filteredWeight = 0.0;
   for (var y: i32 = -1; y <= 1; y++) {
     for (var x: i32 = -1; x <= 1; x++) {
       let tap = textureSampleLevel(
@@ -273,25 +352,81 @@ fn taaResolve(
       let value = taaRGBToYCoCg(taaTonemap(tap));
       m1 += value;
       m2 += value * value;
+      boxMin = min(boxMin, value);
+      boxMax = max(boxMax, value);
+      // The five-tap cross: the corners are a texel and a half away, so a box
+      // including them describes a wider neighbourhood than the pixel is
+      // reconstructed from.
+      if (x == 0 || y == 0) {
+        crossMin = min(crossMin, value);
+        crossMax = max(crossMax, value);
+      }
+      // Blackman-Harris 3.3, as a Gaussian close enough to it, centred on the
+      // pixel and evaluated at where each tap really sampled.
+      let offset = vec2f(f32(x), f32(y)) - jitterPixels;
+      let weight = exp(-2.29 * dot(offset, offset));
+      filtered += value * weight;
+      filteredWeight += weight;
     }
   }
+
+  // Halfway between the two, which is the shape Karis settled on: the full box
+  // holds a ghost, the cross alone clips a real edge.
+  let roundedMin = 0.5 * (boxMin + crossMin);
+  let roundedMax = 0.5 * (boxMax + crossMax);
+
   let mean = m1 / 9.0;
   let sigma = sqrt(max(vec3f(0.0), m2 / 9.0 - mean * mean));
-  let minimum = mean - params.varianceGamma * sigma;
-  let maximum = mean + params.varianceGamma * sigma;
+
+  // The variance box may widen the neighbourhood's extent, never narrow it.
+  //
+  // A history that has converged lies between the darkest and brightest of its
+  // neighbours by construction — it is the supersample of the same surface — so
+  // clipping it to anything tighter is clipping the answer. Variance alone does
+  // exactly that at a high-contrast edge, where the jitter moves both the mean
+  // and the deviation every frame: the box breathes, the history is pulled a
+  // different distance each time, and the edge never settles however low the
+  // blend factor goes. What variance is still good for is the opposite case,
+  // noisy content whose real range exceeds one 3x3.
+  let minimum = min(mean - params.varianceGamma * sigma, roundedMin);
+  let maximum = max(mean + params.varianceGamma * sigma, roundedMax);
 
   let offscreen =
     any(previousUV < vec2f(0.0)) || any(previousUV > vec2f(1.0));
 
-  if (params.historyValid < 0.5 || !reprojectionValid || offscreen) {
+  if (params.historyValid < 0.5 || !reprojectionValid || !sameSurface || offscreen) {
+    if (USE_TAA_DEBUG) {
+      var reason = 4.0;
+      if (!sameSurface) { reason = 3.0; }
+      if (!reprojectionValid) { reason = 2.0; }
+      if (params.historyValid < 0.5) { reason = 1.0; }
+      return taaDebug(reason, 0.0, blendFactor);
+    }
     return vec4f(center.rgb, center.a);
   }
 
   let history = taaSampleHistory(historyTexture, historySampler, previousUV, params.texelSize);
-  let historyYCoCg = taaClipToAABB(
-    taaRGBToYCoCg(taaTonemap(history)), minimum, maximum
-  );
-  let currentYCoCg = taaRGBToYCoCg(taaTonemap(center.rgb));
+  let historyRawYCoCg = taaRGBToYCoCg(taaTonemap(history));
+  let historyYCoCg = taaClipToAABB(historyRawYCoCg, minimum, maximum);
+
+  if (USE_TAA_DEBUG) {
+    return taaDebug(
+      0.0,
+      min(length(historyYCoCg - historyRawYCoCg) * 8.0, 1.0),
+      blendFactor
+    );
+  }
+  // The reconstruction, not the raw sample.
+  //
+  // Blending the sample stored at this pixel means blending in a sample of the
+  // scene half a pixel away, and a different half-pixel every frame — so
+  // whatever fraction of it the blend takes arrives as that much of the jitter,
+  // and an edge ripples at the blend factor however long it accumulates.
+  // Resampling the neighbourhood back onto the pixel centre first is what makes
+  // the current estimate mean the same thing the history does; the sequence
+  // then supersamples instead of oscillating. It low-passes slightly, which is
+  // what the sharpen pass exists to win back.
+  let currentYCoCg = filtered / filteredWeight;
 
   // Mixing is linear and so is YCoCg, so this is a blend in the tonemapped
   // space and nothing else.

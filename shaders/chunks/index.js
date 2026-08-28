@@ -182,6 +182,10 @@ export {
 } from "./sao.js";
 export {
   /** @member {string} */
+  default as motionBlur,
+} from "./motion-blur.js";
+export {
+  /** @member {string} */
   default as sharpen,
 } from "./sharpen.js";
 export * as smaa from "./smaa.js";

@@ -20,9 +20,18 @@ struct DepthOfFieldParams {
   chromaticAberration: f32,
   luminanceThreshold: f32,
   luminanceGain: f32,
+  luminanceKnee: f32,
   fStop: f32, // only read when USE_DOF_PHYSICAL is true
   focalLength: f32, // only read when USE_DOF_PHYSICAL is true
+  // Added to every depth coordinate, in UV. A temporally antialiased frame is
+  // resolved to pixel centres while the depth buffer it came from was
+  // rasterized with that frame's sub-pixel offset still in it, so the two are
+  // misaligned by the offset — by a different amount every frame. Zero when
+  // nothing is jittering.
+  depthOffset: vec2f,
 }
+
+// Requires the threshold chunk for thresholdSoft.
 
 // DOF_NUM_SAMPLES is expected to be declared as \`override\` i32 by the
 // composing pipeline shader.
@@ -36,7 +45,11 @@ override USE_DOF_PHYSICAL: bool = false;
 // (43mm diagonal / 1500 enlargement of sensor size) = 0.029mm CoC.
 const DOF_COC: f32 = 0.029;
 
-// Apply chromatic aberration
+// One gathered sample, defocused by its own circle of confusion: blur is that
+// — normalized to [0, 1] — in both bokeh models, and it scales the chromatic
+// aberration and the highlight boost. Never a per-tap weight: those describe
+// the destination, and a sample that is boosted differently depending on which
+// pixel gathered it is a bokeh that changes shape as the image moves.
 fn dofProcessSample(tex: texture_2d<f32>, texSampler: sampler, coords: vec2f, blur: f32, params: DepthOfFieldParams) -> vec3f {
   let scale = params.texelSize * params.chromaticAberration * blur;
 
@@ -46,9 +59,19 @@ fn dofProcessSample(tex: texture_2d<f32>, texSampler: sampler, coords: vec2f, bl
     textureSampleLevel(tex, texSampler, coords + vec2f(0.866, -0.5) * scale, 0.0).b
   );
 
-  let thresholdValue = max((luma(color) - params.luminanceThreshold) * params.luminanceGain, 0.0);
+  // What makes a defocused highlight read as a bokeh sprite rather than dim:
+  // spreading a bright point over a disc conserves its energy, so the disc is
+  // darker than the point was, and the boost is what puts the sprite back.
+  //
+  // Soft-kneed, because it is multiplied by a circle of confusion. A hard
+  // cutoff makes a sample sitting at the threshold a switch, and the thing
+  // switching it is a per-pixel blur amount that a jittered raster already
+  // makes unsteady — which is a highlight that blinks rather than one that
+  // fades in as it defocuses.
+  let boost = thresholdSoft(luma(color), params.luminanceThreshold, params.luminanceKnee)
+    * params.luminanceGain;
 
-  return color + mix(vec3f(0.0), color, thresholdValue * blur);
+  return color + color * boost * blur;
 }
 
 // focusScale != 1.0 makes the physical model non-physical too.
@@ -177,8 +200,9 @@ fn depthOfFieldGustafsson(
   for (var ang = 0.0; ang < maxRadius * f32(DOF_NUM_SAMPLES); ang += DOF_GOLDEN_ANGLE) {
     let tc = texCoord + vec2f(cos(ang), sin(ang)) * params.texelSize * radius;
 
-    let sampleDepth = readDepth(depthTex, depthSampler, tc, params.near, params.far) * 1000.0; // m -> mm
-    var sampleSize = getCoC(sampleDepth, focusDistance, focusScale, params) * DOF_MAX_BLUR_SIZE; // mm
+    let sampleDepth = readDepth(depthTex, depthSampler, tc + params.depthOffset, params.near, params.far) * 1000.0; // m -> mm
+    let sampleCoC = getCoC(sampleDepth, focusDistance, focusScale, params);
+    var sampleSize = sampleCoC * DOF_MAX_BLUR_SIZE; // mm
 
     if (sampleDepth > centerDepth) {
       // Controls how much of the background gets blended into a blurry
@@ -189,7 +213,15 @@ fn depthOfFieldGustafsson(
 
     let m = smoothstep(radius - 0.5, radius + 0.5, sampleSize);
 
-    color += mix(color / tot, dofProcessSample(tex, texSampler, tc, m, params), m);
+    // The sample's own circle of confusion, not m. m is how much this tap
+    // counts here — it ramps with the spiral radius, so it says where the
+    // destination is within the disc, which is a sub-pixel quantity. Shaping a
+    // highlight by it gives every bokeh disc a brightness profile tied to the
+    // exact offset between source and destination, and one that squares once
+    // the mix below applies m a second time: the disc then redraws itself
+    // whenever anything shifts by a fraction of a pixel. A source pixel's
+    // defocus belongs to the source, so the disc it spreads into is flat.
+    color += mix(color / tot, dofProcessSample(tex, texSampler, tc, sampleCoC, params), m);
     tot += 1.0;
 
     radius += DOF_RAD_SCALE / radius * resolutionScale;

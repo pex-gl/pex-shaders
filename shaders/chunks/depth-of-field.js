@@ -14,7 +14,10 @@
  * - **Scatter as gather.** Testing per tap whether *that tap's* disc reaches
  *   here means an in-focus pixel has no disc and cannot leak onto a defocused
  *   neighbour, and normalising by the weights that did reach reconstructs the
- *   background behind a foreground object.
+ *   background behind a foreground object. A tap's weight is the inverse of its
+ *   own disc area, which is the half of scattering a gather otherwise loses:
+ *   what a source delivers per destination is what makes a near field cover its
+ *   own disc rather than everything the tile can see.
  * - **Near and far are different problems.** The far field composites by the
  *   destination's own defocus, the near field by its own coverage. One image
  *   cannot carry both.
@@ -31,8 +34,39 @@
  *
  * Split into the passes rather than shipped whole, since most of them share
  * only the parameter block: the tile reduction and the mip chain touch neither
- * depth nor a circle of confusion, and the post filter needs none of this at
- * all. Each member names what it requires.
+ * depth nor a circle of confusion, and the post filter needs no more than a
+ * luminance. Each member names what it requires.
+ *
+ * Sources
+ *
+ * - Jorge Jimenez, "Next Generation Post Processing in Call of Duty: Advanced
+ *   Warfare", SIGGRAPH 2014.
+ *   https://advances.realtimerendering.com/s2014/index.html
+ *   Scatter as gather at half resolution, the near and far fields as separate
+ *   images, and the coarse grid that bounds the near search.
+ * - AMD FidelityFX Depth of Field, `ffx_dof_blur.h`,
+ *   `ffx_dof_downsample_color.h`, `ffx_dof_composite.h`.
+ *   https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/tree/v1.1.2/sdk/include/FidelityFX/gpu/dof
+ *   The arrangement here, closest of the three: one gather feeding both fields,
+ *   a bilateral mip chain that takes a fixed texel of each block rather than
+ *   averaging or dilating its radius (`FfxDofDownsampleQuad`), the
+ *   inverse-disc-area sample weight (`FfxDofWeight`) and the coverage it
+ *   normalises (`fgOpacity`), the outside-in ring buckets the occlusion merge
+ *   follows (`FfxDofMergeBuckets`), per-tile radii, and the cubic the near
+ *   field is composited through (`FfxCubicSpline`).
+ * - Unity HDRP, `DepthOfFieldGather.compute`, `DepthOfFieldMip.compute`,
+ *   `DoFGatherUtils.hlsl`.
+ *   https://github.com/Unity-Technologies/Graphics/tree/master/Packages/com.unity.render-pipelines.high-definition/Runtime/PostProcessing/Shaders
+ *   The far field's search bounded by the destination's own defocus
+ *   (`limit = min(maxFarCoC, 2 * abs(centerCoC))` — the factor of two
+ *   deliberately not carried over, see below), the near field's coverage read
+ *   as a radius rather than an area fraction (`sqrt(fraction * PI)`) and ramped
+ *   by `smoothstep`, and a chain the near gather does not read at all
+ *   (`mip = 0.0`) because a coarse level cannot describe a silhouette.
+ * - Unity post-processing stack v2, `Builtins/DepthOfField.shader`.
+ *   https://github.com/Unity-Technologies/PostProcessing
+ *   `bgCoC = max(min(samp0.a, samp.a), 0)` against `fgWeight`: the far field
+ *   tests the destination's own defocus, the near field the tap's own.
  *
  * @type {object}
  * @name depthOfField
@@ -305,9 +339,17 @@ fn dofBilateralWeight(coc: f32, reference: f32) -> f32 {
 // A box filter would average the circle of confusion along with the colour, so
 // a coarse texel straddling a silhouette reports a radius between the two
 // surfaces' and the gather spreads the sharp one as though it had the blurry
-// one's disc. Keeping the largest radius drops the sharp surface out of the
-// coarse levels instead, which is correct: it has no disc to spread, and the
-// fine levels a small radius reads still hold it exactly.
+// one's disc. One texel of the block stands for it instead, and the colour is
+// averaged only over the texels agreeing with that one.
+//
+// A fixed texel, not the largest radius in the block. Taking the largest looks
+// like it protects the far field — a sharp foreground against a defocused
+// background drops out of the coarse levels — but it is a dilation, and in the
+// near field it runs the wrong way: a defocused foreground is promoted over a
+// whole 2^N block that is mostly background, so the gather reads a foreground
+// where there is none and the near field reaches its own radius plus the block.
+// Nothing needs the largest, because a tap standing for the wrong surface
+// rejects itself: its radius is small, so it spreads nowhere.
 //
 // The stored radius is in half-resolution pixels at every level. It says how
 // far that content reaches on screen, not how big the texel recording it got.
@@ -322,15 +364,12 @@ fn dofDownsample(tex: texture_2d<f32>, texSampler: sampler, texCoord: vec2f) -> 
   );
 
   var taps = array<vec4f, 4>();
-  var reference = 0.0;
 
   for (var i = 0; i < 4; i++) {
     taps[i] = textureSampleLevel(tex, texSampler, texCoord + offsets[i] * texelSize, 0.0);
-
-    if (abs(taps[i].a) > abs(reference)) {
-      reference = taps[i].a;
-    }
   }
+
+  let reference = taps[0].a;
 
   var color = vec3f(0.0);
   var weight = 0.0;
@@ -398,10 +437,11 @@ fn dofCoCQuadFromTexture(
 // Half-resolution colour and circle of confusion in one texture: rgb is what
 // the gather spreads, a the signed radius deciding how far.
 //
-// Bilateral, keyed on the circle of confusion rather than on depth. The block
-// is about to become whichever of its four texels spreads furthest, so that one
-// is the reference — averaging a sharp foreground into a defocused background
-// is what makes a silhouette leak.
+// Bilateral, keyed on the circle of confusion rather than on depth: averaging
+// a sharp foreground into a defocused background is what makes a silhouette
+// leak. One texel of the quad stands for the block and the colour is averaged
+// over those agreeing with it — the rule the chain above runs on, and a fixed
+// texel for the same reason.
 fn dofPrefilter(
   tex: texture_2d<f32>,
   texSampler: sampler,
@@ -413,16 +453,13 @@ fn dofPrefilter(
   var cocs = quad;
 
   var colors = array<vec3f, 4>();
-  var reference = 0.0;
 
   for (var i = 0; i < 4; i++) {
     let uv = texCoord + dofQuadOffset(i) * params.texelSize;
     colors[i] = textureSampleLevel(tex, texSampler, uv, 0.0).rgb;
-
-    if (abs(cocs[i]) > abs(reference)) {
-      reference = cocs[i];
-    }
   }
+
+  let reference = cocs[0];
 
   var color = vec3f(0.0);
   var weight = 0.0;
@@ -486,6 +523,10 @@ fn dofTileCoC(coc: f32) -> vec2f {
  * @member {string}
  */
 const gather = /* wgsl */ `
+// A cap on the rings, not the ring count. One ring per pixel of radius is what
+// resolves a disc exactly, so the count is derived from the radius and this
+// only says how much the gather may spend when that is more than affordable —
+// FidelityFX's MaxRings against its idealRingCount, and its quality setting.
 override DOF_RINGS: i32 = 3;
 
 override DOF_SAMPLES: i32 = 6;
@@ -530,15 +571,30 @@ fn dofSpread(cocRadius: f32, distance: f32) -> f32 {
   return saturateF32(cocRadius - distance + 1.0);
 }
 
+// How much of a source's disc arrives at any one destination inside it.
+//
+// A defocused pixel spreads its radiance over pi*r^2, so what reaches a given
+// destination falls as the inverse of that area. Uniform weights instead let a
+// strongly defocused foreground deliver as much per pixel as a barely defocused
+// one, which spreads a near field over the width of the tile rather than of its
+// own disc.
+//
+// Saturating below about half a pixel of radius, where the disc is contained in
+// its own texel and scatters onto nothing.
+fn dofScatter(cocRadius: f32) -> f32 {
+  return saturateF32(1.0 / max(PI * cocRadius * cocRadius, 1e-4));
+}
+
 // Both fields from one set of taps: the taps are what this costs, and each
 // field's test is a comparison in pixels that does not care which radius the
 // loop ran to.
 //
 // Samples sit on evenly spaced concentric rings, ring i carrying i *
-// DOF_SAMPLES of them at i / DOF_RINGS of the radius. A sample count rising
-// with the circumference makes the density uniform per unit area, so the plain
-// sum is a disc integral and the near field's coverage an area fraction. It is
-// also what lets one mip level serve every ring.
+// DOF_SAMPLES of them at i / rings of the radius, where the ring count itself
+// comes from the radius. A sample count rising with the circumference makes the
+// density uniform per unit area, so the plain sum is a disc integral and the
+// near field's coverage an area fraction. It is also what lets one mip level
+// serve every ring.
 //
 // Rings run outwards in and the far field merges them one at a time, because
 // that ordering approximates a depth ordering: a sample far enough out to still
@@ -586,6 +642,18 @@ fn dofGather(
     return fields;
   }
 
+  // One ring per pixel of radius, capped. Spending a fixed count over whatever
+  // radius the tile asks for makes the ring spacing grow with the blur, and the
+  // near field is what that costs: it spans the tile's near extent while the
+  // rings span the larger of the two fields' needs, so a foreground sharper
+  // than the background behind it gets one or two rings across its whole disc
+  // and its coverage falls off in plateaus one ring apart — a stepped outline
+  // that follows the tile grid rather than the silhouette. Deriving the count
+  // bounds that spacing at a pixel until the cap binds, and below the cap it
+  // also stops the gather spending four rings on a three pixel disc.
+  let rings = min(max(i32(ceil(radius)), 1), DOF_RINGS);
+  let ringCount = f32(rings);
+
   // Colour premultiplied by weight in rgb, weight in a.
   var far = vec4f(0.0);
   // Weighted mean circle of confusion of what is accumulated, which is what the
@@ -605,12 +673,12 @@ fn dofGather(
   // rings sharp and to the outer ones blurred, counting its energy several
   // times over and leaving a hot core.
   let footprint = max(
-    radius / f32(DOF_RINGS),
-    TWO_PI * radius / f32(DOF_RINGS * DOF_SAMPLES)
+    radius / ringCount,
+    TWO_PI * radius / (ringCount * f32(DOF_SAMPLES))
   );
   let lod = clamp(log2(max(footprint, 1.0)), 0.0, DOF_MAX_MIP);
 
-  for (var ring = DOF_RINGS; ring >= 0; ring--) {
+  for (var ring = rings; ring >= 0; ring--) {
     // Ring 0 has zero radius and one sample, so it is the centre tap, and it
     // merges last because it is the nearest thing there is.
     let count = max(ring * DOF_SAMPLES, 1);
@@ -620,7 +688,7 @@ fn dofGather(
     // the plain sum a disc integral: ring i stands for an annulus whose area
     // grows as i and carries i * DOF_SAMPLES samples to cover it, and the
     // centre's single tap for the small disc inside the first midpoint.
-    let t = f32(ring) / f32(DOF_RINGS);
+    let t = f32(ring) / ringCount;
     let ringRadius = radius * t;
 
     // Rings whose sample counts share a divisor put their samples on the same
@@ -669,13 +737,20 @@ fn dofGather(
 
       // Weighted by how defocused the tap is as well as by whether it reaches
       // here: an in-focus pixel is not part of the near field at all, and its
-      // disc covering its own texel must not read as coverage.
+      // disc covering its own texel must not read as coverage. Load-bearing now
+      // that the scatter weight saturates below half a pixel — without it the
+      // sharpest taps in the kernel would be the ones carrying the most weight.
       let tapNear = max(tap.a, 0.0);
-      let near = dofSpread(tapNear * reach, distance) * saturateF32(tapNear) * weight;
+      let near = dofSpread(tapNear * reach, distance)
+        * saturateF32(tapNear)
+        * dofScatter(tapNear)
+        * weight;
       nearColor += tap.rgb * near;
       nearWeight += near;
-      // Coverage is an area fraction, so the denominator carries the same area
-      // weights the numerator does, and only the taps inside that disc.
+      // The area this kernel spends on the near field, which the coverage
+      // below turns into a fraction. Aperture weights only — the scatter
+      // weight belongs to the tap, and the tile's stands in for it there — and
+      // only the taps inside the tile's own disc.
       nearCount += weight * step(distance, tile.x + 1.0);
     }
 
@@ -707,13 +782,141 @@ fn dofGather(
 
   // The near field is foreground over an unknown background, so it is an image
   // with coverage — premultiplied, so the post filter's blur and the
-  // composite's bilinear read stay correct where that coverage is partial. Both
-  // sides are areas in the same units, so the guard only has to keep the
-  // division finite; flooring it at 1 would read a small disc as barely covered.
-  let coverage = saturateF32(nearWeight / max(nearCount, 1e-4));
+  // composite's bilinear read stay correct where that coverage is partial.
+  //
+  // Normalised against what this kernel would carry if every tap were a
+  // foreground at the tile's own radius, which is what makes the fraction a
+  // coverage rather than the local disc's area over the tile's. Those differ by
+  // (coc / tile)^2, and the tile is a dilated neighbourhood maximum: a floor
+  // receding towards the camera would then read as barely covered anywhere its
+  // own defocus fell short of the nearest thing in the frame, in steps
+  // following the tile grid. The inverse-area weights cancel that ratio, so the
+  // answer stops depending on what else the tile happens to hold.
+  //
+  // Ramped rather than taken as it is. A gather's coverage falls away across
+  // the whole disc, and laying that over the image linearly washes foreground
+  // colour over everything within reach; HDRP and FidelityFX put the same cubic
+  // on it, in the gather and at the composite respectively. Here, so that what
+  // the post filter blurs and the composite reads is already premultiplied by
+  // the coverage that will be used.
+  let coverage = smoothstep(
+    0.0,
+    1.0,
+    saturateF32(nearWeight / max(dofScatter(tile.x) * nearCount, 1e-4))
+  );
   fields.near = vec4f(nearColor / max(nearWeight, 1e-4) * coverage, coverage);
 
   return fields;
+}
+`;
+
+/**
+ * The near field's post filter: a median that rejects the speckle a dithered
+ * gather leaves along a silhouette. Requires `luma`.
+ *
+ * @member {string}
+ */
+const postFilter = /* wgsl */ `
+// Below this a texel carries no foreground worth speaking of, and its colour
+// cannot be recovered from a premultiplied one.
+const DOF_MIN_COVERAGE: f32 = 0.01;
+
+fn dofMedian3(a: f32, b: f32, c: f32) -> f32 {
+  return max(min(a, b), min(max(a, b), c));
+}
+
+// Median of nine, as medians of medians: the largest of the three minima, the
+// median of the three medians, the smallest of the three maxima, and the median
+// of those. Exact, and branch-free — verified against a true median on random
+// neighbourhoods. FidelityFX writes it as FfxMed9.
+fn dofMedian9(v: array<f32, 9>) -> f32 {
+  let lo = max(
+    max(min(min(v[0], v[1]), v[2]), min(min(v[3], v[4]), v[5])),
+    min(min(v[6], v[7]), v[8])
+  );
+  let mid = dofMedian3(
+    dofMedian3(v[0], v[1], v[2]),
+    dofMedian3(v[3], v[4], v[5]),
+    dofMedian3(v[6], v[7], v[8])
+  );
+  let hi = min(
+    min(max(max(v[0], v[1]), v[2]), max(max(v[3], v[4]), v[5])),
+    max(max(v[6], v[7]), v[8])
+  );
+
+  return dofMedian3(lo, mid, hi);
+}
+
+// One near-field texel, despeckled.
+//
+// The gather's ring phase is per pixel and screen-static — depth of field runs
+// after the temporal resolve, so a phase that moved per frame would be noise
+// nothing averages away — and where few taps land on a foreground, which two of
+// them land decides the coverage. That reads as a fixed stipple along every
+// silhouette, and averaging spreads a bright speck into a soft blob instead of
+// removing it.
+//
+// So the colour is not averaged. The centre texel is kept and rescaled towards
+// the luminance its neighbourhood agrees on: a lone speck is divided down by
+// however far it stands out, a texel already in agreement is multiplied by one
+// and keeps its detail. Bounded at two, so the filter can lift a lone dark
+// texel without inventing a highlight. FidelityFX's FfxDofFilterNF.
+//
+// Luminance is compared on unpremultiplied colour. The stipple is in the
+// coverage as much as in the colour, so premultiplied luma would measure how
+// covered a texel is rather than how bright, and the rescale would drag the
+// partly covered edge of a silhouette towards the interior's luminance —
+// raising colour without raising coverage, which reads as a bright fringe.
+//
+// A neighbourhood that is mostly empty has a zero median, and then the rescale
+// is skipped rather than collapsing the one covered texel in it.
+fn dofFilterNear(tex: texture_2d<f32>, texSampler: sampler, texCoord: vec2f, texelSize: vec2f) -> vec4f {
+  var lumas = array<f32, 9>();
+  var premultiplied = vec3f(0.0);
+  var coverage = 0.0;
+  var center = vec4f(0.0);
+
+  for (var i = 0; i < 9; i++) {
+    let offset = vec2f(f32(i % 3) - 1.0, f32(i / 3) - 1.0) * texelSize;
+    let tap = textureSampleLevel(tex, texSampler, texCoord + offset, 0.0);
+
+    lumas[i] = luma(tap.rgb / max(tap.a, DOF_MIN_COVERAGE));
+    premultiplied += tap.rgb;
+    coverage += tap.a;
+
+    if (i == 4) {
+      center = tap;
+    }
+  }
+
+  // Coverage is averaged over the nine, which is where the spatial smoothing
+  // went, and is what a premultiplied image expects.
+  //
+  // That average can be non-zero over a centre texel that holds none, and a
+  // premultiplied texel with no coverage has no colour either — keeping it
+  // would paint a dark seam one texel wide around the whole near field. The
+  // neighbourhood's coverage-weighted mean is the colour that seam should
+  // carry, which is the sum of the premultiplied taps over the coverage that
+  // premultiplied them. FidelityFX borrows the brightest corner instead; this
+  // needs no such choice, because a premultiplied sum already weights every
+  // neighbour by how much foreground it holds.
+  let covered = center.a > DOF_MIN_COVERAGE;
+  let color = select(
+    premultiplied / max(coverage, DOF_MIN_COVERAGE),
+    center.rgb / center.a,
+    covered
+  );
+
+  let median = dofMedian9(lumas);
+  let gain = select(
+    1.0,
+    clamp(median / lumas[4], 0.0, 2.0),
+    covered && median > 0.0 && lumas[4] > 0.0
+  );
+
+  coverage /= 9.0;
+
+  return vec4f(color * gain * coverage, coverage);
 }
 `;
 
@@ -838,5 +1041,6 @@ export {
   prefilter,
   tiles,
   gather,
+  postFilter,
   composite,
 };

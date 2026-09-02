@@ -175,6 +175,7 @@ export {
   /** @member {string} */
   default as depthOfField,
 } from "./depth-of-field.js";
+export * as lensFlare from "./lens-flare.js";
 export * as gtao from "./gtao.js";
 export {
   /** @member {string} */

@@ -29,13 +29,24 @@
  * throughout: positive in front of the focal plane, negative behind it.
  * Distances are millimetres, the unit the thin lens model works in.
  *
- * Requires `math.PI`, `math.TWO_PI`, `math.saturate`, `luma`, `threshold` and
- * `depthRead`.
+ * Split into the passes rather than shipped whole, since most of them share
+ * only the parameter block: the tile reduction and the mip chain touch neither
+ * depth nor a circle of confusion, and the post filter needs none of this at
+ * all. Each member names what it requires.
  *
- * @type {string}
- * @alias module:chunks.depthOfField
+ * @type {object}
+ * @name depthOfField
+ * @static
  */
-export default /* wgsl */ `
+
+/**
+ * The parameter block. Every other member builds on it, and it is all the
+ * gather needs — that pass works from a prefiltered circle of confusion and
+ * never touches depth.
+ *
+ * @member {string}
+ */
+const common = /* wgsl */ `
 struct DepthOfFieldParams {
   // Full-resolution viewport and grid.
   viewportSize: vec2f,
@@ -84,19 +95,15 @@ struct DepthOfFieldParams {
   bladeCurvature: f32,
 }
 
-override DOF_RINGS: i32 = 3;
-override DOF_SAMPLES: i32 = 6;
-override DOF_TILE_SIZE: i32 = 8;
-override DOF_TILE_DILATE_RADIUS: i32 = 4;
-override USE_DOF_PHYSICAL: bool = true;
-override USE_DOF_RING_OCCLUSION: bool = true;
-override USE_DOF_CHROMATIC_ABERRATION: bool = false;
-override USE_DOF_TRANSITION_BLUR: bool = true;
-// Levels the prefilter actually has, past which there is nothing to read.
-override DOF_MAX_MIP: f32 = 4.0;
+`;
 
-// Circle of confusion
-
+/**
+ * Linear depth, in the millimetres the thin lens model works in. Requires
+ * {@link common} and `depthRead`.
+ *
+ * @member {string}
+ */
+const depth = /* wgsl */ `
 fn dofDepth(
   depthTex: texture_depth_2d,
   depthSampler: sampler,
@@ -106,6 +113,16 @@ fn dofDepth(
   // m -> mm
   return readDepth(depthTex, depthSampler, uv, params.near, params.far) * 1000.0;
 }
+`;
+
+/**
+ * Circle of confusion from depth, under either model. Requires {@link common},
+ * and {@link depth} for the callers that read it off the depth buffer.
+ *
+ * @member {string}
+ */
+const coc = /* wgsl */ `
+override USE_DOF_PHYSICAL: bool = true;
 
 // Thin lens: A * f * |z - zf| / (z * (zf - f)), with the aperture diameter
 // A = f / N. Signed rather than absolute — which field a pixel belongs to is
@@ -153,7 +170,15 @@ fn dofCoC(depth: f32, focusDistance: f32, params: DepthOfFieldParams) -> f32 {
 
   return clamp(coc, -params.maxCoCRadius, params.maxCoCRadius);
 }
+`;
 
+/**
+ * Autofocus: the distance the frame focuses at, read off a screen point.
+ * Requires {@link common} and {@link depth}.
+ *
+ * @member {string}
+ */
+const focus = /* wgsl */ `
 fn dofMedian5(taps: array<f32, 5>) -> f32 {
   var v = taps;
 
@@ -188,9 +213,16 @@ fn dofFocusDistance(
     dofDepth(depthTex, depthSampler, p + vec2f(o.x, o.y), params)
   ));
 }
+`;
 
-// Temporal resolve of the circle of confusion
-
+/**
+ * Temporal resolve of the circle of confusion, which a jittered raster needs
+ * before anything prefilters it. Requires {@link common}, {@link depth} and
+ * {@link coc}.
+ *
+ * @member {string}
+ */
+const resolve = /* wgsl */ `
 // The range of circles of confusion the pixel's immediate neighbourhood covers.
 //
 // Both models are monotonically decreasing in depth, so the neighbourhood's
@@ -247,9 +279,17 @@ fn dofResolveCoC(
   // from a texture that holds another view.
   return mix(clamped, current, max(blendFactor, 1.0 - historyValid));
 }
+`;
 
-// Prefilter
-
+/**
+ * The prefilter's mip chain, and the bilateral weight it shares with the
+ * prefilter itself. Needs neither depth nor the parameters — a level is a
+ * filter over colour and a circle of confusion that are already computed.
+ * Requires `math.saturate`.
+ *
+ * @member {string}
+ */
+const downsample = /* wgsl */ `
 // How much a texel belongs with the one that will represent its block.
 //
 // Relative rather than absolute: the texels compared are one half-resolution
@@ -304,7 +344,16 @@ fn dofDownsample(tex: texture_2d<f32>, texSampler: sampler, texCoord: vec2f) -> 
   // The reference weighs 1, so this can never divide by zero.
   return vec4f(color / weight, reference);
 }
+`;
 
+/**
+ * Half-resolution colour and circle of confusion in one texture. Requires
+ * {@link common}, {@link depth}, {@link coc}, {@link downsample},
+ * `math.saturate`, `luma` and `threshold`.
+ *
+ * @member {string}
+ */
+const prefilter = /* wgsl */ `
 // The four full-resolution texels that fall under one half-resolution texel.
 fn dofQuadOffset(i: i32) -> vec2f {
   return vec2f(f32(i % 2) * 2.0 - 1.0, f32(i / 2) * 2.0 - 1.0) * 0.5;
@@ -410,16 +459,41 @@ fn dofPrefilter(
   // so a highlight brightens as it spreads.
   return vec4f(color * (1.0 + boost * saturateF32(abs(reference) - 0.5)), reference);
 }
+`;
 
-// Tiles
+/**
+ * The coarse grid that bounds the near field's search, and its dilation.
+ * Standalone, like {@link downsample}.
+ *
+ * @member {string}
+ */
+const tiles = /* wgsl */ `
+override DOF_TILE_SIZE: i32 = 8;
+
+override DOF_TILE_DILATE_RADIUS: i32 = 4;
 
 // The two fields spread in opposite directions, so a tile carries the extent of
 // each as a positive magnitude: x near, y far.
 fn dofTileCoC(coc: f32) -> vec2f {
   return vec2f(max(coc, 0.0), max(-coc, 0.0));
 }
+`;
 
-// Gather
+/**
+ * Both fields from one set of taps, which is what makes this one pass. Requires
+ * {@link common}, `math.PI`, `math.TWO_PI` and `math.saturate`.
+ *
+ * @member {string}
+ */
+const gather = /* wgsl */ `
+override DOF_RINGS: i32 = 3;
+
+override DOF_SAMPLES: i32 = 6;
+
+override USE_DOF_RING_OCCLUSION: bool = true;
+
+// Levels the prefilter actually has, past which there is nothing to read.
+override DOF_MAX_MIP: f32 = 4.0;
 
 struct DoFFields {
   far: vec4f,
@@ -641,8 +715,18 @@ fn dofGather(
 
   return fields;
 }
+`;
 
-// Composite
+/**
+ * The two fields over the sharp image, at full resolution, and the debug view.
+ * Requires {@link common} and `math.saturate`.
+ *
+ * @member {string}
+ */
+const composite = /* wgsl */ `
+override USE_DOF_CHROMATIC_ABERRATION: bool = false;
+
+override USE_DOF_TRANSITION_BLUR: bool = true;
 
 // Four bilinear taps half a radius out: the same disc, at the resolution that
 // can still see it.
@@ -743,3 +827,16 @@ fn dofDebug(coc: f32, tile: vec2f, params: DepthOfFieldParams) -> vec3f {
   );
 }
 `;
+
+export {
+  common,
+  depth,
+  coc,
+  focus,
+  resolve,
+  downsample,
+  prefilter,
+  tiles,
+  gather,
+  composite,
+};

@@ -1,4 +1,7 @@
 export default /* wgsl */ `
+// color.w is luminance (cd/m²), matching the image based lighting it stands in
+// for: an environment of uniform luminance L irradiates a surface with πL, and
+// the Lambertian 1/π cancels it back to L.
 struct AmbientLight {
   color: vec4f,
 };

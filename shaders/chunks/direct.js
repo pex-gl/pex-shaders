@@ -1,6 +1,10 @@
 // getDistanceAttenuation: https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
 // sheenBRDF: The Fresnel term may be omitted, i.e., F = 1.
 export default /* wgsl */ `
+// color.w is the light's photometric intensity in the unit this integration
+// needs: illuminance (lx) for a directional light, luminous intensity (cd) for
+// point and spot, since \`intensity * attenuation\` is the illuminance reaching
+// the surface.
 struct Light {
   l: vec3f,
   color: vec4f,

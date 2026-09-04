@@ -5,7 +5,7 @@ struct SpotLight {
   color: vec4f,
   innerAngle: f32,
   angle: f32,
-  range: f32,
+  invSqrFalloff: f32,
   projectionMatrix: mat4x4f,
   viewMatrix: mat4x4f,
   castShadows: u32,
@@ -64,10 +64,8 @@ fn EvaluateSpotLight(
   if (illuminated > 0.0) {
     let posToLight = light.position - data.positionWorld;
 
-    let invSqrFalloff = 1.0 / pow(light.range, 2.0);
-    var attenuation = getDistanceAttenuation(posToLight, invSqrFalloff);
+    var attenuation = getDistanceAttenuation(posToLight, light.invSqrFalloff);
 
-    // TODO: luminous power to intensity
     let cosOuter = cos(light.angle);
     let cosInner = cos(light.innerAngle);
     let scale = 1.0 / max(1.0 / 1024.0, cosInner - cosOuter);

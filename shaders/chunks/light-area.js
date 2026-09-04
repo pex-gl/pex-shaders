@@ -592,7 +592,6 @@ fn EvaluateAreaLight(
   ltc1Sampler: sampler,
   ltc2: texture_2d<f32>,
   ltc2Sampler: sampler,
-  ao: f32,
   positionWorld: vec3f,
   cameraPosition: vec3f,
   fragCoord: vec2f
@@ -690,9 +689,12 @@ fn EvaluateAreaLight(
 
     diff *= (1.0 - data.transmission);
 
-    let lightColor = decode(light.color, SRGB).xyz;
-    data.directColor += illuminated * ao * lightColor * data.baseColor * diff;
-    data.indirectSpecular += illuminated * ao * lightColor * spec;
+    // The linearly transformed cosines integrate against an emitter of unit
+    // luminance, so color.w — the luminance systems/light.ts derived from the
+    // light's luminous power — scales both lobes. The specular term already
+    // carries the split-sum DFG from the LUT, the diffuse one is the form factor.
+    let lightColor = decode(light.color, SRGB).xyz * (light.color.w * illuminated);
+    data.directColor += lightColor * (data.diffuseColor * diff + spec);
   }
 }
 `;

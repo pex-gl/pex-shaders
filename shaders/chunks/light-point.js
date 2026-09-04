@@ -2,7 +2,7 @@ export default /* wgsl */ `
 struct PointLight {
   position: vec3f,
   color: vec4f,
-  range: f32,
+  invSqrFalloff: f32,
   castShadows: u32,
   shadowBucket: u32,
   shadowLayer: u32,
@@ -39,8 +39,7 @@ fn EvaluatePointLight(
   }
 
   if (illuminated > 0.0) {
-    let invSqrFalloff = 1.0 / pow(light.range, 2.0);
-    let attenuation = getDistanceAttenuation(positionToLightWorld, invSqrFalloff);
+    let attenuation = getDistanceAttenuation(positionToLightWorld, light.invSqrFalloff);
 
     var l: Light;
     l.l = -normalize(positionToLightWorld);

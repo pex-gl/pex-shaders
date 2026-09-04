@@ -7,7 +7,9 @@ export default /* wgsl */ `
 fn getFarViewDir(texCoord: vec2f, fov: f32, far: f32, viewportSize: vec2f) -> vec3f {
   let hfar = 2.0 * tan(fov / 2.0) * far;
   let wfar = hfar * viewportSize.x / viewportSize.y;
-  return vec3f(wfar * (texCoord.x - 0.5), hfar * (texCoord.y - 0.5), -far);
+  // Y is negated: texCoord runs downwards, both as fragCoord over the viewport
+  // and as the fullscreen pass' texCoord0, where view space runs up.
+  return vec3f(wfar * (texCoord.x - 0.5), hfar * (0.5 - texCoord.y), -far);
 }
 
 fn getViewRay(texCoord: vec2f, fov: f32, far: f32, viewportSize: vec2f) -> vec3f {

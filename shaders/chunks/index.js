@@ -133,6 +133,10 @@ export {
 } from "./depth-position.js";
 export {
   /** @member {string} */
+  default as depthPyramid,
+} from "./depth-pyramid.js";
+export {
+  /** @member {string} */
   default as depthUnpack,
 } from "./depth-unpack.js";
 export {

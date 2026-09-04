@@ -8,8 +8,8 @@
  * https://github.com/GameTechDev/XeGTAO/blob/master/Source/Rendering/Shaders/XeGTAO.hlsli
  *
  * Split into the three passes the technique needs, since they share only the
- * constants: a compute prefilter turning the depth buffer into a linear
- * view-space pyramid, the estimator, and the edge-aware denoiser.
+ * constants, the estimator, and the edge-aware denoiser. The depth pyramid the
+ * estimator samples is built by the shared `depthPyramid` chunk.
  *
  * Two conventions differ from the reference and everything else follows from
  * them. View space here is right-handed with -Z forward, where XeGTAO's is
@@ -27,7 +27,7 @@
  */
 
 /**
- * Constants, parameters and the helpers all three passes share. Requires
+ * Constants, parameters and the helpers both passes share. Requires
  * `math.PI`, `math.HALF_PI`, `math.saturate` and `depthRead`.
  *
  * @member {string}
@@ -76,7 +76,7 @@ struct GTAOParams {
 }
 
 override GTAO_NUM_SLICES: i32 = 3;
-override GTAO_NUM_SAMPLES: i32 = 3;
+override GTAO_NUM_STEPS_PER_SLICE: i32 = 3;
 override USE_GTAO_BENT_NORMALS: bool = false;
 
 // If the offset is under approximately pixel size, push it out to this distance.
@@ -98,21 +98,6 @@ const GTAO_OCCLUSION_TERM_SCALE: f32 = 1.5;
 // the camera.
 fn gtaoComputeViewspacePosition(screenPos: vec2f, viewspaceDepth: f32, params: GTAOParams) -> vec3f {
   return vec3f((params.ndcToViewMul * screenPos + params.ndcToViewAdd) * viewspaceDepth, -viewspaceDepth);
-}
-
-// The pyramid is r32uint holding bitcast floats: core WebGPU has no
-// storage-capable 16-bit single-channel format, and r32float binds as
-// unfilterable-float. It costs nothing — GTAO must read the pyramid by point
-// access anyway, since filtering blends depths describing different surfaces,
-// and across mip levels different resolutions of them.
-fn gtaoLoadViewspaceDepth(depthTex: texture_2d<u32>, pixCoord: vec2i, mipLevel: i32) -> f32 {
-  let size = vec2i(textureDimensions(depthTex, u32(mipLevel)));
-  return bitcast<f32>(textureLoad(depthTex, clamp(pixCoord, vec2i(0), size - vec2i(1)), mipLevel).x);
-}
-
-fn gtaoSampleViewspaceDepth(depthTex: texture_2d<u32>, screenPos: vec2f, mipLevel: i32) -> f32 {
-  let size = vec2f(textureDimensions(depthTex, u32(mipLevel)));
-  return gtaoLoadViewspaceDepth(depthTex, vec2i(screenPos * size), mipLevel);
 }
 
 // http://h14s.p5r.org/2012/09/0x5f3759df.html, [Drobot2014a] Low Level
@@ -174,111 +159,10 @@ fn gtaoSpatioTemporalNoise(pixCoord: vec2u, temporalIndex: u32) -> vec2f {
 `;
 
 /**
- * Depth prefilter: linear view-space depth plus three levels of the
- * closest-biased pyramid GTAO reads its wide offsets from, in one dispatch over
- * 16x16 tiles (8x8 threads, each covering a 2x2 block). Requires
- * {@link common}.
- *
- * @member {string}
- */
-const prefilter = /* wgsl */ `
-// Found empirically by the reference implementation.
-const GTAO_DEPTH_RANGE_SCALE_FACTOR: f32 = 0.75;
-
-// Weighted average biased towards the closest of the four, so a mip keeps the
-// occluder rather than averaging it into the surface behind it.
-fn gtaoDepthMipFilter(depths: vec4f, params: GTAOParams) -> f32 {
-  let effectRadius = GTAO_DEPTH_RANGE_SCALE_FACTOR * params.effectRadius * params.radiusMultiplier;
-  let falloffRange = params.effectFalloffRange * effectRadius;
-  let falloffFrom = effectRadius * (1.0 - params.effectFalloffRange);
-  let falloffMul = -1.0 / falloffRange;
-  let falloffAdd = falloffFrom / falloffRange + 1.0;
-
-  let maxDepth = max(max(depths.x, depths.y), max(depths.z, depths.w));
-  let weights = saturateVec4((vec4f(maxDepth) - depths) * falloffMul + falloffAdd);
-
-  return dot(weights, depths) / (weights.x + weights.y + weights.z + weights.w);
-}
-
-// Screen space to view space depth, clamped so the background reads exactly the
-// far plane — which is what the estimator tests to skip a pixel with no surface.
-fn gtaoPrefilterDepth(depthTex: texture_depth_2d, pixCoord: vec2i, params: GTAOParams) -> f32 {
-  let size = vec2i(textureDimensions(depthTex, 0));
-  let screenDepth = textureLoad(depthTex, clamp(pixCoord, vec2i(0), size - vec2i(1)), 0);
-  return min(linearizeDepthPerspZO(screenDepth, params.near, params.far), params.far);
-}
-
-var<workgroup> gtaoScratchDepths: array<array<f32, 8u>, 8u>;
-
-fn gtaoPrefilterDepths16x16(
-  dispatchThreadID: vec2u,
-  groupThreadID: vec2u,
-  depthTex: texture_depth_2d,
-  params: GTAOParams,
-  outDepth0: texture_storage_2d<r32uint, write>,
-  outDepth1: texture_storage_2d<r32uint, write>,
-  outDepth2: texture_storage_2d<r32uint, write>,
-  outDepth3: texture_storage_2d<r32uint, write>
-) {
-  // MIP 0
-  let baseCoord = vec2i(dispatchThreadID);
-  let pixCoord = baseCoord * 2;
-
-  let depths = vec4f(
-    gtaoPrefilterDepth(depthTex, pixCoord + vec2i(0, 0), params),
-    gtaoPrefilterDepth(depthTex, pixCoord + vec2i(1, 0), params),
-    gtaoPrefilterDepth(depthTex, pixCoord + vec2i(0, 1), params),
-    gtaoPrefilterDepth(depthTex, pixCoord + vec2i(1, 1), params)
-  );
-  // Stores past the edge of a texture are dropped, so the ragged last tile of a
-  // viewport that is not a multiple of 16 needs no guard.
-  textureStore(outDepth0, pixCoord + vec2i(0, 0), vec4u(bitcast<u32>(depths.x)));
-  textureStore(outDepth0, pixCoord + vec2i(1, 0), vec4u(bitcast<u32>(depths.y)));
-  textureStore(outDepth0, pixCoord + vec2i(0, 1), vec4u(bitcast<u32>(depths.z)));
-  textureStore(outDepth0, pixCoord + vec2i(1, 1), vec4u(bitcast<u32>(depths.w)));
-
-  // MIP 1
-  let dm1 = gtaoDepthMipFilter(depths, params);
-  textureStore(outDepth1, baseCoord, vec4u(bitcast<u32>(dm1)));
-  gtaoScratchDepths[groupThreadID.x][groupThreadID.y] = dm1;
-
-  // Every barrier sits at uniform scope: each level reduces through shared
-  // memory with a quarter of the threads, and a barrier reached by only some
-  // invocations of a workgroup is undefined.
-  workgroupBarrier();
-
-  // MIP 2
-  if (all((groupThreadID % vec2u(2u)) == vec2u(0u))) {
-    let dm2 = gtaoDepthMipFilter(vec4f(
-      gtaoScratchDepths[groupThreadID.x + 0u][groupThreadID.y + 0u],
-      gtaoScratchDepths[groupThreadID.x + 1u][groupThreadID.y + 0u],
-      gtaoScratchDepths[groupThreadID.x + 0u][groupThreadID.y + 1u],
-      gtaoScratchDepths[groupThreadID.x + 1u][groupThreadID.y + 1u]
-    ), params);
-    textureStore(outDepth2, baseCoord / 2, vec4u(bitcast<u32>(dm2)));
-    gtaoScratchDepths[groupThreadID.x][groupThreadID.y] = dm2;
-  }
-
-  workgroupBarrier();
-
-  // MIP 3
-  if (all((groupThreadID % vec2u(4u)) == vec2u(0u))) {
-    let dm3 = gtaoDepthMipFilter(vec4f(
-      gtaoScratchDepths[groupThreadID.x + 0u][groupThreadID.y + 0u],
-      gtaoScratchDepths[groupThreadID.x + 2u][groupThreadID.y + 0u],
-      gtaoScratchDepths[groupThreadID.x + 0u][groupThreadID.y + 2u],
-      gtaoScratchDepths[groupThreadID.x + 2u][groupThreadID.y + 2u]
-    ), params);
-    textureStore(outDepth3, baseCoord / 4, vec4u(bitcast<u32>(dm3)));
-  }
-}
-`;
-
-/**
  * The estimator: a horizon search over `GTAO_NUM_SLICES` slices of
- * `GTAO_NUM_SAMPLES` steps, producing visibility, a bent normal under
+ * `GTAO_NUM_STEPS_PER_SLICE` steps, producing visibility, a bent normal under
  * `USE_GTAO_BENT_NORMALS`, and the edge weights the denoiser needs. Requires
- * {@link common} and `colorCorrection`.
+ * {@link common}, `depthPyramid` and `colorCorrection`.
  *
  * @member {string}
  */
@@ -354,11 +238,11 @@ fn gtaoMainPass(
   let normalizedScreenPos = (vec2f(pixCoord) + 0.5) * params.viewportPixelSize;
 
   // viewspace Z at the center, and at left top right bottom
-  var viewspaceZ = gtaoLoadViewspaceDepth(depthTex, pixCoord, 0);
-  let pixLZ = gtaoLoadViewspaceDepth(depthTex, pixCoord + vec2i(-1, 0), 0);
-  let pixRZ = gtaoLoadViewspaceDepth(depthTex, pixCoord + vec2i(1, 0), 0);
-  let pixTZ = gtaoLoadViewspaceDepth(depthTex, pixCoord + vec2i(0, -1), 0);
-  let pixBZ = gtaoLoadViewspaceDepth(depthTex, pixCoord + vec2i(0, 1), 0);
+  var viewspaceZ = depthPyramidLoad(depthTex, pixCoord, 0);
+  let pixLZ = depthPyramidLoad(depthTex, pixCoord + vec2i(-1, 0), 0);
+  let pixRZ = depthPyramidLoad(depthTex, pixCoord + vec2i(1, 0), 0);
+  let pixTZ = depthPyramidLoad(depthTex, pixCoord + vec2i(0, -1), 0);
+  let pixBZ = depthPyramidLoad(depthTex, pixCoord + vec2i(0, 1), 0);
 
   term.edgesLRTB = gtaoCalculateEdges(viewspaceZ, pixLZ, pixRZ, pixTZ, pixBZ);
 
@@ -387,7 +271,7 @@ fn gtaoMainPass(
   let thinScale = 1.0 + params.thinOccluderCompensation;
 
   let sliceCount = f32(GTAO_NUM_SLICES);
-  let stepsPerSlice = f32(GTAO_NUM_SAMPLES);
+  let stepsPerSlice = f32(GTAO_NUM_STEPS_PER_SLICE);
 
   let localNoise = gtaoSpatioTemporalNoise(vec2u(pixCoord), params.noiseIndex);
   let noiseSlice = localNoise.x;
@@ -446,7 +330,7 @@ fn gtaoMainPass(
     var horizonCos0 = lowHorizonCos0;
     var horizonCos1 = lowHorizonCos1;
 
-    for (var step = 0; step < GTAO_NUM_SAMPLES; step++) {
+    for (var step = 0; step < GTAO_NUM_STEPS_PER_SLICE; step++) {
       let stepFloat = f32(step);
       // R1 sequence (http://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences/)
       let stepBaseNoise = (sliceFloat + stepFloat * stepsPerSlice) * 0.6180339887498948;
@@ -474,8 +358,8 @@ fn gtaoMainPass(
 
       let sampleScreenPos0 = normalizedScreenPos + sampleOffset;
       let sampleScreenPos1 = normalizedScreenPos - sampleOffset;
-      let sz0 = gtaoSampleViewspaceDepth(depthTex, sampleScreenPos0, mipLevel);
-      let sz1 = gtaoSampleViewspaceDepth(depthTex, sampleScreenPos1, mipLevel);
+      let sz0 = depthPyramidSample(depthTex, sampleScreenPos0, mipLevel);
+      let sz1 = depthPyramidSample(depthTex, sampleScreenPos1, mipLevel);
       let samplePos0 = gtaoComputeViewspacePosition(sampleScreenPos0, sz0, params);
       let samplePos1 = gtaoComputeViewspacePosition(sampleScreenPos1, sz1, params);
 
@@ -638,4 +522,4 @@ fn gtaoDenoise(
 }
 `;
 
-export { common, prefilter, main, denoise };
+export { common, main, denoise };

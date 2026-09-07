@@ -117,9 +117,6 @@ struct DepthOfFieldParams {
   maxCoCRadius: f32,
   // Per-channel displacement of the bokeh, as a fraction of its radius.
   chromaticAberration: f32,
-  // Applied to luma before the threshold, so it lands in the same
-  // image-referred units bloom's does and neither retargets with exposure.
-  exposure: f32,
   luminanceThreshold: f32,
   luminanceGain: f32,
   luminanceKnee: f32,
@@ -483,7 +480,7 @@ fn dofPrefilter(
   // circle of confusion is never perfectly steady, and a hard cutoff makes a
   // highlight sitting at the threshold blink rather than fade in.
   let excess = thresholdSoft(
-    luma(color) * params.exposure,
+    luma(color),
     params.luminanceThreshold,
     params.luminanceKnee
   );

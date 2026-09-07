@@ -96,7 +96,6 @@ struct LensFlareParams {
 
   haloRadius: f32,
   vignette: f32,
-  exposure: f32,
   threshold: f32,
 
   softKnee: f32,

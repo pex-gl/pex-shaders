@@ -11,16 +11,16 @@ fn getEmissiveColor(data: ptr<function, PBRData>) {
 fn getEmissiveColorFactor(
   data: ptr<function, PBRData>,
   emissiveColor: vec4f,
-  emissiveIntensity: f32,
+  emissiveStrength: f32,
   vColor: vec4f
 ) {
-  data.emissiveColor = emissiveIntensity * decode(emissiveColor, SRGB).xyz * decode(vColor, SRGB).xyz;
+  data.emissiveColor = emissiveStrength * decode(emissiveColor, SRGB).xyz * decode(vColor, SRGB).xyz;
 }
 
 fn getEmissiveColorTextured(
   data: ptr<function, PBRData>,
   emissiveColor: vec4f,
-  emissiveIntensity: f32,
+  emissiveStrength: f32,
   tex: texture_2d<f32>,
   texSampler: sampler,
   texCoordIndex: i32,
@@ -29,6 +29,6 @@ fn getEmissiveColorTextured(
 ) {
   let texCoord = getTextureCoordinatesTransformed(*data, texCoordIndex, texCoordTransform);
   data.emissiveColor = textureSample(tex, texSampler, texCoord).xyz
-    * emissiveIntensity * decode(emissiveColor, SRGB).xyz * decode(vColor, SRGB).xyz;
+    * emissiveStrength * decode(emissiveColor, SRGB).xyz * decode(vColor, SRGB).xyz;
 }
 `;

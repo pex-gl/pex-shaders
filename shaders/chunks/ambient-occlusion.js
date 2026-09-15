@@ -76,13 +76,14 @@ fn multiBounceSpecularAO(visibility: f32, f0: vec3f, color: ptr<function, vec3f>
 const texture = /* wgsl */ `
 fn getAmbientOcclusion(
   data: ptr<function, PBRData>,
+  strength: f32,
   tex: texture_2d<f32>,
   texSampler: sampler,
   texCoordIndex: i32,
   texCoordTransform: mat3x3f
 ) {
   let texCoord = getTextureCoordinatesTransformed(*data, texCoordIndex, texCoordTransform);
-  data.ao *= textureSample(tex, texSampler, texCoord).x;
+  data.ao *= 1.0 + strength * (textureSample(tex, texSampler, texCoord).x - 1.0);
 }
 `;
 

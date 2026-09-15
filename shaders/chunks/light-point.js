@@ -6,7 +6,7 @@ struct PointLight {
   castShadows: u32,
   shadowBucket: u32,
   shadowLayer: u32,
-  bias: f32,
+  depthBiasNormalized: f32,
   radius: f32,
   shadowMapSize: vec2f,
   far: f32,
@@ -22,9 +22,9 @@ fn EvaluatePointLight(
   var illuminated = 1.0;
   if (light.castShadows != 0u) {
     // The cube stores normalized radial distance from the light; compare the
-    // receiver's own normalized distance. bias is a relative epsilon (scales
-    // with far), so it stays scene-adaptive.
-    let compare = length(positionToLightWorld) / light.far - light.bias;
+    // receiver's own normalized distance. The bias is a relative epsilon
+    // (scales with far), so it stays scene-adaptive.
+    let compare = length(positionToLightWorld) / light.far - light.depthBiasNormalized;
 
     illuminated = sampleShadowMapCube(
       light.shadowBucket,

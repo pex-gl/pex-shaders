@@ -9,7 +9,7 @@ fn getIor(data: ptr<function, PBRData>, ior: f32) {
   data.ior = ior;
 }
 
-fn getSpecular(data: ptr<function, PBRData>) {
+fn getSpecularFromIor(data: ptr<function, PBRData>) {
   // Compute F0 for both dielectric and metallic materials
   data.f0 = mix(
     vec3f(pow((data.ior - OUTSIDE_IOR) / (data.ior + OUTSIDE_IOR), 2.0)),
@@ -19,7 +19,7 @@ fn getSpecular(data: ptr<function, PBRData>) {
   data.f90 = vec3f(1.0);
 }
 
-fn applySpecularFactor(data: ptr<function, PBRData>, specularStrength: f32, specularColorTint: vec3f) {
+fn applySpecular(data: ptr<function, PBRData>, specularStrength: f32, specularColorTint: vec3f) {
   data.f0 = mix(
     min(
       vec3f(pow((data.ior - OUTSIDE_IOR) / (data.ior + OUTSIDE_IOR), 2.0)) * specularColorTint,
@@ -33,8 +33,8 @@ fn applySpecularFactor(data: ptr<function, PBRData>, specularStrength: f32, spec
 
 // Pass texCoordTransform as the identity matrix when no texture coordinate
 // transform is in use for a given texture slot.
-fn getSpecularFactor(data: ptr<function, PBRData>, specular: f32, specularColor: vec3f) {
-  applySpecularFactor(data, specular, specularColor);
+fn getSpecular(data: ptr<function, PBRData>, specular: f32, specularColor: vec3f) {
+  applySpecular(data, specular, specularColor);
 }
 
 // specularTexture only (no specularColorTexture): the strength is sampled from
@@ -52,7 +52,7 @@ fn getSpecularStrengthTextured(
   specularTexCoordTransform: mat3x3f
 ) {
   let texCoordSpecular = getTextureCoordinatesTransformed(*data, specularTexCoordIndex, specularTexCoordTransform);
-  applySpecularFactor(data, specular * textureSample(specularTex, specularTexSampler, texCoordSpecular).w, specularColor);
+  applySpecular(data, specular * textureSample(specularTex, specularTexSampler, texCoordSpecular).w, specularColor);
 }
 
 // specularColorTexture only (no specularTexture): the color factor is tinted by
@@ -67,10 +67,10 @@ fn getSpecularColorTextured(
   specularColorTexCoordTransform: mat3x3f
 ) {
   let texCoordSpecularColor = getTextureCoordinatesTransformed(*data, specularColorTexCoordIndex, specularColorTexCoordTransform);
-  applySpecularFactor(data, specular, specularColor * textureSample(specularColorTex, specularColorTexSampler, texCoordSpecularColor).xyz);
+  applySpecular(data, specular, specularColor * textureSample(specularColorTex, specularColorTexSampler, texCoordSpecularColor).xyz);
 }
 
-fn getSpecularFactorTextured(
+fn getSpecularTextured(
   data: ptr<function, PBRData>,
   specular: f32,
   specularColor: vec3f,
@@ -89,6 +89,6 @@ fn getSpecularFactorTextured(
   let texCoordSpecularColor = getTextureCoordinatesTransformed(*data, specularColorTexCoordIndex, specularColorTexCoordTransform);
   let tintedSpecularColor = specularColor * textureSample(specularColorTex, specularColorTexSampler, texCoordSpecularColor).xyz;
 
-  applySpecularFactor(data, specularStrength, tintedSpecularColor);
+  applySpecular(data, specularStrength, tintedSpecularColor);
 }
 `;

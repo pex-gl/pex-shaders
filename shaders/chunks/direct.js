@@ -27,7 +27,7 @@ fn getAngleAttenuation(lightDir: vec3f, l: vec3f, scaleOffset: vec2f) -> f32 {
   return attenuation * attenuation;
 }
 
-// USE_SHEEN, USE_CLEAR_COAT, USE_NORMAL_TEXTURE, USE_CLEAR_COAT_NORMAL_TEXTURE,
+// USE_SHEEN, USE_CLEARCOAT, USE_NORMAL_TEXTURE, USE_CLEARCOAT_NORMAL_TEXTURE,
 // USE_DIFFUSE_TRANSMISSION, USE_VOLUME and USE_TRANSMISSION are expected to be
 // declared as \`override\` bool by the composing pipeline shader.
 
@@ -37,14 +37,14 @@ fn sheenBRDF(data: PBRData, NdotH: f32, NdotV: f32, NdotL: f32) -> vec3f {
   return data.sheenColor * sheenDistribution * sheenVisibility;
 }
 
-fn clearCoatBRDF(data: PBRData, h: vec3f, NoH: f32, LoH: f32, Fcc: ptr<function, f32>) -> f32 {
-  var clearCoatNoH = NoH;
-  if (USE_NORMAL_TEXTURE || USE_CLEAR_COAT_NORMAL_TEXTURE) {
-    clearCoatNoH = saturateF32(dot(data.clearCoatNormal, h));
+fn clearcoatBRDF(data: PBRData, h: vec3f, NoH: f32, LoH: f32, Fcc: ptr<function, f32>) -> f32 {
+  var clearcoatNoH = NoH;
+  if (USE_NORMAL_TEXTURE || USE_CLEARCOAT_NORMAL_TEXTURE) {
+    clearcoatNoH = saturateF32(dot(data.clearcoatNormal, h));
   }
-  let D = D_GGX(data.clearCoatLinearRoughness, clearCoatNoH);
+  let D = D_GGX(data.clearcoatLinearRoughness, clearcoatNoH);
   let V = V_Kelemen(LoH);
-  let F = F_SchlickClearCoat(LoH) * data.clearCoat;
+  let F = F_SchlickClearcoat(LoH) * data.clearcoat;
 
   *Fcc = F;
   return D * V * F;
@@ -102,20 +102,20 @@ fn getSurfaceShading(data: ptr<function, PBRData>, light: Light, illuminated: f3
     color += sheenBRDF(*data, NdotH, NdotV, NdotL);
   }
 
-  if (USE_CLEAR_COAT) {
+  if (USE_CLEARCOAT) {
     var Fcc = 0.0;
-    let clearCoat = clearCoatBRDF(*data, H, NdotH, LdotH, &Fcc);
+    let clearcoat = clearcoatBRDF(*data, H, NdotH, LdotH, &Fcc);
     let attenuation = 1.0 - Fcc;
 
     color *= attenuation * NdotL;
 
     // direct light still uses NdotL but clear coat needs separate dot product when using normal map
     // if only normal map is present not clear coat normal map, we will get smooth coating on top of bumpy surface
-    if (USE_NORMAL_TEXTURE || USE_CLEAR_COAT_NORMAL_TEXTURE) {
-      let clearCoatNoL = saturateF32(dot(data.clearCoatNormal, light.l));
-      color += clearCoat * clearCoatNoL;
+    if (USE_NORMAL_TEXTURE || USE_CLEARCOAT_NORMAL_TEXTURE) {
+      let clearcoatNoL = saturateF32(dot(data.clearcoatNormal, light.l));
+      color += clearcoat * clearcoatNoL;
     } else {
-      color += clearCoat * NdotL;
+      color += clearcoat * NdotL;
     }
   } else {
     color *= NdotL;

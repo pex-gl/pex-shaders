@@ -3,8 +3,8 @@ struct SpotLight {
   position: vec3f,
   direction: vec3f,
   color: vec4f,
-  innerAngle: f32,
-  angle: f32,
+  innerConeAngle: f32,
+  outerConeAngle: f32,
   invSqrFalloff: f32,
   projectionMatrix: mat4x4f,
   viewMatrix: mat4x4f,
@@ -66,8 +66,8 @@ fn EvaluateSpotLight(
 
     var attenuation = getDistanceAttenuation(posToLight, light.invSqrFalloff);
 
-    let cosOuter = cos(light.angle);
-    let cosInner = cos(light.innerAngle);
+    let cosOuter = cos(light.outerConeAngle);
+    let cosInner = cos(light.innerConeAngle);
     let scale = 1.0 / max(1.0 / 1024.0, cosInner - cosOuter);
     let offset = -cosOuter * scale;
 

@@ -9,10 +9,12 @@ export const STUB_PBR_DATA = /* wgsl */ `
 struct PBRData {
   baseColor: vec3f,
   opacity: f32,
-  emissiveColor: vec3f,
+  emissive: vec3f,
   normalView: vec3f,
   normalWorld: vec3f,
+  bentNormalWorld: vec3f,
   eyeDirView: vec3f,
+  eyeDirWorld: vec3f,
   tangentView: vec4f,
   inverseViewMatrix: mat4x4f,
   texCoord0: vec2f,
@@ -27,10 +29,10 @@ struct PBRData {
   sheenRoughness: f32,
   sheenLinearRoughness: f32,
   sheenAlbedoScaling: f32,
-  clearCoat: f32,
-  clearCoatRoughness: f32,
-  clearCoatLinearRoughness: f32,
-  clearCoatNormal: vec3f,
+  clearcoat: f32,
+  clearcoatRoughness: f32,
+  clearcoatLinearRoughness: f32,
+  clearcoatNormal: vec3f,
   transmission: f32,
   dispersion: f32,
   thickness: f32,
@@ -41,6 +43,7 @@ struct PBRData {
   diffuseTransmissionThickness: f32,
   ao: f32,
   positionWorld: vec3f,
+  positionView: vec3f,
   viewWorld: vec3f,
   reflectionWorld: vec3f,
   NdotV: f32,
@@ -61,14 +64,14 @@ override DEPTH_PASS_ONLY: bool = false;
 override DEPTH_PRE_PASS_ONLY: bool = false;
 override USE_TANGENTS: bool = false;
 override USE_NORMAL_TEXTURE: bool = false;
-override USE_CLEAR_COAT_NORMAL_TEXTURE: bool = false;
+override USE_CLEARCOAT_NORMAL_TEXTURE: bool = false;
 override USE_DIFFUSE_TRANSMISSION: bool = false;
 override USE_VOLUME: bool = false;
 override USE_TRANSMISSION: bool = false;
 override USE_SHEEN: bool = false;
-override USE_CLEAR_COAT: bool = false;
+override USE_CLEARCOAT: bool = false;
 override USE_DISPERSION: bool = false;
-override USE_CLEAR_COAT_ROUGHNESS_FROM_MAIN_TEXTURE: bool = false;
+override USE_CLEARCOAT_ROUGHNESS_FROM_MAIN_TEXTURE: bool = false;
 override USE_SHEEN_ROUGHNESS_FROM_MAIN_TEXTURE: bool = false;
 override USE_SSAO_COLORS: bool = false;
 override FILM_GRAIN_QUALITY: i32 = 0;
@@ -76,6 +79,38 @@ override DEPTH_PACK_FAR: f32 = 10.0;
 
 fn readLumaTexture(tex: texture_2d<f32>, samp: sampler, uv: vec2f) -> f32 {
   return textureSampleLevel(tex, samp, uv, 0.0).x;
+}
+
+// The light chunks sample shadows through a dispatch the pipeline shader
+// generates around its size-bucketed map arrays; unlit — and a scene with no
+// caster — emits exactly this "always illuminated" form.
+fn sampleShadowMap2D(
+  bucket: u32,
+  layer: u32,
+  size: vec2f,
+  uv: vec2f,
+  compare: f32,
+  near: f32,
+  far: f32,
+  radiusUV: vec2f,
+  dzDuv: vec2f,
+  ortho: bool,
+  fragCoord: vec2f
+) -> f32 {
+  return 1.0;
+}
+
+fn sampleShadowMapCube(
+  bucket: u32,
+  layer: u32,
+  size: vec2f,
+  direction: vec3f,
+  compare: f32,
+  radius: f32,
+  far: f32,
+  fragCoord: vec2f
+) -> f32 {
+  return 1.0;
 }
 `;
 

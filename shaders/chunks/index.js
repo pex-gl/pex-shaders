@@ -83,8 +83,8 @@ export {
 } from "./base-color.js";
 export {
   /** @member {string} */
-  default as emissiveColor,
-} from "./emissive-color.js";
+  default as emissive,
+} from "./emissive.js";
 export {
   /** @member {string} */
   default as normal,
@@ -107,8 +107,8 @@ export {
 } from "./specular-glossiness.js";
 export {
   /** @member {string} */
-  default as clearCoat,
-} from "./clear-coat.js";
+  default as clearcoat,
+} from "./clearcoat.js";
 export {
   /** @member {string} */
   default as sheenColor,

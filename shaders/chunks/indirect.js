@@ -1,5 +1,5 @@
 export default /* wgsl */ `
-// USE_REFLECTION_PROBES, USE_CLEAR_COAT, USE_NORMAL_TEXTURE, USE_CLEAR_COAT_NORMAL_TEXTURE,
+// USE_REFLECTION_PROBES, USE_CLEARCOAT, USE_NORMAL_TEXTURE, USE_CLEARCOAT_NORMAL_TEXTURE,
 // USE_SHEEN, USE_TRANSMISSION, USE_DISPERSION, USE_DIFFUSE_TRANSMISSION and USE_VOLUME
 // are expected to be declared as \`override\` bool by the composing pipeline shader.
 
@@ -38,7 +38,7 @@ fn shIrradiance(sh: array<vec4f, 9>, n: vec3f) -> vec3f {
 }
 
 // https://google.github.io/filament/Filament.md.html#lighting/imagebasedlights/clearcoat
-fn evaluateClearCoatIBL(
+fn evaluateClearcoatIBL(
   data: PBRData,
   ao: f32,
   rotation: mat3x3f,
@@ -48,21 +48,21 @@ fn evaluateClearCoatIBL(
   prefilteredMapSampler: sampler,
   numMipLevels: f32
 ) {
-  var clearCoatNoV = data.NdotV;
-  // clearCoatNoV is a Fresnel term between two true-world-space vectors, so
+  var clearcoatNoV = data.NdotV;
+  // clearcoatNoV is a Fresnel term between two true-world-space vectors, so
   // it stays unrotated; only the environment sample direction is rotated.
-  var clearCoatR = rotation * data.reflectionWorld;
-  if (USE_NORMAL_TEXTURE || USE_CLEAR_COAT_NORMAL_TEXTURE) {
-    clearCoatNoV = abs(dot(data.clearCoatNormal, data.viewWorld)) + FLT_EPS;
-    clearCoatR = rotation * reflect(-data.viewWorld, data.clearCoatNormal);
+  var clearcoatR = rotation * data.reflectionWorld;
+  if (USE_NORMAL_TEXTURE || USE_CLEARCOAT_NORMAL_TEXTURE) {
+    clearcoatNoV = abs(dot(data.clearcoatNormal, data.viewWorld)) + FLT_EPS;
+    clearcoatR = rotation * reflect(-data.viewWorld, data.clearcoatNormal);
   }
   // The clear coat layer assumes an IOR of 1.5 (4% reflectance)
-  let Fc = F_SchlickClearCoat(clearCoatNoV) * data.clearCoat;
+  let Fc = F_SchlickClearcoat(clearcoatNoV) * data.clearcoat;
   let attenuation = 1.0 - Fc;
   // https://github.com/google/filament/commit/6a8e6d45b5c57280898ad064426bc197978e71c5
   // *Fr *= (attenuation * attenuation);
   *Fr *= attenuation;
-  *Fr += getPrefilteredReflection(clearCoatR, data.clearCoatRoughness, prefilteredMap, prefilteredMapSampler, numMipLevels) * (ao * Fc);
+  *Fr += getPrefilteredReflection(clearcoatR, data.clearcoatRoughness, prefilteredMap, prefilteredMapSampler, numMipLevels) * (ao * Fc);
   *Fd *= attenuation;
 }
 
@@ -260,8 +260,8 @@ fn EvaluateLightProbe(
     evaluateSheenIBL(data, ao, rotation, &Fd, &Fr, prefilteredMap, prefilteredMapSampler, numMipLevels);
   }
 
-  if (USE_CLEAR_COAT) {
-    evaluateClearCoatIBL(*data, ao, rotation, &Fd, &Fr, prefilteredMap, prefilteredMapSampler, numMipLevels);
+  if (USE_CLEARCOAT) {
+    evaluateClearcoatIBL(*data, ao, rotation, &Fd, &Fr, prefilteredMap, prefilteredMapSampler, numMipLevels);
   }
 
   data.indirectDiffuse += Fd * intensity;

@@ -1,7 +1,7 @@
 // Distribution:
 // https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf
 // Walter et al. 2007, "Microfacet Models for Refraction through Rough Surfaces"
-// Used by: clearCoat
+// Used by: clearcoat
 const D_GGX = /* wgsl */ `
 fn D_GGX(linearRoughness: f32, NoH: f32) -> f32 {
   let oneMinusNoHSquared = 1.0 - NoH * NoH;
@@ -28,7 +28,7 @@ fn D_Charlie(linearRoughness: f32, NoH: f32) -> f32 {
 
 // Visibility:
 // Kelemen 2001, "A Microfacet Based Coupled Specular-Matte BRDF Model with Importance Sampling"
-// Used by: clearCoat
+// Used by: clearcoat
 const V_Kelemen = /* wgsl */ `
 fn V_Kelemen(LoH: f32) -> f32 {
   return saturateMediump(0.25 / (LoH * LoH));
@@ -63,9 +63,9 @@ fn V_Charlie(linearRoughness: f32, NdotV: f32, NdotL: f32, NdotH: f32) -> f32 {
 
 // Fresnel:
 // Assumes an air-polyurethane interface with a fixed IOR of 1.5 (4% reflectance, IOR = 1.5 -> F0 = 0.04).
-// Used by: clearCoat
-const F_SchlickClearCoat = /* wgsl */ `
-fn F_SchlickClearCoat(VoH: f32) -> f32 {
+// Used by: clearcoat
+const F_SchlickClearcoat = /* wgsl */ `
+fn F_SchlickClearcoat(VoH: f32) -> f32 {
   return 0.04 + 0.96 * pow(1.0 - VoH, 5.0);
 }
 `;
@@ -160,7 +160,7 @@ ${D_GGX}
 ${D_Charlie}
 ${V_Kelemen}
 ${V_Charlie}
-${F_SchlickClearCoat}
+${F_SchlickClearcoat}
 
 ${DiffuseLambert}
 ${MicrofacetDistribution}

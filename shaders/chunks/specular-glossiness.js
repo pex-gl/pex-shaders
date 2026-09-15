@@ -18,7 +18,7 @@ fn getDiffuseTextured(
 }
 
 fn getSpecularGlossiness(specular: vec3f, glossiness: f32) -> vec4f {
-  return vec4f(specular, glossiness);
+  return vec4f(toLinearVec3(specular), glossiness);
 }
 
 fn getSpecularGlossinessTextured(
@@ -30,11 +30,11 @@ fn getSpecularGlossinessTextured(
   texCoordIndex: i32,
   texCoordTransform: mat3x3f
 ) -> vec4f {
-  // assumes specular is sRGB and glossiness is linear
+  // The texture's RGB is sRGB-encoded and decoded by its format on sample,
+  // its alpha (glossiness) linear.
   let texCoord = getTextureCoordinatesTransformed(data, texCoordIndex, texCoordTransform);
   let specGloss = textureSample(tex, texSampler, texCoord);
-  // TODO: should i move specular to linear?
-  return vec4f(specular, glossiness) * specGloss;
+  return vec4f(toLinearVec3(specular), glossiness) * specGloss;
 }
 
 // assumes linear color

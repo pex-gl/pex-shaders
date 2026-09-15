@@ -1,15 +1,15 @@
 export default /* wgsl */ `
-// USE_CLEAR_COAT_ROUGHNESS_FROM_MAIN_TEXTURE and USE_TANGENTS are expected
+// USE_CLEARCOAT_ROUGHNESS_FROM_MAIN_TEXTURE and USE_TANGENTS are expected
 // to be declared as \`override\` bool by the composing pipeline shader.
 
-fn getClearCoat(data: ptr<function, PBRData>, clearCoat: f32) {
-  data.clearCoat = clearCoat;
+fn getClearcoat(data: ptr<function, PBRData>, clearcoat: f32) {
+  data.clearcoat = clearcoat;
 }
 
-fn getClearCoatTextured(
+fn getClearcoatTextured(
   data: ptr<function, PBRData>,
-  clearCoat: f32,
-  clearCoatRoughness: f32,
+  clearcoat: f32,
+  clearcoatRoughness: f32,
   tex: texture_2d<f32>,
   texSampler: sampler,
   texCoordIndex: i32,
@@ -18,32 +18,32 @@ fn getClearCoatTextured(
   let texCoord = getTextureCoordinatesTransformed(*data, texCoordIndex, texCoordTransform);
   let texelColor = textureSample(tex, texSampler, texCoord);
 
-  data.clearCoat = clearCoat * texelColor.x;
+  data.clearcoat = clearcoat * texelColor.x;
 
-  if (USE_CLEAR_COAT_ROUGHNESS_FROM_MAIN_TEXTURE) {
-    data.clearCoatRoughness = clearCoatRoughness * texelColor.y;
+  if (USE_CLEARCOAT_ROUGHNESS_FROM_MAIN_TEXTURE) {
+    data.clearcoatRoughness = clearcoatRoughness * texelColor.y;
   }
 }
 
-fn getClearCoatRoughness(data: ptr<function, PBRData>, clearCoatRoughness: f32) {
-  if (!USE_CLEAR_COAT_ROUGHNESS_FROM_MAIN_TEXTURE) {
-    data.clearCoatRoughness = clearCoatRoughness;
+fn getClearcoatRoughness(data: ptr<function, PBRData>, clearcoatRoughness: f32) {
+  if (!USE_CLEARCOAT_ROUGHNESS_FROM_MAIN_TEXTURE) {
+    data.clearcoatRoughness = clearcoatRoughness;
   }
 }
 
-fn getClearCoatRoughnessTextured(
+fn getClearcoatRoughnessTextured(
   data: ptr<function, PBRData>,
-  clearCoatRoughness: f32,
+  clearcoatRoughness: f32,
   tex: texture_2d<f32>,
   texSampler: sampler,
   texCoordIndex: i32,
   texCoordTransform: mat3x3f
 ) {
   let texCoord = getTextureCoordinatesTransformed(*data, texCoordIndex, texCoordTransform);
-  data.clearCoatRoughness = clearCoatRoughness * textureSample(tex, texSampler, texCoord).y;
+  data.clearcoatRoughness = clearcoatRoughness * textureSample(tex, texSampler, texCoord).y;
 }
 
-fn getClearCoatNormalTextured(
+fn getClearcoatNormalTextured(
   data: ptr<function, PBRData>,
   tex: texture_2d<f32>,
   texSampler: sampler,
@@ -74,19 +74,19 @@ fn getClearCoatNormalTextured(
     normalView = perturb(normalMap, N, V, texCoord);
   }
 
-  data.clearCoatNormal = normalize((data.inverseViewMatrix * vec4f(normalView, 0.0)).xyz);
+  data.clearcoatNormal = normalize((data.inverseViewMatrix * vec4f(normalView, 0.0)).xyz);
 }
 
 // geometricNormalView: the un-perturbed geometric normal (world/view varying),
 // distinct from data.normalView which may already carry base normal-map perturbation.
-fn getClearCoatNormal(data: ptr<function, PBRData>, geometricNormalView: vec3f) {
-  data.clearCoatNormal = normalize((data.inverseViewMatrix * vec4f(normalize(geometricNormalView), 0.0)).xyz);
+fn getClearcoatNormal(data: ptr<function, PBRData>, geometricNormalView: vec3f) {
+  data.clearcoatNormal = normalize((data.inverseViewMatrix * vec4f(normalize(geometricNormalView), 0.0)).xyz);
 }
 
 // IOR = 1.5, F0 = 0.04
 // as material is no longer in contact with air we calculate new IOR on the
 // clear coat and material interface
-fn f0ClearCoatToSurface(f0: vec3f) -> vec3f {
+fn f0ClearcoatToSurface(f0: vec3f) -> vec3f {
   return saturateVec3(f0 * (f0 * (0.941892 - 0.263008 * f0) + 0.346479) - 0.0285998);
 }
 `;

@@ -98,7 +98,7 @@ fn getDiffuseTransmission(
 // diffuseTransmissionTexture only (no diffuseTransmissionColorTexture): the
 // transmission factor is sampled from its alpha channel, the color stays the
 // raw factor untinted by any texture.
-fn getDiffuseTransmissionFactorTextured(
+fn getDiffuseTransmissionStrengthTextured(
   data: ptr<function, PBRData>,
   diffuseTransmission: f32,
   diffuseTransmissionColor: vec3f,

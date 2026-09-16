@@ -25,8 +25,8 @@
 /**
  * Quality preset and shared helpers. Required by all three passes.
  *
- * The preset overrides map to the reference's SMAA_PRESET_* blocks:
- * low/medium disable diagonal and corner detection outright.
+ * The preset overrides map to the reference's SMAA_PRESET_* blocks: low/medium
+ * disable diagonal and corner detection outright.
  *
  * @member {string}
  */
@@ -72,8 +72,8 @@ fn smaaSampleOffset(tex: texture_2d<f32>, texSampler: sampler, texelSize: vec2f,
  * Pass 1: edge detection. Writes the left/top edge pair, and discards where
  * there is none — the stencil-like early out the reference relies on.
  *
- * Requires {@link common} and, for the color and luma variants, the
- * encodeDecode chunk.
+ * Requires {@link common} and, for the color and luma variants, the encodeDecode
+ * chunk.
  *
  * @member {string}
  */
@@ -613,9 +613,9 @@ fn smaaBlendingWeightCalculation(
 `;
 
 /**
- * Pass 3: neighborhood blending. Mixes the pixel with the neighbor its
- * blending weight points at, exploiting bilinear filtering to do it in one tap
- * per direction.
+ * Pass 3: neighborhood blending. Mixes the pixel with the neighbor its blending
+ * weight points at, exploiting bilinear filtering to do it in one tap per
+ * direction.
  *
  * Requires {@link common}.
  *

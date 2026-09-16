@@ -8,7 +8,7 @@
  * Reference Implementation: G3D's AmbientOcclusion_AO.pix / _minify.pix.
  *
  * Requires a depth pyramid built with rotated grid subsampling
- * (\`DEPTH_PYRAMID_ROTATED_GRID\`): the taps reconstruct through its inverse.
+ * (`DEPTH_PYRAMID_ROTATED_GRID`): the taps reconstruct through its inverse.
  *
  * Updates: Marcin Ignac (2017-05-08) and Damien Seguin (2023-10, 2026-09)
  *

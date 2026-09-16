@@ -2,8 +2,8 @@
  * Depth pyramid
  *
  * The linear view-space depth pyramid both screen-space AO estimators sample:
- * one compute dispatch turning the hardware depth buffer into a mip chain,
- * so a tap far from its pixel reads a coarse level that is still in cache.
+ * one compute dispatch turning the hardware depth buffer into a mip chain, so a
+ * tap far from its pixel reads a coarse level that is still in cache.
  *
  * Levels 1..3 reduce through workgroup memory, which is why this is a compute
  * pass rather than one fullscreen pass per level: the whole chain costs a
@@ -19,7 +19,8 @@
  *   thin occluder rather than averaging it into the surface behind it. XeGTAO's
  *   own choice, and GTAO's falloff parameters are tuned against it.
  *
- * Paper: https://research.nvidia.com/sites/default/files/pubs/2012-06_Scalable-Ambient-Obscurance/McGuire12SAO.pdf
+ * Paper:
+ * https://research.nvidia.com/sites/default/files/pubs/2012-06_Scalable-Ambient-Obscurance/McGuire12SAO.pdf
  *
  * Requires `depthRead` and `math.saturate`.
  *

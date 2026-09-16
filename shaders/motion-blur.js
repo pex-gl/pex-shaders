@@ -6,9 +6,8 @@
  * from its neighbours, and every pixel then gathers colour along that motion
  * weighting each sample by whether it plausibly smeared over the pixel.
  *
- * Paper:
- * Guertin, McGuire & Nowrouzezahrai, "A Fast and Stable Feature-Aware Motion
- * Blur Filter", High Performance Graphics 2014 — Appendix A.
+ * Paper: Guertin, McGuire & Nowrouzezahrai, "A Fast and Stable Feature-Aware
+ * Motion Blur Filter", High Performance Graphics 2014 — Appendix A.
  * https://casual-effects.com/research/Guertin2014MotionBlur/
  *
  * It builds on the tile framework of McGuire, Hennessy, Bukowski & Osman, "A

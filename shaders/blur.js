@@ -2,8 +2,8 @@
  * Bilateral blur
  *
  * Depth-aware blur: samples are weighted down as their linear depth diverges
- * from the center depth, so the blur doesn't bleed across depth
- * discontinuities (e.g. SSAO around silhouette edges).
+ * from the center depth, so the blur doesn't bleed across depth discontinuities
+ * (e.g. SSAO around silhouette edges).
  *
  * One separable pass along `axis`, reaching `radius` pixels either side over
  * nine taps, as McGuire12 2.4 has it.

@@ -2,10 +2,10 @@
  * Lens Flare
  *
  * Image-based flare: a bright pass resampled through the optical centre. Three
- * families, all of them the same image read at a different coordinate —
- * ghosts (the aperture imaged by a pair of internal reflections), a halo (the
- * ring a source at a fixed distance from the axis draws), and streaks (the
- * diaphragm's diffraction spikes).
+ * families, all of them the same image read at a different coordinate — ghosts
+ * (the aperture imaged by a pair of internal reflections), a halo (the ring a
+ * source at a fixed distance from the axis draws), and streaks (the diaphragm's
+ * diffraction spikes).
  *
  * The arrangement Unity's HDRP screen space lens flare uses, which is Chapman's
  * "Pseudo Lens Flare" (2013) with the ring family added. The physically-based
@@ -28,29 +28,28 @@
  * Sources
  *
  * - John Chapman, "Pseudo Lens Flare" (2013).
- *   https://john-chapman.github.io/2017/11/05/pseudo-lens-flare.html
- *   The ghost and halo formulation below: resample one bright pass through the
- *   optical centre instead of drawing sprites at a projected light position.
+ *   https://john-chapman.github.io/2017/11/05/pseudo-lens-flare.html The ghost
+ *   and halo formulation below: resample one bright pass through the optical
+ *   centre instead of drawing sprites at a projected light position.
  * - Unity, "Screen Space Lens Flare" (HDRP/URP 14+).
  *   https://github.com/Unity-Technologies/Graphics/blob/master/Packages/com.unity.render-pipelines.core/Runtime/PostProcessing/Shaders/LensFlareScreenSpaceCommon.hlsl
  *   Chapman plus the polar family, the spectral sweep and the streak chain.
  *   `scaleUV`, `GetFlareTexture` and `FragmentComposition` are the functions
  *   these correspond to.
  * - Froyok (Lena Piquet), "Custom Lens-Flare in UE4" (2021).
- *   https://www.froyok.fr/blog/2021-09-ue4-custom-lens-flare/
- *   Why the ghosts read a blurred bright pass rather than a raw one.
- * - Masaki Kawase, "Frame Buffer Postprocessing Effects in DOUBLE-S.T.E.A.L",
- *   GDC 2003. http://www.daionet.gr.jp/~masa/archives/GDC2003_DSTEAL.ppt
- *   The streak filter: a few taps per pass, stride growing geometrically.
- * - Hullin et al., "Physically-Based Real-Time Lens Flare Rendering",
- *   SIGGRAPH 2011. doi:10.1145/2010324.1964936
+ *   https://www.froyok.fr/blog/2021-09-ue4-custom-lens-flare/ Why the ghosts
+ *   read a blurred bright pass rather than a raw one.
+ * - Masaki Kawase, "Frame Buffer Postprocessing Effects in DOUBLE-S.T.E.A.L", GDC
+ *   2003. http://www.daionet.gr.jp/~masa/archives/GDC2003_DSTEAL.ppt The streak
+ *   filter: a few taps per pass, stride growing geometrically.
+ * - Hullin et al., "Physically-Based Real-Time Lens Flare Rendering", SIGGRAPH
+ *   2011. doi:10.1145/2010324.1964936
  * - Lee and Eisemann, "Practical Real-Time Lens-Flare Rendering", EGSR 2013.
- *   doi:10.1111/cgf.12145
- *   The two above trace rays through a lens prescription and need a light list
- *   as well as the optics, so neither is a post-process. What this borrows from
- *   them is where the numbers come from: the optical centre is the projection's
- *   principal point, dispersion is lateral, and the streak axes are the
- *   diaphragm's.
+ *   doi:10.1111/cgf.12145 The two above trace rays through a lens prescription
+ *   and need a light list as well as the optics, so neither is a post-process.
+ *   What this borrows from them is where the numbers come from: the optical
+ *   centre is the projection's principal point, dispersion is lateral, and the
+ *   streak axes are the diaphragm's.
  *
  * @type {object}
  * @name lensFlare

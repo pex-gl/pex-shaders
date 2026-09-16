@@ -2,6 +2,54 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [3.0.0-alpha.0](https://github.com/pex-gl/pex-shaders/compare/v2.0.0...v3.0.0-alpha.0) (2026-09-16)
+
+
+### Bug Fixes
+
+* adjust near dof + get closer to FFX/Unity implementation ([b8b940e](https://github.com/pex-gl/pex-shaders/commit/b8b940eef10c7e79e10b73449d19cdd6e3cdc5a1))
+* correct specular textures handling ([faf52b6](https://github.com/pex-gl/pex-shaders/commit/faf52b69f863d5f9079fffb5b4b355cb6a353b64))
+* correct y value for getTransmissionSample ([9b65a03](https://github.com/pex-gl/pex-shaders/commit/9b65a03d442887719549787fe08a9e5094204ffa))
+* dof near blockiness and halo ([0a849c7](https://github.com/pex-gl/pex-shaders/commit/0a849c76223642b9ddda198a5a8f0c992a46c22d))
+* handle permutations of diffuseTransmissionTexture and diffuseTransmissionColorTexture ([555a68e](https://github.com/pex-gl/pex-shaders/commit/555a68ea4582799faacad9ec5a139e5ee67580e1))
+* prevent double-counting the multiple-scattering term ([d0b55dd](https://github.com/pex-gl/pex-shaders/commit/d0b55dda7e610482d88c97e9cd3944136258a03e))
+* solve TBN against geometric normal, not shading normal ([e679b86](https://github.com/pex-gl/pex-shaders/commit/e679b861cd3658b41ffbc16d4a489729ea95abba))
+* split ssao multiBounce "analytic" vs. "screen-space" ([1be9a4c](https://github.com/pex-gl/pex-shaders/commit/1be9a4ca14df5f19197b05512faed79878fc9287))
+* use f90 (specularFactor) for direct light ([c2c6343](https://github.com/pex-gl/pex-shaders/commit/c2c63435609e156cc14703c5a87b9866328ebfff))
+
+
+### Features
+
+* add diffuse irradiance via L2 spherical harmonics + specular via native prefiltered cubemap ([f721325](https://github.com/pex-gl/pex-shaders/commit/f7213255837588a21ff48d6306ef0ae7c352b27d))
+* add direct lighting energy compensation ([2e89b82](https://github.com/pex-gl/pex-shaders/commit/2e89b82aadcf80837ba6f2902d4572c48655f172))
+* add disocclusion rejection to TAA ([1bb2a8c](https://github.com/pex-gl/pex-shaders/commit/1bb2a8c8a5cb0e2cf0e549d98a8b0d01139fb44a))
+* add Fdez-Agüera multiple-scattering energy compensation ([9a54128](https://github.com/pex-gl/pex-shaders/commit/9a541280f22b3b7626c90ed9fdc6404e8a165a07))
+* add Karis reconstruction filtering of the current sample in the TAA resolve + add taa debug ([3fdcc3e](https://github.com/pex-gl/pex-shaders/commit/3fdcc3e6fb89d2e5f8c606e1f606e792924f4a1f))
+* add lens flare ([5e5fae4](https://github.com/pex-gl/pex-shaders/commit/5e5fae4ff051f14fe334bc86fd0d691c6de0b4a0))
+* add luminanceKnee and depthOffset to DoF + fix sampling CoC ([cbea211](https://github.com/pex-gl/pex-shaders/commit/cbea21177ca202501b50847f0f54a4c5d819305d))
+* add motion blur ([9284550](https://github.com/pex-gl/pex-shaders/commit/92845504c92f9d7ddbf9ab8ef5578f5de54c4214))
+* add sharpen ([99a4b1e](https://github.com/pex-gl/pex-shaders/commit/99a4b1e042820aa1f3b193eb8c6ebece82d8d472))
+* add softKnee to threshold ([d544785](https://github.com/pex-gl/pex-shaders/commit/d5447850ccdd5157160a74ed81774d5381071c69))
+* add TAA ([dbbbf1a](https://github.com/pex-gl/pex-shaders/commit/dbbbf1aec67cd2be0a52dcc944895233f1b28252))
+* chunkify remaining post-pro ([bacb78e](https://github.com/pex-gl/pex-shaders/commit/bacb78e353abe12f6359e90bec69d4d3f41e063d))
+* decouple transmission from light probe ([81a6508](https://github.com/pex-gl/pex-shaders/commit/81a6508c570c378a8008f58b2ae3def5424cbb20))
+* make sky return linear HDR radiance ([6c69560](https://github.com/pex-gl/pex-shaders/commit/6c69560e91c7466096149c2db0cae5c7f2aa2acf))
+* move point/directional/spot to hardware pcf + correct PCSS implementation + remove pipeline shaders ([ed339db](https://github.com/pex-gl/pex-shaders/commit/ed339dbf1744dd0894b002ab7170dbfb31b57e28))
+* move to shadowBucket + shadowLayer ([03bef2e](https://github.com/pex-gl/pex-shaders/commit/03bef2e082063b6611046c68e26dfda945f8c649))
+* port and move analytic sky to chunk ([e137df0](https://github.com/pex-gl/pex-shaders/commit/e137df068fb050d05a3f4854e2280e31d7c094f8))
+* port pipeline and chunks to WGSL ([79d9494](https://github.com/pex-gl/pex-shaders/commit/79d949475fe71617badb2c5855154fb9f72ba43d))
+* remove custom exposure from dof and lens-flare ([d08bb19](https://github.com/pex-gl/pex-shaders/commit/d08bb199e4d9202a8d45941880ffb1a86cc289e8))
+* rename emissiveIntensity to emissiveStrength ([eb5e01a](https://github.com/pex-gl/pex-shaders/commit/eb5e01a9fbc0a2c80a8d3f5bf212297abacb7924))
+* upgrade depth of field ([97ffa40](https://github.com/pex-gl/pex-shaders/commit/97ffa402acb8db67ccca75898372270667a41484))
+* upgrade gtao ([8d10f51](https://github.com/pex-gl/pex-shaders/commit/8d10f51df1b9319060dd7ae6bb1fe78079e9a070))
+* upgrade SAO ([f3712f7](https://github.com/pex-gl/pex-shaders/commit/f3712f7a0693bed49ce3282b4a510e9c7093e6d8))
+* use physical light units ([a329147](https://github.com/pex-gl/pex-shaders/commit/a329147d7544640005bfd1fa7ca17fbebb1c1dc0))
+* use reflection probe rotation and intensity in chunk ([51aac0d](https://github.com/pex-gl/pex-shaders/commit/51aac0d270a18489db23a4b8de97a2623c140495))
+* use velocity for TAA ([54e285e](https://github.com/pex-gl/pex-shaders/commit/54e285ede4e1a3945e5ee2c62afbb3e6d6201811))
+* use WebGPU +Y convention in envMapEquirect ([8736c85](https://github.com/pex-gl/pex-shaders/commit/8736c85de29f4af85763ea3c03604c6b589ecb64))
+
+
+
 # [2.0.0](https://github.com/pex-gl/pex-shaders/compare/v2.0.0-alpha.6...v2.0.0) (2026-07-31)
 
 

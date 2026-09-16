@@ -11,8 +11,8 @@
  * 2014), Unity's HDRP, AMD's FidelityFX Depth of Field. The reasons are
  * structural rather than about cost:
  *
- * - **Scatter as gather.** Testing per tap whether *that tap's* disc reaches
- *   here means an in-focus pixel has no disc and cannot leak onto a defocused
+ * - **Scatter as gather.** Testing per tap whether _that tap's_ disc reaches here
+ *   means an in-focus pixel has no disc and cannot leak onto a defocused
  *   neighbour, and normalising by the weights that did reach reconstructs the
  *   background behind a foreground object. A tap's weight is the inverse of its
  *   own disc area, which is the half of scattering a gather otherwise loses:
@@ -24,8 +24,8 @@
  * - **Tiles bound the near search.** A foreground scatters in from wherever it
  *   is, so only the neighbourhood knows how far to look. The far field's limit
  *   is the destination's own defocus instead.
- * - **The highlight boost belongs in the prefilter.** Per tap it is computed
- *   per destination, so one bright source is boosted differently by every pixel
+ * - **The highlight boost belongs in the prefilter.** Per tap it is computed per
+ *   destination, so one bright source is boosted differently by every pixel
  *   gathering it and the disc redraws itself as the image moves.
  *
  * Circles of confusion are signed and in half-resolution pixels of radius
@@ -43,10 +43,9 @@
  *
  * - Jorge Jimenez, "Next Generation Post Processing in Call of Duty: Advanced
  *   Warfare", SIGGRAPH 2014.
- *   https://advances.realtimerendering.com/s2014/index.html
- *   Scatter as gather at half resolution, the near and far fields as separate
- *   images, and the coarse grid that bounds the near search.
- *
+ *   https://advances.realtimerendering.com/s2014/index.html Scatter as gather
+ *   at half resolution, the near and far fields as separate images, and the
+ *   coarse grid that bounds the near search.
  * - AMD FidelityFX Depth of Field v1.1.2, `ffx_dof_blur.h`,
  *   `ffx_dof_downsample_color.h`, `ffx_dof_composite.h`.
  *   https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/tree/v1.1.2/sdk/include/FidelityFX/gpu/dof
@@ -62,30 +61,27 @@
  *   per-tile radii, one integer mip level for the whole kernel
  *   (`FfxDofSampleInput`), and the cubic the near field is composited through
  *   (`FfxCubicSpline`).
- *
  * - Unity HDRP. Two depth of field implementations live in that one folder and
  *   this borrows from both; they are not one algorithm, and a symbol from one
  *   will not be found in the other.
  *   https://github.com/Unity-Technologies/Graphics/tree/a7e4c051d256a781ab362c64316b125a1e104694/Packages/com.unity.render-pipelines.high-definition/Runtime/PostProcessing/Shaders
  *   Physically based path, the `DoF*` files — `DoFGatherUtils.hlsl`,
  *   `DoFCoCMinMax.compute`, `DoFGather.compute`: the far field's search bounded
- *   by the destination's own defocus (`LoadTileData`, `limit =
- *   min(maxFarCoC, 2 * abs(centerSample.CoC))` — the factor of two deliberately
- *   not carried over, see below), the ring occlusion measured by weight rather
- *   than by sample count (`ringOpacity`, and the early return on a ring that
- *   carries none — see `occluding` in {@link gather} for why the count is the
- *   wrong measure), a tile carrying each field's smallest
- *   radius alongside its largest with a sentinel for a field it does not hold
- *   (`InitMinMaxTile`, `BIG_NUMBER` 1200), and the ring count scaled by how
- *   uniform the tile is (`ADAPTIVE_SAMPLING`, direction inverted here — see
- *   below).
- *   Classic path, the `DepthOfField*` files — `DepthOfFieldGather.compute`:
- *   near and far as separate kernels over separate spans (`KMainNear`,
- *   `KMainFar`), and a near coverage ramped by `smoothstep` before use.
- *   Common to both: a radius loaded unfiltered while colour is sampled
- *   filtered, and a near gather that reads the chain at `mip = 0.0` because a
- *   coarse level cannot describe a silhouette.
- *
+ *   by the destination's own defocus (`LoadTileData`, `limit = min(maxFarCoC, 2
+ *   * abs(centerSample.CoC))` — the factor of two deliberately not carried
+ *   over, see below), the ring occlusion measured by weight rather than by
+ *   sample count (`ringOpacity`, and the early return on a ring that carries
+ *   none — see `occluding` in {@link gather} for why the count is the wrong
+ *   measure), a tile carrying each field's smallest radius alongside its
+ *   largest with a sentinel for a field it does not hold (`InitMinMaxTile`,
+ *   `BIG_NUMBER` 1200), and the ring count scaled by how uniform the tile is
+ *   (`ADAPTIVE_SAMPLING`, direction inverted here — see below). Classic path,
+ *   the `DepthOfField*` files — `DepthOfFieldGather.compute`: near and far as
+ *   separate kernels over separate spans (`KMainNear`, `KMainFar`), and a near
+ *   coverage ramped by `smoothstep` before use. Common to both: a radius loaded
+ *   unfiltered while colour is sampled filtered, and a near gather that reads
+ *   the chain at `mip = 0.0` because a coarse level cannot describe a
+ *   silhouette.
  * - Unity post-processing stack v2,
  *   `PostProcessing/Shaders/Builtins/DepthOfField.hlsl`.
  *   https://github.com/Unity-Technologies/PostProcessing/blob/v2/PostProcessing/Shaders/Builtins/DepthOfField.hlsl
@@ -112,40 +108,40 @@
  *   form measures zero. Where occlusion belongs — two backgrounds at different
  *   depths — the weighted form still acts, and its reach follows the front
  *   layer's own radius instead of ignoring it.
- * - **A kernel per field, inside one pass.** FidelityFX runs one kernel sized
- *   to `max(nearTile, farTile)` and uses it for both loops
- *   (`ffx_dof_blur.h`, `tileRad`, `ins.tileCoc`); HDRP's physically based path
- *   does the same. HDRP's classic path gives each field its own span but pays
- *   for it with a dispatch each (`DepthOfFieldGather.compute`, `KMainNear` and
- *   `KMainFar`). This takes the classic path's spans and FidelityFX's single
- *   pass. Sharing a kernel makes a foreground sharper than the background
- *   behind it fall off in plateaus one ring apart, because its whole disc gets
- *   the two or three innermost rings of a kernel sized for something else.
- *   What it costs: both fields draw on one ring budget, where the two-pass form
- *   would size them separately.
+ * - **A kernel per field, inside one pass.** FidelityFX runs one kernel sized to
+ *   `max(nearTile, farTile)` and uses it for both loops (`ffx_dof_blur.h`,
+ *   `tileRad`, `ins.tileCoc`); HDRP's physically based path does the same.
+ *   HDRP's classic path gives each field its own span but pays for it with a
+ *   dispatch each (`DepthOfFieldGather.compute`, `KMainNear` and `KMainFar`).
+ *   This takes the classic path's spans and FidelityFX's single pass. Sharing a
+ *   kernel makes a foreground sharper than the background behind it fall off in
+ *   plateaus one ring apart, because its whole disc gets the two or three
+ *   innermost rings of a kernel sized for something else. What it costs: both
+ *   fields draw on one ring budget, where the two-pass form would size them
+ *   separately.
  * - **The near field's span is the dilated tile, the far field's is the pixel's
  *   own defocus.** Not a deviation — `DepthOfFieldGather.compute` reads
  *   `_InputDilatedCoCTexture` under `NEAR` and `_InputCoCTexture` under `FAR`.
- *   What is not carried over is the physically based path's
- *   `limit = min(maxFarCoC, 2 * abs(centerSample.CoC))` (`LoadTileData`), and
- *   only because the factor of two means something different there: with one
- *   shared kernel the far span decides which taps are accepted, so widening it
- *   costs nothing; here it is the kernel radius, so doubling it would put half
- *   the rings in an annulus the acceptance test is about to reject anyway.
+ *   What is not carried over is the physically based path's `limit =
+ *   min(maxFarCoC, 2 * abs(centerSample.CoC))` (`LoadTileData`), and only
+ *   because the factor of two means something different there: with one shared
+ *   kernel the far span decides which taps are accepted, so widening it costs
+ *   nothing; here it is the kernel radius, so doubling it would put half the
+ *   rings in an annulus the acceptance test is about to reject anyway.
  * - **`ringGap` is not carried over, and the mip level is rounded up.** It
  *   feathers FidelityFX's acceptance test over the pixels an under-sampled
  *   kernel steps across. It is near enough free there because their cap never
- *   binds — the sample ships `quality = 10` rings against a `cocLimit` of
- *   `0.5 * 0.01 * 1080`, so about 5.4 pixels of radius and 6 rings asked of 10.
- *   Here the cap binds routinely, and a feather that widens with the gap
- *   over-covers badly. Rounding the level up closes the same gap.
- *   The near field keeps FidelityFX's half pixel (`rangeThreshNear`). The far
- *   field takes a whole one where they take none, which the clamp below forces:
- *   see `DOF_FAR_FEATHER` in {@link gather}.
+ *   binds — the sample ships `quality = 10` rings against a `cocLimit` of `0.5
+ *   * 0.01 * 1080`, so about 5.4 pixels of radius and 6 rings asked of 10. Here
+ *   the cap binds routinely, and a feather that widens with the gap over-covers
+ *   badly. Rounding the level up closes the same gap. The near field keeps
+ *   FidelityFX's half pixel (`rangeThreshNear`). The far field takes a whole
+ *   one where they take none, which the clamp below forces: see
+ *   `DOF_FAR_FEATHER` in {@link gather}.
  * - **Adaptive sampling runs the other way.** HDRP's mechanism is
  *   `lerp(AdaptiveSamplingWeights.xy, minRadius / maxRadius)`, and the pipeline
  *   packs that vector as `(min(w, 1), max(w, 1))` with `w` defaulting to 0.75 —
- *   so by default a mixed tile gets *fewer* samples and only a uniform one can
+ *   so by default a mixed tile gets _fewer_ samples and only a uniform one can
  *   be given more. This spends the extra rings on the mixed tile instead, which
  *   is where the near coverage measurably follows the tile grid. See
  *   `DOF_RING_SCALE` in {@link gather} for the numbers and the caveat. The
@@ -160,14 +156,13 @@
  *   instead, so the same boundary interpolates towards the image rather than
  *   towards nothing. Cheaper, and one fewer divide; slightly under-weights the
  *   far field over the one texel where the two blend.
- * - **The transition blur scales with the circle of confusion.**
- *   FidelityFX crossfades to a fixed-width 3x3 (`FfxDofBlur3x3`, coefficients
- *   0.5453 and 0.9717) over the same two handovers this uses (`c1`, `c2` there;
+ * - **The transition blur scales with the circle of confusion.** FidelityFX
+ *   crossfades to a fixed-width 3x3 (`FfxDofBlur3x3`, coefficients 0.5453 and
+ *   0.9717) over the same two handovers this uses (`c1`, `c2` there;
  *   `toTransition`, `toField` here). Four bilinear taps that widen with the
  *   radius track the growth of the disc across the range where neither the
  *   sharp image nor a half-resolution gather describes it, at the cost of not
  *   being a fixed kernel.
- *
  *
  * @type {object}
  * @name depthOfField
@@ -491,8 +486,8 @@ fn dofDownsample(tex: texture_2d<f32>, texSampler: sampler, texCoord: vec2f) -> 
 
 /**
  * Half-resolution colour and circle of confusion in one texture. Requires
- * {@link common}, {@link depth}, {@link coc}, {@link downsample},
- * `math.saturate`, `luma` and `threshold`.
+ * {@link common}, {@link depth}, {@link coc}, {@link downsample}, `math.saturate`,
+ * `luma` and `threshold`.
  *
  * @member {string}
  */

@@ -27,8 +27,8 @@
  */
 
 /**
- * Constants, parameters and the helpers both passes share. Requires
- * `math.PI`, `math.HALF_PI`, `math.saturate` and `depthRead`.
+ * Constants, parameters and the helpers both passes share. Requires `math.PI`,
+ * `math.HALF_PI`, `math.saturate` and `depthRead`.
  *
  * @member {string}
  */

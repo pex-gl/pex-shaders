@@ -2,9 +2,9 @@
  * Downsample
  *
  * Neighbor UVs are taken as parameters rather than recomputed from a base UV
- * and texel size: the composing pipeline computes and interpolates them in
- * the vertex stage (free via rasterization) instead of paying for the
- * add/multiply per tap in the fragment stage.
+ * and texel size: the composing pipeline computes and interpolates them in the
+ * vertex stage (free via rasterization) instead of paying for the add/multiply
+ * per tap in the fragment stage.
  *
  * Reference Implementation: https://github.com/keijiro/KinoBloom
  *

@@ -36,8 +36,8 @@ fn multiBounceAO(visibility: f32, albedo: vec3f, color: ptr<function, vec3f>) {
 `;
 
 /**
- * Specular occlusion derived from the diffuse visibility term, after Lagarde and
- * de Rousiers 2014, "Moving Frostbite to PBR".
+ * Specular occlusion derived from the diffuse visibility term, after Lagarde
+ * and de Rousiers 2014, "Moving Frostbite to PBR".
  *
  * Reusing the diffuse visibility for the specular lobe over-occludes a smooth
  * surface, whose lobe is narrow enough to miss the occluder entirely.
@@ -48,8 +48,8 @@ fn multiBounceAO(visibility: f32, albedo: vec3f, color: ptr<function, vec3f>) {
  * whose derivative is unbounded at full visibility, and for a smooth material
  * its specular cone is a fraction of a degree wide — so it degenerates into a
  * step function positioned by the AO term. Fed a screen-space AO buffer sitting
- * near 1, per-pixel noise far below the visible threshold lands on both sides of
- * that step and reads as binary speckle on grazing surfaces. This one is
+ * near 1, per-pixel noise far below the visible threshold lands on both sides
+ * of that step and reads as binary speckle on grazing surfaces. This one is
  * monotone and branchless, and needs no bent normal.
  *
  * Requires {@link multiBounce} for the coloured variant.

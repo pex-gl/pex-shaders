@@ -7,7 +7,7 @@
  *   https://gpuopen.com/learn/optimized-reversible-tonemapper-for-resolve/
  *
  * @type {string}
- * @alias module:chunks.reversibleToneMap
+ * @alias module:shaders.reversibleToneMap
  */
 export default /* wgsl */ `
 fn reversibleToneMap(c: vec3f) -> vec3f {

@@ -13,7 +13,7 @@
  * Updates: Marcin Ignac (2017-05-08) and Damien Seguin (2023-10, 2026-09)
  *
  * @type {string}
- * @alias module:chunks.sao
+ * @alias module:shaders.sao
  */
 export default /* wgsl */ `
 struct SAOParams {

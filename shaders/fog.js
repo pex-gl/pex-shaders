@@ -4,7 +4,7 @@
  * Adapted from from Iñigo Quilez article: https://iquilezles.org/articles/fog/
  *
  * @type {string}
- * @alias module:chunks.fog
+ * @alias module:shaders.fog
  */
 export default /* wgsl */ `
 fn fog(

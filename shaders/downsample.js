@@ -9,7 +9,7 @@
  * Reference Implementation: https://github.com/keijiro/KinoBloom
  *
  * @type {string}
- * @alias module:chunks.downsample
+ * @alias module:shaders.downsample
  */
 export default /* wgsl */ `
 // 4x4 box filter

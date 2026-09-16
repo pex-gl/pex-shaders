@@ -16,7 +16,7 @@
  * Updates: Damien Seguin (2023-10)
  *
  * @type {string}
- * @alias module:chunks.fxaa
+ * @alias module:shaders.fxaa
  */
 export default /* wgsl */ `
 // FXAA_EDGE_THRESHOLD_MIN/MAX are expected to be declared as \`override\` f32

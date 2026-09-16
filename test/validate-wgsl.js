@@ -1,18 +1,18 @@
-// Compiles every shaders/chunks/*.js WGSL fragment together through Dawn's
+// Compiles every shaders/shaders/*.js WGSL fragment together through Dawn's
 // real WGSL front-end (via the `webgpu` package) to catch syntax/type errors
 // that a purely textual/manual review can miss.
 //
-// Chunks are pure functions with no bindings of their own (see chunks
+// Chunks are pure functions with no bindings of their own (see shaders
 // architecture notes) - PBRData and the various `override` feature flags are
 // normally supplied by the composing pipeline shader, stubbed in stubs.js.
 
 import { create, globals } from "webgpu";
 
-import { chunksModule, requestDevice, reportCompilation } from "./stubs.js";
+import { shadersModule, requestDevice, reportCompilation } from "./stubs.js";
 
 Object.assign(globalThis, globals);
 
-const code = chunksModule();
+const code = shadersModule();
 
 const device = await requestDevice(create);
 const module = device.createShaderModule({ code });

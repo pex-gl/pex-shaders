@@ -4,7 +4,7 @@
  * https://github.com/CesiumGS/cesium/blob/master/Source/Shaders/Builtin/Functions
  *
  * @type {string}
- * @alias module:chunks.colorCorrection
+ * @alias module:shaders.colorCorrection
  */
 export default /* wgsl */ `
 fn brightnessContrastF32(value: f32, brightness: f32, contrast: f32) -> f32 {

@@ -1,22 +1,13 @@
 /** @module pex-shaders */
 
 /**
- * Various shader chunks to be inserted in main shaders
+ * Various shaders to be inserted in main shaders
  *
- * @type {module:chunks}
- * @name chunks
+ * @type {module:shaders}
+ * @name shaders
  * @static
  */
-export * as chunks from "./shaders/chunks/index.js";
-
-/**
- * Shader string manipulation helpers
- *
- * @type {module:parser}
- * @name parser
- * @static
- */
-export * as parser from "./parser.js";
+export * as shaders from "./shaders/index.js";
 
 /**
  * Re-export tone mapping functions
@@ -30,8 +21,7 @@ export * as parser from "./parser.js";
 export * as toneMap from "wgsl-tone-map";
 
 /**
- * Re-export SMAA's precomputed area and search lookup textures. The algorithm
- * itself lives in the smaa chunk, as WGSL.
+ * Re-export SMAA's precomputed area and search lookup textures
  *
  * @memberof module:pex-shaders
  * @type {object}

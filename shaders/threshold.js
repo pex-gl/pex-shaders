@@ -3,7 +3,7 @@
  *
  * A bright pass on an already brightness-scored color: callers compute
  * exposure and pick a brightness metric (luma/luminance/average) themselves,
- * since those already exist as standalone chunks.
+ * since those already exist as standalone shaders.
  *
  * Kino/Unity's quadratic soft knee. What passes is the amount *above* the
  * threshold, not the whole color scaled by how far above it sits, so a value
@@ -17,7 +17,7 @@
  * whole cutoff and reads as flicker.
  *
  * @type {string}
- * @alias module:chunks.threshold
+ * @alias module:shaders.threshold
  */
 export default /* wgsl */ `
 fn thresholdSoft(brightness: f32, thresholdValue: f32, softKnee: f32) -> f32 {

@@ -5,7 +5,7 @@ import { PCSSCommon, PCSS, PCSSCube } from "./pcss.js";
 // hardware PCF, or a regular sampler (cube, manual compare). `compare` is the
 // receiver's clip-space [0, 1] depth in the light projection; slope-scaled depth
 // bias is applied by the shadow pass rasterizer, not here. Requires depth-read
-// (linearizeDepthZO), TWO_PI and the PBR PCF/PCSS chunks.
+// (linearizeDepthZO), TWO_PI and the PBR PCF/PCSS shaders.
 export default /* wgsl */ `
 ${PCSSCommon}
 

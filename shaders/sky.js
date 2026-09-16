@@ -19,7 +19,7 @@
  * Seguin (2023-10)
  *
  * @type {string}
- * @alias module:chunks.sky
+ * @alias module:shaders.sky
  */
 export default /* wgsl */ `
 struct SkyData {

@@ -9,7 +9,7 @@
  * nine taps, as McGuire12 2.4 has it.
  *
  * @type {string}
- * @alias module:chunks.blur
+ * @alias module:shaders.blur
  */
 export default /* wgsl */ `
 // Taps run from -EXTENT to +EXTENT in steps of two, and the weights below are

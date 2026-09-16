@@ -24,7 +24,7 @@
  * Requires `depthRead` and `math.saturate`.
  *
  * @type {string}
- * @alias module:chunks.depthPyramid
+ * @alias module:shaders.depthPyramid
  */
 export default /* wgsl */ `
 struct DepthPyramidParams {

@@ -15,7 +15,7 @@
  * The three parts map to the three passes: edge detection, blending weight
  * calculation against the precomputed area/search textures, and neighborhood
  * blending. Every function takes its textures and texel size as parameters —
- * chunks declare no bindings.
+ * shaders declare no bindings.
  *
  * @type {object}
  * @name smaa

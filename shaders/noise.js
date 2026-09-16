@@ -5,7 +5,7 @@
  * Stefan Gustavson (Classic noise and others)
  *
  * @type {object}
- * @alias module:chunks.noise
+ * @alias module:shaders.noise
  */
 const common = /* wgsl */ `
 fn mod289F32(x: f32) -> f32 {

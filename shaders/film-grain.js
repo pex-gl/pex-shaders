@@ -7,7 +7,7 @@
  * - https://www.shadertoy.com/view/4sSXDW
  *
  * @type {string}
- * @alias module:chunks.filmGrain
+ * @alias module:shaders.filmGrain
  */
 export default /* wgsl */ `
 const FILM_GRAIN_TIME_OFFSET = vec3f(0.07, 0.11, 0.13);

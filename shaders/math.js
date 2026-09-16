@@ -129,7 +129,7 @@ fn max3(v: vec3f) -> f32 {
 `;
 
 // GLSL's mod() is floored modulo (x - y * floor(x / y)); WGSL's % operator is
-// truncated remainder, so it is reimplemented here to keep noise/wrap chunks
+// truncated remainder, so it is reimplemented here to keep noise/wrap shaders
 // behaviorally identical to their GLSL source.
 const glslMod = /* wgsl */ `
 fn glslModF32(x: f32, y: f32) -> f32 { return x - y * floor(x / y); }

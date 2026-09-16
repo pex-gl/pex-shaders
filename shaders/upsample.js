@@ -9,7 +9,7 @@
  * Reference Implementation: https://github.com/keijiro/KinoBloom
  *
  * @type {string}
- * @alias module:chunks.upsample
+ * @alias module:shaders.upsample
  */
 export default /* wgsl */ `
 // 4-tap bilinear upsampler

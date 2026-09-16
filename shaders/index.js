@@ -1,4 +1,4 @@
-/** @module chunks */
+/** @module shaders */
 
 /**
  * @type {object}

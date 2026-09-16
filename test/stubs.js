@@ -1,9 +1,9 @@
-// What a composing pipeline shader normally supplies around the chunks: the
+// What a composing pipeline shader normally supplies around the shaders: the
 // PBRData struct and the `override` feature flags. Shared by validate-wgsl.js
-// (compiles the chunks) and furnace.js (runs them), so the two can never
-// disagree about the shape of the data the chunks are written against.
+// (compiles the shaders) and furnace.js (runs them), so the two can never
+// disagree about the shape of the data the shaders are written against.
 
-import * as chunks from "../shaders/chunks/index.js";
+import * as shaders from "../shaders/index.js";
 
 export const STUB_PBR_DATA = /* wgsl */ `
 struct PBRData {
@@ -55,7 +55,7 @@ struct PBRData {
 };
 `;
 
-// Feature toggles the chunks expect a pipeline shader to declare as
+// Feature toggles the shaders expect a pipeline shader to declare as
 // `override`, plus one helper (readLumaTexture) that belongs to the
 // not-yet-ported post-processing luma pass.
 export const STUB_OVERRIDES = /* wgsl */ `
@@ -81,7 +81,7 @@ fn readLumaTexture(tex: texture_2d<f32>, samp: sampler, uv: vec2f) -> f32 {
   return textureSampleLevel(tex, samp, uv, 0.0).x;
 }
 
-// The light chunks sample shadows through a dispatch the pipeline shader
+// The light shaders sample shadows through a dispatch the pipeline shader
 // generates around its size-bucketed map arrays; unlit — and a scene with no
 // caster — emits exactly this "always illuminated" form.
 fn sampleShadowMap2D(
@@ -129,8 +129,8 @@ function flatten(namespace) {
 }
 
 /** Every chunk, stubs first, plus whatever entry points the caller appends. */
-export function chunksModule(...appended) {
-  return [STUB_PBR_DATA, STUB_OVERRIDES, flatten(chunks), ...appended].join(
+export function shadersModule(...appended) {
+  return [STUB_PBR_DATA, STUB_OVERRIDES, flatten(shaders), ...appended].join(
     "\n\n",
   );
 }

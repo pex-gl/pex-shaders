@@ -1,4 +1,4 @@
-// White furnace test on the real indirect chunks, run through Dawn.
+// White furnace test on the real indirect shaders, run through Dawn.
 //
 // A furnace test puts the surface in a constant-1.0 environment: a lossless
 // BRDF with unit albedo must return exactly the radiance it received. The
@@ -13,7 +13,7 @@
 
 import { create, globals } from "webgpu";
 
-import { chunksModule, requestDevice, reportCompilation } from "./stubs.js";
+import { shadersModule, requestDevice, reportCompilation } from "./stubs.js";
 
 Object.assign(globalThis, globals);
 
@@ -238,7 +238,7 @@ device.addEventListener?.("uncapturederror", ({ error }) => {
   process.exit(1);
 });
 
-const code = chunksModule(HARNESS);
+const code = shadersModule(HARNESS);
 const module = device.createShaderModule({ code });
 const { errorCount } = await reportCompilation(module, code);
 if (errorCount > 0) {

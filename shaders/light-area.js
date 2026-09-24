@@ -3,25 +3,6 @@
 // ACM Transactions on Graphics (Proceedings of ACM SIGGRAPH 2016) 35(4), 2016.
 // Project page: https://eheitzresearch.wordpress.com/415-2/
 export default /* wgsl */ `
-struct AreaLight {
-  position: vec3f,
-  color: vec4f,
-  rotation: vec4f,
-  size: vec2f,
-  disk: u32,
-  doubleSided: u32,
-
-  projectionMatrix: mat4x4f,
-  viewMatrix: mat4x4f,
-  castShadows: u32,
-  shadowBucket: u32,
-  shadowLayer: u32,
-  near: f32,
-  far: f32,
-  radiusUV: vec2f,
-  shadowMapSize: vec2f,
-};
-
 const clipless = false;
 const groundTruth = false;
 
@@ -587,7 +568,7 @@ fn LTC_EvaluateQuad(
 
 fn EvaluateAreaLight(
   data: ptr<function, PBRData>,
-  light: AreaLight,
+  light: SceneLight,
   ltc1: texture_2d<f32>,
   ltc1Sampler: sampler,
   ltc2: texture_2d<f32>,

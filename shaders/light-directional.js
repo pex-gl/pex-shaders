@@ -1,21 +1,7 @@
 export default /* wgsl */ `
-struct DirectionalLight {
-  direction: vec3f,
-  color: vec4f,
-  projectionMatrix: mat4x4f,
-  viewMatrix: mat4x4f,
-  castShadows: u32,
-  shadowBucket: u32,
-  shadowLayer: u32,
-  near: f32,
-  far: f32,
-  radiusUV: vec2f,
-  shadowMapSize: vec2f,
-};
-
 fn EvaluateDirectionalLight(
   data: ptr<function, PBRData>,
-  light: DirectionalLight,
+  light: SceneLight,
   positionWorld: vec3f,
   fragCoord: vec2f
 ) {

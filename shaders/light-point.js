@@ -1,20 +1,7 @@
 export default /* wgsl */ `
-struct PointLight {
-  position: vec3f,
-  color: vec4f,
-  invSqrFalloff: f32,
-  castShadows: u32,
-  shadowBucket: u32,
-  shadowLayer: u32,
-  depthBiasNormalized: f32,
-  radius: f32,
-  shadowMapSize: vec2f,
-  far: f32,
-};
-
 fn EvaluatePointLight(
   data: ptr<function, PBRData>,
-  light: PointLight,
+  light: SceneLight,
   fragCoord: vec2f
 ) {
   let positionToLightWorld = data.positionWorld - light.position;

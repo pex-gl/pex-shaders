@@ -39,7 +39,7 @@
     "test": "node test/validate-wgsl.js && node test/furnace.js"
   },
   "dependencies": {
-    "glsl-smaa": "^3.0.0",
+    "wgsl-smaa": "^1.0.0",
     "wgsl-tone-map": "^1.0.1"
   },
   "devDependencies": {
@@ -48,7 +48,7 @@
   "engines": {
     "node": ">=22.0.0",
     "npm": ">=10.5.1",
-    "snowdev": ">=3.0.0-alpha.1"
+    "snowdev": ">=3.0.0-alpha.3"
   },
   "allowScripts": {
     "webgpu@0.4.0": true

@@ -21,12 +21,12 @@ export * as shaders from "./shaders/index.js";
 export * as toneMap from "wgsl-tone-map";
 
 /**
- * Re-export SMAA's precomputed area and search lookup textures
+ * Re-export SMAA functions and textures
  *
  * @memberof module:pex-shaders
  * @type {object}
- * @name SMAATextures
+ * @name smaa
  * @static
- * @see {@link https://github.com/dmnsgn/glsl-smaa}
+ * @see {@link https://www.npmjs.com/package/wgsl-smaa}
  */
-export { SMAATextures } from "glsl-smaa";
+export * as smaa from "wgsl-smaa";

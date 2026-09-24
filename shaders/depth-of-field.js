@@ -67,21 +67,23 @@
  *   https://github.com/Unity-Technologies/Graphics/tree/a7e4c051d256a781ab362c64316b125a1e104694/Packages/com.unity.render-pipelines.high-definition/Runtime/PostProcessing/Shaders
  *   Physically based path, the `DoF*` files — `DoFGatherUtils.hlsl`,
  *   `DoFCoCMinMax.compute`, `DoFGather.compute`: the far field's search bounded
- *   by the destination's own defocus (`LoadTileData`, `limit = min(maxFarCoC, 2
- *   * abs(centerSample.CoC))` — the factor of two deliberately not carried
- *   over, see below), the ring occlusion measured by weight rather than by
- *   sample count (`ringOpacity`, and the early return on a ring that carries
- *   none — see `occluding` in {@link gather} for why the count is the wrong
- *   measure), a tile carrying each field's smallest radius alongside its
- *   largest with a sentinel for a field it does not hold (`InitMinMaxTile`,
- *   `BIG_NUMBER` 1200), and the ring count scaled by how uniform the tile is
- *   (`ADAPTIVE_SAMPLING`, direction inverted here — see below). Classic path,
- *   the `DepthOfField*` files — `DepthOfFieldGather.compute`: near and far as
- *   separate kernels over separate spans (`KMainNear`, `KMainFar`), and a near
- *   coverage ramped by `smoothstep` before use. Common to both: a radius loaded
- *   unfiltered while colour is sampled filtered, and a near gather that reads
- *   the chain at `mip = 0.0` because a coarse level cannot describe a
- *   silhouette.
+ *   by the destination's own defocus (`LoadTileData`, `limit = min(maxFarCoC,
+ *   2
+ *
+ *   - Abs(centerSample.CoC))` — the factor of two deliberately not carried over,
+ *       see below), the ring occlusion measured by weight rather than by sample
+ *       count (`ringOpacity`, and the early return on a ring that carries none
+ *       — see `occluding` in {@link gather} for why the count is the wrong
+ *       measure), a tile carrying each field's smallest radius alongside its
+ *       largest with a sentinel for a field it does not hold (`InitMinMaxTile`,
+ *       `BIG_NUMBER` 1200), and the ring count scaled by how uniform the tile
+ *       is (`ADAPTIVE_SAMPLING`, direction inverted here — see below). Classic
+ *       path, the `DepthOfField*`files —`DepthOfFieldGather.compute`: near and
+ *       far as separate kernels over separate spans (`KMainNear`, `KMainFar`),
+ *       and a near coverage ramped by `smoothstep`before use. Common to both: a
+ *       radius loaded unfiltered while colour is sampled filtered, and a near
+ *       gather that reads the chain at`mip = 0.0` because a coarse level cannot
+ *       describe a silhouette.
  * - Unity post-processing stack v2,
  *   `PostProcessing/Shaders/Builtins/DepthOfField.hlsl`.
  *   https://github.com/Unity-Technologies/PostProcessing/blob/v2/PostProcessing/Shaders/Builtins/DepthOfField.hlsl
@@ -132,12 +134,13 @@
  *   feathers FidelityFX's acceptance test over the pixels an under-sampled
  *   kernel steps across. It is near enough free there because their cap never
  *   binds — the sample ships `quality = 10` rings against a `cocLimit` of `0.5
- *   * 0.01 * 1080`, so about 5.4 pixels of radius and 6 rings asked of 10. Here
- *   the cap binds routinely, and a feather that widens with the gap over-covers
- *   badly. Rounding the level up closes the same gap. The near field keeps
- *   FidelityFX's half pixel (`rangeThreshNear`). The far field takes a whole
- *   one where they take none, which the clamp below forces: see
- *   `DOF_FAR_FEATHER` in {@link gather}.
+ *
+ *   - 0.01 * 1080`, so about 5.4 pixels of radius and 6 rings asked of 10. Here the
+ *       cap binds routinely, and a feather that widens with the gap over-covers
+ *       badly. Rounding the level up closes the same gap. The near field keeps
+ *       FidelityFX's half pixel (`rangeThreshNear`). The far field takes a
+ *       whole one where they take none, which the clamp below forces: see
+ *       `DOF_FAR_FEATHER` in {@link gather}.
  * - **Adaptive sampling runs the other way.** HDRP's mechanism is
  *   `lerp(AdaptiveSamplingWeights.xy, minRadius / maxRadius)`, and the pipeline
  *   packs that vector as `(min(w, 1), max(w, 1))` with `w` defaulting to 0.75 —

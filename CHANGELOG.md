@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [3.0.0-alpha.1](https://github.com/pex-gl/pex-shaders/compare/v3.0.0-alpha.0...v3.0.0-alpha.1) (2026-09-24)
+
+### Features
+
+* use SceneLight for shared buffer support ([b2a4fde](https://github.com/pex-gl/pex-shaders/commit/b2a4fdeade993bf7f0c9a0c32a17badc01a5dd00))
+* use wgsl-smaa ([3ec8f70](https://github.com/pex-gl/pex-shaders/commit/3ec8f70ffe3a97ad33ab3e457a79212ef42ae3b3))
+
 # [3.0.0-alpha.0](https://github.com/pex-gl/pex-shaders/compare/v2.0.0...v3.0.0-alpha.0) (2026-09-16)
 
 

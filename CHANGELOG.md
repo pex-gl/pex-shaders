@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+# [3.0.0-alpha.2](https://github.com/pex-gl/pex-shaders/compare/v3.0.0-alpha.1...v3.0.0-alpha.2) (2026-10-28)
+
+### Bug Fixes
+
+* TAA disocclusion for orthographic and infinite far projections ([8923e03](https://github.com/pex-gl/pex-shaders/commit/8923e039771939c81fbde77554c3af3dd9d1a41c))
+
+### Features
+
+* add fog maxOpacity ([ecec435](https://github.com/pex-gl/pex-shaders/commit/ecec4355240c0ef941d35d0337bb95f6e733ce1c))
+* linearize depth through the inverse projection ([2127900](https://github.com/pex-gl/pex-shaders/commit/2127900bffb52a0b720d412a5bc3d78d13d7b89d))
+* support orthographic projections in GTAO and SAO ([5e50f11](https://github.com/pex-gl/pex-shaders/commit/5e50f1104a7f949873aed2058dd516706debf30e))
+* use inverseProjectionMatrix in reconstructPositionFromDepth for fog ([da7a437](https://github.com/pex-gl/pex-shaders/commit/da7a4371c7dac7fc303c7f58ab6bdb1b7fc8c6f9))
+
 # [3.0.0-alpha.1](https://github.com/pex-gl/pex-shaders/compare/v3.0.0-alpha.0...v3.0.0-alpha.1) (2026-09-24)
 
 ### Features

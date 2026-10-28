@@ -121,7 +121,7 @@ neighbourhood understates the real range, and bicubic history resampling.</p>
 to converge: the history is an estimate at the pixel centre, so the current
 frame is reconstructed onto the pixel centre before it is mixed in rather
 than being taken as the one jittered sample stored there.</p>
-<p>Requires <code>luminance</code>.</p>
+<p>Requires <code>luminance</code> and <code>depthRead</code>.</p>
 <p>Updates: Damien Seguin (2026-08)</p>
 </dd>
 </dl>
@@ -708,6 +708,7 @@ Reference Implementation: G3D's AmbientOcclusion_AO.pix / _minify.pix.
 
 Requires a depth pyramid built with rotated grid subsampling
 (`DEPTH_PYRAMID_ROTATED_GRID`): the taps reconstruct through its inverse.
+Requires `depthRead`.
 
 Updates: Marcin Ignac (2017-05-08) and Damien Seguin (2023-10, 2026-09)
 
@@ -856,7 +857,7 @@ to converge: the history is an estimate at the pixel centre, so the current
 frame is reconstructed onto the pixel centre before it is mixed in rather
 than being taken as the one jittered sample stored there.
 
-Requires `luminance`.
+Requires `luminance` and `depthRead`.
 
 Updates: Damien Seguin (2026-08)
 

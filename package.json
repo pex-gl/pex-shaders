@@ -55,7 +55,7 @@
   },
   "snowdev": {
     "files": "{*.js,shaders/**/*.js}",
-    "dependencies": [],
+    "serve": false,
     "resolve": {
       "exclude": [
         "**/webgpu/**"

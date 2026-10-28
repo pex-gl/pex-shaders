@@ -17,7 +17,7 @@
  * frame is reconstructed onto the pixel centre before it is mixed in rather
  * than being taken as the one jittered sample stored there.
  *
- * Requires `luminance`.
+ * Requires `luminance` and `depthRead`.
  *
  * Updates: Damien Seguin (2026-08)
  *
@@ -30,6 +30,9 @@ struct TAAParams {
   // history at the offset instead of at the surface.
   inverseViewProjectionMatrix: mat4x4f,
   previousViewProjectionMatrix: mat4x4f,
+  // View depth for the disocclusion test, whatever the projection.
+  inverseProjectionMatrix: mat4x4f,
+  previousViewMatrix: mat4x4f,
   texelSize: vec2f,
   // Weight given to the current frame, before anything raises it per pixel.
   // The reciprocal is roughly how many frames the estimate averages over, so
@@ -184,8 +187,9 @@ fn taaClosestDepthOffset(
 fn taaReprojectUV(uv: vec2f, depth: f32, params: TAAParams) -> vec3f {
   // WebGPU's V points down where clip space Y points up.
   let ndc = vec3f(uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, depth);
-  var world = params.inverseViewProjectionMatrix * vec4f(ndc, 1.0);
-  world = world / world.w;
+  // Left homogeneous: an infinite far plane's background unprojects to a point
+  // at infinity (w = 0), whose reprojection is the camera rotation alone.
+  let world = params.inverseViewProjectionMatrix * vec4f(ndc, 1.0);
 
   let previousClip = params.previousViewProjectionMatrix * world;
   // Behind the previous camera, where the perspective divide would fold the
@@ -209,21 +213,26 @@ fn taaVelocityUV(
 
 // Reprojection is the caller's to compute — from motion vectors where they
 // exist, and from depth where they do not — so this owns only what both share.
-// This surface's depth along the previous view axis.
-//
-// Unprojecting NDC gives a homogeneous point whose w is the reciprocal of the
-// clip w that produced it, so projecting it back through the previous
-// view-projection hands the previous clip w straight back — which for a
-// perspective projection is the view depth, with no near, far or view matrix
-// needed. An orthographic projection has a constant clip w, so this returns a
-// constant and the test that uses it never fires: no rejection rather than a
-// wrong one.
+// The depth history is half float. A depth past its range, an infinite far
+// plane's background included, would be recorded as +inf and never match, so
+// both sides of the comparison are clamped to its largest value.
+const TAA_DEPTH_HISTORY_MAX: f32 = 65504.0;
+
+// What the depth history records, in this frame's view.
+fn taaViewDepth(depth: f32, params: TAAParams) -> f32 {
+  return min(linearizeDepth(depth, params.inverseProjectionMatrix), TAA_DEPTH_HISTORY_MAX);
+}
+
+// This surface's depth along the previous view axis, comparable with what
+// taaViewDepth recorded last frame. View space rather than the previous clip w,
+// which is the view depth under a perspective projection only.
 fn taaPreviousViewDepth(uv: vec2f, depth: f32, params: TAAParams) -> f32 {
   let ndc = vec3f(uv.x * 2.0 - 1.0, 1.0 - uv.y * 2.0, depth);
-  var world = params.inverseViewProjectionMatrix * vec4f(ndc, 1.0);
-  world = world / world.w;
+  let world = params.inverseViewProjectionMatrix * vec4f(ndc, 1.0);
+  let view = params.previousViewMatrix * world;
 
-  return (params.previousViewProjectionMatrix * world).w;
+  // Not divided by the zero w of an infinite far plane's background.
+  return -view.z / max(view.w, -view.z / TAA_DEPTH_HISTORY_MAX);
 }
 
 /**

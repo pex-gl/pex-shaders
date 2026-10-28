@@ -1,5 +1,5 @@
 // What a composing pipeline shader normally supplies around the shaders: the
-// PBRData struct and the `override` feature flags. Shared by validate-wgsl.js
+// PBRData and SceneLight structs and the `override` feature flags. Shared by validate-wgsl.js
 // (compiles the shaders) and furnace.js (runs them), so the two can never
 // disagree about the shape of the data the shaders are written against.
 
@@ -52,6 +52,32 @@ struct PBRData {
   indirectSpecular: vec3f,
   directColor: vec3f,
   transmitted: vec3f,
+};
+
+// The pipeline shader packs every light type into one shared buffer layout;
+// this is the union of the fields the light shaders read.
+struct SceneLight {
+  position: vec3f,
+  direction: vec3f,
+  color: vec4f,
+  rotation: vec4f,
+  size: vec2f,
+  disk: u32,
+  doubleSided: u32,
+  innerConeAngle: f32,
+  outerConeAngle: f32,
+  invSqrFalloff: f32,
+  radius: f32,
+  depthBiasNormalized: f32,
+  projectionMatrix: mat4x4f,
+  viewMatrix: mat4x4f,
+  castShadows: u32,
+  shadowBucket: u32,
+  shadowLayer: u32,
+  near: f32,
+  far: f32,
+  radiusUV: vec2f,
+  shadowMapSize: vec2f,
 };
 `;
 

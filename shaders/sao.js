@@ -9,6 +9,7 @@
  *
  * Requires a depth pyramid built with rotated grid subsampling
  * (`DEPTH_PYRAMID_ROTATED_GRID`): the taps reconstruct through its inverse.
+ * Requires `depthRead`.
  *
  * Updates: Marcin Ignac (2017-05-08) and Damien Seguin (2023-10, 2026-09)
  *
@@ -17,11 +18,14 @@
  */
 export default /* wgsl */ `
 struct SAOParams {
-  // The four terms that invert the projection:
-  // (2 / (w * P00), -2 / (h * P11), (P20 - 1) / P00, (1 + P21) / P11).
+  // The four terms that invert the projection, scaled by clip w:
+  // (2 / (w * P00), -2 / (h * P11), (P20 - P30 - 1) / P00, (1 + P21 - P31) / P11).
   projInfo: vec4f,
-  far: f32,
-  // Height in pixels of a 1m object one metre from the camera: 0.5 * h * P11.
+  // Clip w = clipW.x * viewDepth + clipW.y: the depth under a perspective
+  // projection, 1 under an orthographic one, where the reference assumes the
+  // former.
+  clipW: vec2f,
+  // Height in pixels of a 1m object at unit clip w: 0.5 * h * P11.
   projScale: f32,
   intensity: f32, // darkening factor
   radius: f32, // world-space AO radius in scene units (r), e.g. 1.0m
@@ -71,7 +75,8 @@ fn saoTapLocation(sampleNumber: i32, spinAngle: f32, numSpiralTurnsTimesTwoPi: f
 // matrix, not a different fov. Pixel coordinates, so a tap needs no conversion
 // to and from [0, 1].
 fn saoReconstructPosition(pixelCoord: vec2f, viewDepth: f32, params: SAOParams) -> vec3f {
-  return vec3f((pixelCoord * params.projInfo.xy + params.projInfo.zw) * viewDepth, -viewDepth);
+  let clipW = params.clipW.x * viewDepth + params.clipW.y;
+  return vec3f((pixelCoord * params.projInfo.xy + params.projInfo.zw) * clipW, -viewDepth);
 }
 
 // The occluding point in view space, read from the pyramid level that keeps a
@@ -167,14 +172,13 @@ fn sao(
   let originDepth = depthPyramidLoad(depthTex, pixCoord, 0);
   let originView = saoReconstructPosition(fragCoord, originDepth, params);
 
-  // The disk spans \`radius\` metres whatever the resolution. Negated because
-  // view space is -Z forward.
-  let radiusScreen = -params.projScale * params.radius / originView.z;
+  // The disk spans \`radius\` metres whatever the resolution.
+  let radiusScreen = params.projScale * params.radius / (params.clipW.x * originDepth + params.clipW.y);
 
-  // The prefilter clamps the background to exactly the far plane, so nothing
-  // there has a surface to occlude; below SAO_MIN_RADIUS the disk is too small
-  // to hold a tap that resolves anything.
-  if (originDepth < params.far && radiusScreen > SAO_MIN_RADIUS) {
+  // The prefilter pins the background to exactly DEPTH_MAX, so nothing there
+  // has a surface to occlude; below SAO_MIN_RADIUS the disk is too small to
+  // hold a tap that resolves anything.
+  if (originDepth < DEPTH_MAX && radiusScreen > SAO_MIN_RADIUS) {
     let normalView = normalize(textureLoad(normalTex, pixCoord, 0).rgb * 2.0 - 1.0);
 
     // Interleaved gradient noise [Jimenez14], used directly as the turn

@@ -29,8 +29,7 @@
  */
 export default /* wgsl */ `
 struct DepthPyramidParams {
-  near: f32,
-  far: f32,
+  inverseProjectionMatrix: mat4x4f,
   // Weighted mean only: the distance over which a nearer depth outweighs the
   // rest of its quad. Ignored under rotated grid subsampling.
   effectRadius: f32,
@@ -90,20 +89,20 @@ fn depthPyramidFilter(depths: vec4f, destCoord: vec2i, params: DepthPyramidParam
   return depthPyramidWeightedMean(depths, params);
 }
 
-// Screen space to view space depth, pinned so the background reads exactly the
-// far plane — which is what an estimator tests to skip a pixel with no surface.
-// Pinned rather than clamped: whether the linearisation of a cleared depth
-// lands above or below far is decided by how near and far round in f32, and a
-// value a fraction under it is a surface as far as that test is concerned. Of
-// the near/far pairs a camera plausibly uses, about a third round the wrong
-// way, and the estimator then runs across the whole sky.
+// Screen space to view space depth, with the background pinned to exactly
+// DEPTH_MAX — which is what an estimator tests to skip a pixel with no surface.
+// Pinned rather than linearized: whether a cleared depth linearizes to just
+// under the far plane or onto it is decided by how the projection rounds in
+// f32, and a value a fraction under it is a surface as far as that test is
+// concerned. Its value is otherwise irrelevant here: anything far past the
+// effect radius occludes nothing.
 fn depthPyramidLinearize(depthTex: texture_depth_2d, pixCoord: vec2i, params: DepthPyramidParams) -> f32 {
   let size = vec2i(textureDimensions(depthTex, 0));
   let screenDepth = textureLoad(depthTex, clamp(pixCoord, vec2i(0), size - vec2i(1)), 0);
   if (screenDepth >= 1.0) {
-    return params.far;
+    return DEPTH_MAX;
   }
-  return min(linearizeDepthPerspZO(screenDepth, params.near, params.far), params.far);
+  return linearizeDepth(screenDepth, params.inverseProjectionMatrix);
 }
 
 // The pyramid is r32uint holding bitcast floats: core WebGPU has no

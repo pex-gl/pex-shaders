@@ -34,17 +34,19 @@
  */
 const common = /* wgsl */ `
 struct GTAOParams {
-  // View position = (ndcToViewMul * uv + ndcToViewAdd) * viewspaceZ. Baked per
+  // View position = (ndcToViewMul * uv + ndcToViewAdd) * clip w. Baked per
   // camera so no pixel evaluates tan(), and so the vertical term can carry the
   // sign that turns a V-down screen coordinate back into a Y-up view space.
   ndcToViewMul: vec2f,
   ndcToViewAdd: vec2f,
-  // ndcToViewMul / viewportSize: view-space size of one pixel at unit depth.
+  // ndcToViewMul / viewportSize: view-space size of one pixel at unit clip w.
   ndcToViewMulByPixelSize: vec2f,
   viewportSize: vec2f,
   viewportPixelSize: vec2f,
-  near: f32,
-  far: f32,
+  // Clip w = clipW.x * viewspaceZ + clipW.y: the depth under a perspective
+  // projection, 1 under an orthographic one, where the reference assumes the
+  // former.
+  clipW: vec2f,
   // World (view space) size of the occlusion sphere.
   effectRadius: f32,
   // Lets the tuned radius differ from the ground-truth one, countering biases
@@ -93,11 +95,18 @@ const GTAO_DEPTH_MIP_MAX_LEVEL: f32 = 3.0;
 // denoise pass — see \`finalApply\`.
 const GTAO_OCCLUSION_TERM_SCALE: f32 = 1.5;
 
+fn gtaoClipW(viewspaceDepth: f32, params: GTAOParams) -> f32 {
+  return params.clipW.x * viewspaceDepth + params.clipW.y;
+}
+
 // Inputs are screen UV and viewspace depth, output is viewspace position. The
 // pyramid stores a positive distance; -Z forward puts the surface in front of
 // the camera.
 fn gtaoComputeViewspacePosition(screenPos: vec2f, viewspaceDepth: f32, params: GTAOParams) -> vec3f {
-  return vec3f((params.ndcToViewMul * screenPos + params.ndcToViewAdd) * viewspaceDepth, -viewspaceDepth);
+  return vec3f(
+    (params.ndcToViewMul * screenPos + params.ndcToViewAdd) * gtaoClipW(viewspaceDepth, params),
+    -viewspaceDepth
+  );
 }
 
 // http://h14s.p5r.org/2012/09/0x5f3759df.html, [Drobot2014a] Low Level
@@ -250,7 +259,7 @@ fn gtaoMainPass(
   term.bentNormal = viewspaceNormal;
 
   // Background: no surface, nothing to occlude.
-  if (viewspaceZ >= params.far) {
+  if (viewspaceZ >= DEPTH_MAX) {
     term.visibility = 1.0;
     return term;
   }
@@ -260,7 +269,10 @@ fn gtaoMainPass(
   viewspaceZ *= 0.99999;
 
   let pixCenterPos = gtaoComputeViewspacePosition(normalizedScreenPos, viewspaceZ, params);
-  let viewVec = normalize(-pixCenterPos);
+  // Towards the camera centre, (0, 0, 0, 1) in homogeneous view space under a
+  // perspective projection and the point at infinity (0, 0, 1, 0) under an
+  // orthographic one: clipW holds (w, z) of that point.
+  let viewVec = normalize(vec3f(0.0, 0.0, params.clipW.y) - pixCenterPos * params.clipW.x);
 
   let effectRadius = params.effectRadius * params.radiusMultiplier;
   let falloffRange = params.effectFalloffRange * effectRadius;
@@ -280,7 +292,7 @@ fn gtaoMainPass(
   // Approximate viewspace pixel size at pixCoord, turning the world-space radius
   // into a radius in pixels — which is what makes the sampling disk shrink with
   // distance.
-  let pixelDirRBViewspaceSizeAtCenterZ = viewspaceZ * params.ndcToViewMulByPixelSize.x;
+  let pixelDirRBViewspaceSizeAtCenterZ = gtaoClipW(viewspaceZ, params) * params.ndcToViewMulByPixelSize.x;
   let screenspaceRadius = effectRadius / pixelDirRBViewspaceSizeAtCenterZ;
 
   // Fade out for small screen radii: a disk covering a few pixels has no

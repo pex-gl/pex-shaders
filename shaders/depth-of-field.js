@@ -181,6 +181,7 @@
  */
 const common = /* wgsl */ `
 struct DepthOfFieldParams {
+  inverseProjectionMatrix: mat4x4f,
   // Full-resolution grid.
   texelSize: vec2f,
   // The grid every pass but the composite rasterizes into.
@@ -191,8 +192,6 @@ struct DepthOfFieldParams {
   // tiles, so it covers at least the image and generally more; addressing it
   // with the image's own UV would drift by up to a tile towards the far edge.
   tileScale: vec2f,
-  near: f32,
-  far: f32,
   // mm. Overridden by the autofocus pass when there is one.
   focusDistance: f32,
 
@@ -247,7 +246,7 @@ fn dofDepth(
   params: DepthOfFieldParams
 ) -> f32 {
   // m -> mm
-  return readDepth(depthTex, depthSampler, uv, params.near, params.far) * 1000.0;
+  return readDepth(depthTex, depthSampler, uv, params.inverseProjectionMatrix) * 1000.0;
 }
 `;
 

@@ -35,14 +35,13 @@ fn bilateralBlur(
   axis: vec2f,
   radius: f32,
   resolution: vec2f,
-  near: f32,
-  far: f32,
+  inverseProjectionMatrix: mat4x4f,
   sharpness: f32
 ) -> vec4f {
   var color = vec4f(0.0);
   var weightSum = 0.0;
 
-  let centerDepth = readDepth(depthTex, depthSampler, uv, near, far);
+  let centerDepth = readDepth(depthTex, depthSampler, uv, inverseProjectionMatrix);
   // The outermost tap lands on \`radius\`, so the caller's reach is in pixels and
   // the spacing follows from it.
   let stride = radius / BILATERAL_BLUR_TAP_EXTENT;
@@ -55,7 +54,7 @@ fn bilateralBlur(
 
     // Range term: weight falls off with the linear depth difference, so the
     // blur stops at a silhouette instead of dragging occlusion over it.
-    let sampleDepth = readDepth(depthTex, depthSampler, sampleUV, near, far);
+    let sampleDepth = readDepth(depthTex, depthSampler, sampleUV, inverseProjectionMatrix);
     let diff = (sampleDepth - centerDepth) * sharpness;
     let weight = spatial * exp2(-diff * diff);
 

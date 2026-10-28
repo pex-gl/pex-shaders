@@ -28,6 +28,7 @@
  */
 export default /* wgsl */ `
 struct MotionBlurParams {
+  inverseProjectionMatrix: mat4x4f,
   viewportSize: vec2f,
   texelSize: vec2f,
   // Tile size in pixels, and so also the longest motion the filter can see:
@@ -48,8 +49,6 @@ struct MotionBlurParams {
   // How far from a tile border the neighbouring tile's motion starts being
   // borrowed, the paper's rho. Trades banding at tile edges for noise.
   tileBlend: f32,
-  near: f32,
-  far: f32,
 }
 
 override MOTION_BLUR_SAMPLES: i32 = 35;
@@ -196,7 +195,7 @@ fn motionBlurReconstruct(
 
   let vc = motionBlurVelocity(velocityTexture, velocitySampler, uv, params);
   let lengthVc = max(length(vc), 0.5);
-  let zc = readDepth(depthTexture, depthSampler, uv, params.near, params.far);
+  let zc = readDepth(depthTexture, depthSampler, uv, params.inverseProjectionMatrix);
 
   // Across the dominant motion while this pixel is still, swinging round to
   // along its own motion as that grows. Sampling across the motion is what
@@ -233,7 +232,7 @@ fn motionBlurReconstruct(
 
     let vs = motionBlurVelocity(velocityTexture, velocitySampler, sampleUV, params);
     let lengthVs = max(length(vs), 0.5);
-    let zs = readDepth(depthTexture, depthSampler, sampleUV, params.near, params.far);
+    let zs = readDepth(depthTexture, depthSampler, sampleUV, params.inverseProjectionMatrix);
 
     // How much each of the two surfaces is in front of the other. Both, rather
     // than one classification, because a partly-occluding blur contributes as

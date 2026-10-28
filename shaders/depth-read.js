@@ -17,8 +17,9 @@ fn linearizeDepthZO(d: f32, near: f32, far: f32, ortho: bool) -> f32 {
   return linearizeDepthPerspZO(d, near, far);
 }
 
-// Post-processing effects (SSAO, DoF, bilateral blur) always read the main
-// camera's depth buffer, which is perspective.
+// Perspective only: DoF, bilateral blur and motion blur read an orthographic
+// camera's depth as perspective, so its linear depth is wrong.
+// TODO: pass the projection type and use linearizeDepthZO.
 fn readDepth(depths: texture_depth_2d, depthSampler: sampler, uv: vec2f, near: f32, far: f32) -> f32 {
   return linearizeDepthPerspZO(textureSampleLevel(depths, depthSampler, uv, 0), near, far);
 }

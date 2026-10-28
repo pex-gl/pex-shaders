@@ -1,23 +1,13 @@
 // reconstructPositionFromDepth:
-// asumming z comes from depth buffer (ndc coords) and it's not a linear distance from the camera but
-// perpendicular to the near/far clipping planes
-// http://mynameismjp.wordpress.com/2010/09/05/position-from-depth-3/
-// assumes z = eye space z
+// view space position of a raw depth buffer sample, unprojected through the
+// inverse projection: holds for perspective, orthographic, zoom and view offsets.
+// https://mynameismjp.wordpress.com/2010/09/05/position-from-depth-3/
 export default /* wgsl */ `
-fn getFarViewDir(texCoord: vec2f, fov: f32, far: f32, viewportSize: vec2f) -> vec3f {
-  let hfar = 2.0 * tan(fov / 2.0) * far;
-  let wfar = hfar * viewportSize.x / viewportSize.y;
+fn reconstructPositionFromDepth(texCoord: vec2f, depth: f32, inverseProjectionMatrix: mat4x4f) -> vec3f {
   // Y is negated: texCoord runs downwards, both as fragCoord over the viewport
-  // and as the fullscreen pass' texCoord0, where view space runs up.
-  return vec3f(wfar * (texCoord.x - 0.5), hfar * (0.5 - texCoord.y), -far);
-}
-
-fn getViewRay(texCoord: vec2f, fov: f32, far: f32, viewportSize: vec2f) -> vec3f {
-  return normalize(getFarViewDir(texCoord, fov, far, viewportSize));
-}
-
-fn reconstructPositionFromDepth(texCoord: vec2f, z: f32, fov: f32, far: f32, viewportSize: vec2f) -> vec3f {
-  let ray = getFarViewDir(texCoord, fov, far, viewportSize);
-  return ray * z / far;
+  // and as the fullscreen pass' texCoord0, where NDC runs up.
+  let ndc = vec4f(texCoord.x * 2.0 - 1.0, 1.0 - texCoord.y * 2.0, depth, 1.0);
+  let position = inverseProjectionMatrix * ndc;
+  return position.xyz / position.w;
 }
 `;

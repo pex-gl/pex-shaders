@@ -17,7 +17,8 @@ fn fog(
   sunDispertion: f32,
   sunIntensity: f32,
   inscatteringCoeffs: vec3f,
-  fogColor: vec3f
+  fogColor: vec3f,
+  maxOpacity: f32
 ) -> vec3f {
   let sunColorLinear = toLinearVec3(sunColor);
   let fogColorLinear = toLinearVec3(fogColor);
@@ -28,11 +29,13 @@ fn fog(
   sunAmount = sunIntensity * 10.0 * pow(sunAmount, 10.0);
   sunAmount = max(0.0, min(sunAmount, 1.0));
   let sunFogColor = mix(fogColorLinear, sunColorLinear, sunAmount);
-  let insColor = vec3f(1.0) - saturateVec3(vec3f(
+  // Capped so a background at any distance, infinity included, can show
+  // through rather than turn into the fog colour.
+  let insColor = min(vec3f(1.0) - saturateVec3(vec3f(
     exp(density * (inscatteringCoeffs.x + minSc)),
     exp(density * (inscatteringCoeffs.y + minSc)),
     exp(density * (inscatteringCoeffs.z + minSc))
-  ));
+  )), vec3f(maxOpacity));
 
   return mix(rgb, sunFogColor, insColor);
 }

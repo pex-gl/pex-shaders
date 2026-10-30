@@ -164,14 +164,15 @@ fn taaClosestDepthOffset(
   texelSize: vec2f
 ) -> vec3f {
   var closestOffset = vec2f(0.0);
-  var closestDepth = 1.0;
+  // Reversed-Z: the closest depth is the largest, and the background is 0.
+  var closestDepth = 0.0;
 
   for (var y: i32 = -1; y <= 1; y++) {
     for (var x: i32 = -1; x <= 1; x++) {
       let offset = vec2f(f32(x), f32(y)) * texelSize;
       // Depth textures take an integer level, not the f32 a colour texture does.
       let depth = textureSampleLevel(depthTexture, depthSampler, uv + offset, 0);
-      if (depth < closestDepth) {
+      if (depth > closestDepth) {
         closestDepth = depth;
         closestOffset = offset;
       }

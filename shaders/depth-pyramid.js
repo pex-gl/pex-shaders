@@ -99,7 +99,8 @@ fn depthPyramidFilter(depths: vec4f, destCoord: vec2i, params: DepthPyramidParam
 fn depthPyramidLinearize(depthTex: texture_depth_2d, pixCoord: vec2i, params: DepthPyramidParams) -> f32 {
   let size = vec2i(textureDimensions(depthTex, 0));
   let screenDepth = textureLoad(depthTex, clamp(pixCoord, vec2i(0), size - vec2i(1)), 0);
-  if (screenDepth >= 1.0) {
+  // Reversed-Z: the cleared background is 0.
+  if (screenDepth <= 0.0) {
     return DEPTH_MAX;
   }
   return linearizeDepth(screenDepth, params.inverseProjectionMatrix);

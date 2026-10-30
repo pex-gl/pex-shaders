@@ -1,7 +1,8 @@
-// Linearize a [0, 1] clip-space depth (WebGPU zero-to-one convention) to a
-// positive eye-space distance. The near/far forms serve PCSS penumbra
-// estimation, where the shadow projection type is known; camera depth goes
-// through the inverse projection instead.
+// Linearize a [0, 1] clip-space depth (WebGPU zero-to-one convention, near at 0)
+// to a positive eye-space distance. The near/far forms serve PCSS penumbra
+// estimation, where the shadow projection type is known and the mapping is
+// conventional; camera depth is reversed-Z and goes through the inverse
+// projection instead, which carries either convention.
 export default /* wgsl */ `
 fn linearizeDepthOrthoZO(d: f32, near: f32, far: f32) -> f32 {
   return near + d * (far - near);
@@ -19,8 +20,8 @@ fn linearizeDepthZO(d: f32, near: f32, far: f32, ortho: bool) -> f32 {
 }
 
 // Finite stand-in for the background of an infinite far plane, whose linear
-// depth is +inf. Past anything depth32float resolves (about near * 2^24), and
-// small enough that a view position at this depth can still be squared.
+// depth is +inf. Far past any scene distance, and small enough that a view
+// position at this depth can still be squared in f32.
 const DEPTH_MAX: f32 = 1e9;
 
 // Perspective, orthographic, zoomed, off-axis and infinite far alike: view z and

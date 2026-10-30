@@ -612,8 +612,8 @@ fn EvaluateAreaLight(
     let V = -normalize(pos - cameraPosition);
     let roughness = data.roughness;
 
-    let ex = multQuat(vec3f(1.0, 0.0, 0.0), light.rotation) * light.size.x;
-    let ey = multQuat(vec3f(0.0, 1.0, 0.0), light.rotation) * light.size.y;
+    let ex = light.halfExtentX;
+    let ey = light.halfExtentY;
 
     var points: array<vec3f, 4>;
     points[0] = light.position - ex + ey;
